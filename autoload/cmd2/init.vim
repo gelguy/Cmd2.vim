@@ -66,11 +66,11 @@ endfunction
 
 function! cmd2#init#CursorHl()
   if hlID('Cursor')
-    return 'Cursor'
+    hi! link Cmd2Cursor Cursor
   else
-    hi! Cmd2Cursor cterm=reverse term=reverse
-    return 'Cmd2Cursor'
+    hi! Cmd2Cursor cterm=reverse term=reverse guifg=bg guibg=fg
   endif
+  return 'Cmd2Cursor'
 endfunction
 
 
