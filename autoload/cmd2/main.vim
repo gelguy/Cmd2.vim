@@ -38,6 +38,8 @@ function! cmd2#main#Run()
   endtry
   redraw
   call cmd2#main#FeedCmdLine()
+  call cmd2#util#ReselectVisual()
+  call cmd2#main#Reenter()
 endfunction
 
 function! cmd2#main#PreRun()
@@ -139,9 +141,9 @@ function! cmd2#main#FeedCmdLine()
   endif
   let right_times = repeat("\<Right>", display_chars)
   call feedkeys(right_times, 'n')
-  if g:cmd2_visual_select
-    normal! gv
-  endif
+endfunction
+
+function! cmd2#main#Reenter()
   if g:cmd2_reenter
     call feedkeys("\<Plug>Cmd2", 'm')
     call feedkeys(g:cmd2_reenter_key, 'm')
