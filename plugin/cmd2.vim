@@ -30,9 +30,9 @@ endif
 
 " mapping cannot start with number as it will be treated as count
 let s:cmd2_default_cmd_mappings = {
-      \ 'w': {'command': 'cmd2#commands#Cword', 'type': 'function', 'flags': 'Crv'},
-      \ "\<Plug>Cmd2Tab": {'command': "cmd2#commands#TabForward", 'type': 'function'},
-      \ "\<Plug>Cmd2STab": {'command': "cmd2#commands#TabBackward", 'type': 'function'},
+      \ 'w': {'command': 'cmd2#functions#Cword', 'type': 'function', 'flags': 'Crv'},
+      \ "\<Plug>Cmd2Tab": {'command': "cmd2#functions#TabForward", 'type': 'function'},
+      \ "\<Plug>Cmd2STab": {'command': "cmd2#functions#TabBackward", 'type': 'function'},
       \ "\<Tab>": {'command': "\<Plug>Cmd2Tab", 'type': 'remap'},
       \ "\<S-Tab>": {'command': "\<Plug>Cmd2STab", 'type': 'remap'},
       \ }
