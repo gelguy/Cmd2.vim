@@ -14,22 +14,41 @@ function! cmd2#commands#DoMapping(node, ccount)
         \ : flags =~# 'c' ? a:ccount
         \ : ""
   let old_view = winsaveview()
-  if flags =~# 'v'
-    let [vstart, vend, vpos, vmode] = cmd2#util#SaveVisual()
-    call winrestview(old_view)
-  endif
+  let [vstart, vend, vpos, vmode] = cmd2#commands#VisualPre(old_view, flags)
   call cmd2#commands#HandleType(cmd, type, ccount)
-  if flags =~# 'v'
+  call cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
+  call cmd2#commands#Pflag(old_view, flags)
+  call cmd2#commands#Rflag(mapping, flags)
+endfunction
+
+function! cmd2#commands#VisualPre(old_view, flags)
+  if a:flags =~# 'v'
+    let [vstart, vend, vpos, vmode] = cmd2#util#SaveVisual()
+    call winrestview(a:old_view)
+    return [vstart, vend, vpos, vmode]
+  else
+    return [-1, -1, -1, -1]
+  endif
+endfunction
+
+function! cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
+  if a:flags =~# 'v'
     let cursor_pos = getpos('.')
-    call cmd2#util#RestoreVisual(vstart, vend, vpos, vmode)
+    call cmd2#util#RestoreVisual(a:vstart, a:vend, a:vpos, a:vmode)
     call setpos(".", cursor_pos)
   endif
-  if flags =~# 'p'
-    call winrestview(old_view)
+endfunction
+
+function! cmd2#commands#Pflag(old_view, flags)
+  if a:flags =~# 'p'
+    call winrestview(a:old_view)
   endif
-  if flags =~# 'r'
+endfunction
+
+function! cmd2#commands#Rflag(mapping, flags)
+  if a:flags =~# 'r'
     let g:cmd2_reenter = 1
-    let g:cmd2_reenter_key = get(mapping, 'reenter', '')
+    let g:cmd2_reenter_key = get(a:mapping, 'reenter', '')
   endif
 endfunction
 

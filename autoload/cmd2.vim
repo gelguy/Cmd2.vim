@@ -3,6 +3,7 @@ set cpo&vim
 
 function! cmd2#Autoload()
   call cmd2#commands#Autoload()
+  call cmd2#functions#Autoload()
   call cmd2#init#Autoload()
   call cmd2#main#Autoload()
   call cmd2#render#Autoload()
