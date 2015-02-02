@@ -167,8 +167,8 @@ endfunction
 
 function! cmd2#util#SetCmdHeight()
   let g:cmd2_old_cmdheight = &cmdheight
-  " +1 is accounted for as cursor
-  let &cmdheight = max([&cmdheight, strwidth(g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]) / &columns + 1])
+  let &cmdheight = max([&cmdheight,
+        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns + 1])
 endfunction
 
 function! cmd2#util#SetMore()

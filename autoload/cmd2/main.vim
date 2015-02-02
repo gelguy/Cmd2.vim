@@ -133,9 +133,9 @@ function! cmd2#main#FeedCmdLine()
   let cmd2 = cmd[0] . g:cmd2_output . cmd[1]
   call feedkeys("\<C-B>", 'n')
   " -1 since cmd2_cursor_pos includes the prompt char
-  let offset = strlen(g:cmd2_output) + g:cmd2_cursor_pos - 1
-  let display_chars = offset > 0 ? strwidth(cmd2[0 : offset - 1]) : 0
-  if strlen(cmd2) == offset
+  let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
+  let display_chars = offset > 0 ? strdisplaywidth(cmd2[0 : offset - 1]) : 0
+  if strdisplaywidth(cmd2) == offset
     " to position after last character
     let display_chars += 1
   endif
