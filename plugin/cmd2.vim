@@ -30,7 +30,7 @@ endif
 
 " mapping cannot start with number as it will be treated as count
 let s:cmd2_default_cmd_mappings = {
-      \ 'w': {'command': 'cmd2#functions#Cword', 'type': 'function', 'flags': 'Crv'},
+      \ 'w': {'command': 'cmd2#functions#Cword', 'type': 'function', 'flags': 'Cr'},
       \ "\<Plug>Cmd2Tab": {'command': "cmd2#functions#TabForward", 'type': 'function'},
       \ "\<Plug>Cmd2STab": {'command': "cmd2#functions#TabBackward", 'type': 'function'},
       \ "\<Tab>": {'command': "\<Plug>Cmd2Tab", 'type': 'remap'},
