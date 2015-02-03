@@ -102,7 +102,7 @@ function! cmd2#commands#HandleSnippet(cmd, ccount)
   let offset = offset < 0 ? 0 : offset
   let snippet = substitute(snippet, g:cmd2_snippet_cursor, '', "")
   " move cursor back to where match starts
-  let g:cmd2_cursor_pos -= strlen(snippet) - offset
+  let g:cmd2_cursor_pos -= strdisplaywidth(snippet) - offset
   let g:cmd2_output = snippet
 endfunction
 
