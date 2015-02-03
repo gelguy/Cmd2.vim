@@ -22,7 +22,7 @@ function! cmd2#commands#DoMapping(node, ccount)
 endfunction
 
 function! cmd2#commands#VisualPre(old_view, flags)
-  if a:flags =~# 'v'
+  if a:flags =~# 'v' && g:cmd2_visual_select
     let [vstart, vend, vpos, vmode] = cmd2#util#SaveVisual()
     call winrestview(a:old_view)
     return [vstart, vend, vpos, vmode]
@@ -32,7 +32,7 @@ function! cmd2#commands#VisualPre(old_view, flags)
 endfunction
 
 function! cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
-  if a:flags =~# 'v'
+  if a:flags =~# 'v' && g:cmd2_visual_select
     let cursor_pos = getpos('.')
     call cmd2#util#RestoreVisual(a:vstart, a:vend, a:vpos, a:vmode)
     call setpos(".", cursor_pos)
