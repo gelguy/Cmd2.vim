@@ -79,13 +79,13 @@ function! cmd2#commands#HandleLiteral(cmd, ccount)
 endfunction
 
 function! cmd2#commands#HandleText(cmd, ccount)
-  execute "set opfunc=cmd2#commands#GetContents"
+  execute "set opfunc=cmd2#functions#GetContents"
   " normal (no !) to allow custom text obj remaps
   execute "normal g@" . a:ccount . a:cmd
 endfunction
 
 function! cmd2#commands#HandleLine(cmd, ccount)
-  execute "set opfunc=cmd2#commands#GetLines"
+  execute "set opfunc=cmd2#functions#GetLines"
   " normal (no !) to allow custom text obj remaps
   execute "normal g@" . a:ccount . a:cmd
 
