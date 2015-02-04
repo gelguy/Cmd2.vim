@@ -88,7 +88,8 @@ function! cmd2#functions#Cword(ccount)
   let g:cmd2_output = substitute(@@, "\n", " ", "")
   let @@ = reg_save
   let &selection = selection_save
-  let s:cmd2_cword_pos = [getpos('.')[1], getpos('.')[2]]
+  " -1 since selection is exclusive
+  let s:cmd2_cword_pos = [getpos('.')[1], (getpos("'>")[2] - 1)]
 endfunction
 
 function! cmd2#functions#CopySearch()
