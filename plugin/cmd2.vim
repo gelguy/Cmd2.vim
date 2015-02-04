@@ -6,7 +6,7 @@ if exists('g:cmd2_loaded') && g:cmd2_loaded
 endif
 
 let s:cmd2_default_options = {
-      \ 'buffer_cursor_hl': cmd2#init#CursorHl(),
+      \ 'buffer_cursor_hl': cmd2#init#BufferCursorHl(),
       \ 'buffer_cursor_show': 1,
       \ 'cursor_blink': 1,
       \ 'cursor_blinkoff': 250,

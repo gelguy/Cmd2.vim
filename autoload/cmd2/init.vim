@@ -73,6 +73,14 @@ function! cmd2#init#CursorHl()
   return 'Cmd2Cursor'
 endfunction
 
+function! cmd2#init#BufferCursorHl()
+  if hlID('Cursor')
+    hi! link Cmd2BufferCursor Cursor
+  else
+    hi! Cmd2BufferCursor cterm=reverse term=reverse guifg=bg guibg=fg
+  endif
+  return 'Cmd2BufferCursor'
+endfunction
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
