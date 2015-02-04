@@ -130,15 +130,12 @@ function! cmd2#main#FeedCmdLine()
   let cmd = g:cmd2_pending_cmd
   call feedkeys(s:cmd2_cmd_type . "\<C-U>". cmd[0] . g:cmd2_output . cmd[1], 'n')
   " reposition cursor
-  let cmd2 = cmd[0] . g:cmd2_output . cmd[1]
+  let full_cmd = cmd[0] . g:cmd2_output . cmd[1]
   call feedkeys("\<C-B>", 'n')
   " -1 since cmd2_cursor_pos includes the prompt char
   let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
-  let display_chars = offset > 0 ? strdisplaywidth(cmd2[0 : offset - 1]) : 0
-  if strdisplaywidth(cmd2) == offset
-    " to position after last character
-    let display_chars += 1
-  endif
+  " to prevent wrapping with [0:-1]
+  let display_chars = offset > 0 ? strdisplaywidth(full_cmd[0 : offset - 1]) : 0
   let right_times = repeat("\<Right>", display_chars)
   call feedkeys(right_times, 'n')
 endfunction
