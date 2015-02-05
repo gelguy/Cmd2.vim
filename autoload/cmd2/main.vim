@@ -52,6 +52,7 @@ function! cmd2#main#PreRun()
   call cmd2#util#SetMore()
   let g:cmd2_output = ""
   let g:cmd2_leftover_key = ""
+  let g:cmd2_blink_state = -1
 endfunction
 
 function! cmd2#main#PostRun()

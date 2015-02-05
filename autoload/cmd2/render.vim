@@ -42,8 +42,6 @@ function! cmd2#render#Render(list)
   endtry
 endfunction
 
-let g:cmd2_blink_state = -1
-
 " renders the cmdline through echo
 function! cmd2#render#CheckBlink(state)
   let blink = g:cmd2_cursor_blink ?
