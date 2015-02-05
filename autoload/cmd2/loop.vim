@@ -12,10 +12,7 @@ endfunction
 
 function! cmd2#loop#Loop(render, handle)
   let state = {}
-  let state.stopped = 0
-  let state.start_time = reltime()
-  let state.current_time = state.start_time
-  let state.timeout_started = 0
+  call cmd2#loop#PrepareState(state)
   while 1
     call call(a:render, [state])
     let input = cmd2#loop#Getchar(0)
@@ -34,6 +31,15 @@ function! cmd2#loop#Loop(render, handle)
     execute "sleep " . g:cmd2_loop_refresh_rate . "m"
   endwhile
   return state.result
+endfunction
+
+function! cmd2#loop#PrepareState(state)
+  let a:state.force_render = 0
+  let a:state.start_time = reltime()
+  let a:state.current_time = a:state.start_time
+  let a:state.start_timeout = 0
+  let a:state.stopped = 0
+  let a:state.timeout_started = 0
 endfunction
 
 " https://github.com/haya14busa/incsearch.vim/blob/392adbfaa4343f0b99c5b90e38470e88e44c5ec3/autoload/vital/_incsearch/Over/Input.vim#L6
