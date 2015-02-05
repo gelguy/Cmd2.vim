@@ -8,14 +8,15 @@ endfunction
 function! cmd2#commands#DoMapping(node, ccount)
   let mapping = a:node['value']
   let flags = get(mapping, 'flags', '')
-  let cmd = get(mapping, 'command', '')
+  " capital since there might be a funcref
+  let Cmd = get(mapping, 'command', '')
   let type = get(mapping, 'type', '')
   let ccount = flags =~# 'C' ? (a:ccount == 0 ? 1 : a:ccount)
         \ : flags =~# 'c' ? a:ccount
         \ : ""
   let old_view = winsaveview()
   let [vstart, vend, vpos, vmode] = cmd2#commands#VisualPre(old_view, flags)
-  call cmd2#commands#HandleType(cmd, type, ccount)
+  call cmd2#commands#HandleType(Cmd, type, ccount)
   call cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
   call cmd2#commands#Pflag(old_view, flags)
   call cmd2#commands#Rflag(mapping, flags)
@@ -92,8 +93,13 @@ function! cmd2#commands#HandleLine(cmd, ccount)
 endfunction
 
 function! cmd2#commands#HandleFunction(cmd, ccount)
-  let function = substitute(a:cmd, '\v\(\)$', "", "")
-  execute "call call('" . a:cmd . "', [" . a:ccount . "])"
+  if type(a:cmd) != 2
+    " convert all other types to string
+    let function = substitute(a:cmd, '\v\(\)$', "", "")
+    execute "call call('" . function . "', [" . a:ccount . "])"
+  else
+    call call(a:cmd, [a:ccount])
+  endif
 endfunction
 
 function! cmd2#commands#HandleSnippet(cmd, ccount)
