@@ -28,6 +28,9 @@ function! cmd2#handle#HandleInputChar(input, node)
   if has_key(a:node, a:input)
     return [a:node[a:input], 0]
   else
+    if a:input != "\<Esc>"
+      let g:cmd2_leftover_key = a:input
+    endif
     return [a:node, 1]
   endif
 endfunction
