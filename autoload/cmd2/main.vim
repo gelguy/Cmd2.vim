@@ -45,6 +45,7 @@ function! cmd2#main#Run()
   call cmd2#main#FeedCmdLine()
   call cmd2#util#ReselectVisual()
   call cmd2#main#Reenter()
+   call cmd2#main#LeftoverKey()
 endfunction
 
 function! cmd2#main#PreRun()
@@ -54,6 +55,8 @@ function! cmd2#main#PreRun()
   call cmd2#util#BufferCursorHl()
   call cmd2#util#SetCmdHeight()
   call cmd2#util#SetMore()
+  let g:cmd2_output = ""
+  let g:cmd2_leftover_key = ""
 endfunction
 
 function! cmd2#main#PostRun()
@@ -84,6 +87,12 @@ function! cmd2#main#Reenter()
   if g:cmd2_reenter
     call feedkeys("\<Plug>Cmd2", 'm')
     call feedkeys(g:cmd2_reenter_key, 'm')
+  endif
+endfunction
+
+function! cmd2#main#LeftoverKey()
+  if len(g:cmd2_leftover_key)
+    call feedkeys(g:cmd2_leftover_key, 'm')
   endif
 endfunction
 
