@@ -6,12 +6,15 @@ function! cmd2#render#Autoload()
 endfunction
 
 function! cmd2#render#Main(state)
-  if cmd2#render#CheckBlink(a:state)
+  if cmd2#render#CheckBlink(a:state) || a:state.force_render
     redraw
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
     let result = cmd2#render#PrepareCmdLine(g:cmd2_blink_state)
     call cmd2#render#Render(result)
+  endif
+  if a:state.force_render == 1
+    let a:state.force_render = 0
   endif
 endfunction
 
