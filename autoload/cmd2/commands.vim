@@ -56,6 +56,7 @@ endfunction
 function! cmd2#commands#HandleType(cmd, type, ccount)
   if empty(a:cmd) || empty(a:type)
     " skip
+    let g:cmd2_output = ""
   elseif a:type == 'literal'
     call cmd2#commands#HandleLiteral(a:cmd, a:ccount)
   elseif a:type == 'text'

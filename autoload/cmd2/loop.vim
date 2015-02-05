@@ -12,6 +12,7 @@ endfunction
 
 function! cmd2#loop#Loop(render, handle)
   let state = {}
+  let state.stopped = 0
   let state.start_time = reltime()
   let state.current_time = state.start_time
   let state.timeout_started = 0
@@ -26,7 +27,7 @@ function! cmd2#loop#Loop(render, handle)
       endif
     endif
     let state.current_time = reltime()
-    if state.timeout_started &&
+    if state.stopped || state.timeout_started &&
           \ cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:cmd2_timeoutlen
       break
     endif

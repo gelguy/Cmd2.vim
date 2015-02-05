@@ -6,55 +6,65 @@ function! cmd2#render#Autoload()
 endfunction
 
 function! cmd2#render#Main(state)
-  call cmd2#render#Render(g:cmd2_pending_cmd, g:cmd2_cmd_type, a:state.start_time, a:state.current_time)
-endfunction
-
-" renders the cmdline through echo
-function! cmd2#render#Render(cmd, type, start_time, current_time)
-  let blink = g:cmd2_cursor_blink ?
-        \ cmd2#render#GetCursorBlink(a:start_time, a:current_time)
-        \ : 1
-  if g:cmd2_blink_state == blink
-    return
-  else
+  if cmd2#render#CheckBlink(a:state)
     redraw
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
-    let g:cmd2_blink_state = blink
-    call cmd2#render#CmdLine(a:cmd, a:type, blink)
+    let result = cmd2#render#PrepareCmdLine(g:cmd2_blink_state)
+    call cmd2#render#Render(result)
   endif
 endfunction
 
-let g:cmd2_blink_state = -1
+function! cmd2#render#PrepareCmdLine(blink)
+  let result = [{'text': g:cmd2_cmd_type}]
+  let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[0], g:cmd2_snippet_cursor)
+  if a:blink
+    call add(result, {'text': g:cmd2_cursor_text, 'hl': g:cmd2_cursor_hl})
+  else
+    call add(result, {'text': g:cmd2_cursor_text})
+  endif
+  let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[1], g:cmd2_snippet_cursor)
+  return result
+endfunction
 
-" renders the cmdline
-function! cmd2#render#CmdLine(cmd, type, blink)
+function! cmd2#render#Render(list)
   try
-    let cmd = a:cmd
-    echo a:type
-    call cmd2#render#RenderSplit(cmd[0], g:cmd2_snippet_cursor)
-    if a:blink
-      execute "echohl" g:cmd2_cursor_hl
-    endif
-    execute "echon '" . g:cmd2_cursor_text . "'"
-    echohl None
-    call cmd2#render#RenderSplit(cmd[1], g:cmd2_snippet_cursor)
+    for block in a:list
+      let hl = get(block, 'hl', 'None')
+      execute "echohl" hl
+      echon block.text
+    endfor
   finally
     echohl None
   endtry
 endfunction
 
-function! cmd2#render#RenderSplit(cmd, split)
+let g:cmd2_blink_state = -1
+
+" renders the cmdline through echo
+function! cmd2#render#CheckBlink(state)
+  let blink = g:cmd2_cursor_blink ?
+        \ cmd2#render#GetCursorBlink(a:state.start_time, a:state.current_time)
+        \ : 1
+  if g:cmd2_blink_state == blink
+    return 0
+  else
+    let g:cmd2_blink_state = blink
+    return 1
+  endif
+endfunction
+
+function! cmd2#render#SplitSnippet(cmd, split)
+  let result = []
   let splitcmd = split(a:cmd, a:split, 1)
-  echon splitcmd[0]
+  call add(result, {'text': splitcmd[0]})
   let i = 1
   while i < len(splitcmd)
-    execute "echohl " . g:cmd2_snippet_cursor_hl
-    execute "echon '" . g:cmd2_snippet_cursor . "'"
-    echohl None
-    echon splitcmd[i]
+    call add(result, {'text': g:cmd2_snippet_cursor, 'hl': g:cmd2_snippet_cursor_hl})
+    call add(result, {'text': splitcmd[i]})
     let i += 1
   endwhile
+  return result
 endfunction
 
 function! cmd2#render#GetCursorBlink(start, current)
