@@ -98,7 +98,8 @@ function! cmd2#commands#HandleFunction(cmd, ccount)
     let function = substitute(a:cmd, '\v\(\)$', "", "")
     execute "call call('" . function . "', [" . a:ccount . "])"
   else
-    call call(a:cmd, [a:ccount])
+    let args = len(a:ccount) ? [a:ccount] : []
+    call call(a:cmd, args)
   endif
 endfunction
 
