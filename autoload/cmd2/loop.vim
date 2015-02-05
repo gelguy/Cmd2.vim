@@ -35,6 +35,7 @@ endfunction
 
 function! cmd2#loop#PrepareState(state)
   let a:state.force_render = 0
+  let a:state.result = 0
   let a:state.start_time = reltime()
   let a:state.current_time = a:state.start_time
   let a:state.start_timeout = 0

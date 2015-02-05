@@ -6,6 +6,9 @@ function! cmd2#commands#Autoload()
 endfunction
 
 function! cmd2#commands#DoMapping(input)
+  if !type(a:input) && !a:input
+    return
+  endif
   let mapping = a:input.node['value']
   let flags = get(mapping, 'flags', '')
   " capital since there might be a funcref
@@ -90,7 +93,6 @@ function! cmd2#commands#HandleLine(cmd, ccount)
   execute "set opfunc=cmd2#functions#GetLines"
   " normal (no !) to allow custom text obj remaps
   execute "normal g@" . a:ccount . a:cmd
-
 endfunction
 
 function! cmd2#commands#HandleFunction(cmd, ccount)
