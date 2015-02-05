@@ -5,14 +5,14 @@ function! cmd2#commands#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#commands#DoMapping(node, ccount)
-  let mapping = a:node['value']
+function! cmd2#commands#DoMapping(input)
+  let mapping = a:input.node['value']
   let flags = get(mapping, 'flags', '')
   " capital since there might be a funcref
   let Cmd = get(mapping, 'command', '')
   let type = get(mapping, 'type', '')
-  let ccount = flags =~# 'C' ? (a:ccount == 0 ? 1 : a:ccount)
-        \ : flags =~# 'c' ? a:ccount
+  let ccount = flags =~# 'C' ? (a:input.ccount == 0 ? 1 : a:input.ccount)
+        \ : flags =~# 'c' ? a:input.ccount
         \ : ""
   let old_view = winsaveview()
   let [vstart, vend, vpos, vmode] = cmd2#commands#VisualPre(old_view, flags)
@@ -98,8 +98,11 @@ function! cmd2#commands#HandleFunction(cmd, ccount)
     let function = substitute(a:cmd, '\v\(\)$', "", "")
     execute "call call('" . function . "', [" . a:ccount . "])"
   else
-    let args = len(a:ccount) ? [a:ccount] : []
-    call call(a:cmd, args)
+    if len(a:ccount)
+      call a:cmd(ccount)
+    else
+      call a:cmd()
+    endif
   endif
 endfunction
 

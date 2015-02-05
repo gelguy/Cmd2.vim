@@ -5,6 +5,10 @@ function! cmd2#render#Autoload()
   " do nothing
 endfunction
 
+function! cmd2#render#Main(state)
+  call cmd2#render#Render(g:cmd2_pending_cmd, g:cmd2_cmd_type, a:state.start_time, a:state.current_time)
+endfunction
+
 " renders the cmdline through echo
 function! cmd2#render#Render(cmd, type, start_time, current_time)
   let blink = g:cmd2_cursor_blink ?
