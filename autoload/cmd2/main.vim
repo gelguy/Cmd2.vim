@@ -5,11 +5,6 @@ function! cmd2#main#Autoload()
   " do nothing
 endfunction
 
-" to be used with <C-\>e to get current cmdline state
-" does the preparation for entering Cmd2 mode
-" - saves current cmdline and position
-" - modifies the gui cursor
-" - does the simulation of visual mode if visual mode is detected
 function! cmd2#main#Init()
   let cmd = getcmdline()
   if cmd =~ '\M^''<,''>' ? 1 : 0
