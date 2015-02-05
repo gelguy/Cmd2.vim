@@ -5,12 +5,17 @@ function! cmd2#render#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#render#Main(state)
+function! cmd2#render#Prepare(state)
+  let CmdLine = function('cmd2#render#PrepareCmdLine')
+  call cmd2#render#Main(CmdLine, a:state)
+endfunction
+
+function! cmd2#render#Main(cmd, state)
   if cmd2#render#CheckBlink(a:state) || a:state.force_render
     redraw
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
-    let result = cmd2#render#PrepareCmdLine(g:cmd2_blink_state)
+    let result = call(a:cmd, [a:state])
     call cmd2#render#Render(result)
   endif
   if a:state.force_render == 1
@@ -18,10 +23,10 @@ function! cmd2#render#Main(state)
   endif
 endfunction
 
-function! cmd2#render#PrepareCmdLine(blink)
+function! cmd2#render#PrepareCmdLine(state)
   let result = [{'text': g:cmd2_cmd_type}]
   let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[0], g:cmd2_snippet_cursor)
-  if a:blink
+  if g:cmd2_blink_state
     call add(result, {'text': g:cmd2_cursor_text, 'hl': g:cmd2_cursor_hl})
   else
     call add(result, {'text': g:cmd2_cursor_text})

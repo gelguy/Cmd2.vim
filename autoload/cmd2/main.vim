@@ -26,7 +26,7 @@ function! cmd2#main#Run()
   try
     call cmd2#main#PreRun()
     let args = {
-          \ 'render': function('cmd2#render#Main'),
+          \ 'render': function('cmd2#render#Prepare'),
           \ 'handle': function('cmd2#handle#Handle'),
           \ 'finish': function('cmd2#commands#DoMapping'),
           \ }
