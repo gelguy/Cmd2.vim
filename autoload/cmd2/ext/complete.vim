@@ -134,7 +134,7 @@ function! cmd2#ext#complete#CreateFuzzyPattern(string, pattern)
 endfunction
 
 function! cmd2#ext#complete#StringToMatch()
-  return matchstr(s:old_cmd_0, '\k*$')
+  return matchstr(s:old_cmd_0, '\v\k*$')
 endfunction
 
 function! cmd2#ext#complete#GetTempOutput()
@@ -151,6 +151,12 @@ endfunction
 function! cmd2#ext#complete#GetCmdSubstring(str)
   let string = cmd2#ext#complete#StringToMatch()
   return a:str[len(string) : -1]
+endfunction
+
+function! cmd2#ext#complete#HasComplete()
+  let pos = getcmdpos()
+  let cmdline = getcmdline()[0 : pos]
+  return getcmdtype() =~ '\v[?/]' || match(cmdline, '\v[?/]\k*$') >= 0
 endfunction
 
 let &cpo = s:save_cpo
