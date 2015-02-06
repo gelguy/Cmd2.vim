@@ -31,6 +31,7 @@ let s:cmd2_default_options = {
       \ '_complete_pattern': '\k',
       \ '_complete_start_pattern': '\<',
       \ '_complete_fuzzy': 1,
+      \ '_complete_generate': 'cmd2#ext#complete#GenerateCandidates',
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',

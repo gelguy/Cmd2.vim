@@ -9,7 +9,12 @@ function! cmd2#ext#complete#Main()
   try
     let old_menu = g:cmd2_menu
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
-    let candidates = cmd2#ext#complete#GenerateCandidates()
+    if type(g:cmd2__complete_generate) == 4
+      call call(g:cmd2__complete_generate, [s:old_cmd_0])
+    else
+      call call(function(g:cmd2__complete_generate), [s:old_cmd_0])
+    endif
+    let candidates = cmd2#ext#complete#GenerateCandidates(s:old_cmd_0)
     if g:cmd2__complete_ignorecase
       if g:cmd2__complete_uniq_ignorecase
         call uniq(sort(candidates, 'i'), 'i')
@@ -74,7 +79,7 @@ function! cmd2#ext#complete#Finish(input)
   " do nothing
 endfunction
 
-function! cmd2#ext#complete#GenerateCandidates()
+function! cmd2#ext#complete#GenerateCandidates(cmd)
   let string = cmd2#ext#complete#StringToMatch()
   if !len(string)
     return []
