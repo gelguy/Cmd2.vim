@@ -20,7 +20,11 @@ function! cmd2#ext#quicksearch#Search(flag)
     let &ignorecase = g:cmd2__quicksearch_ignorecase
     let pattern = g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]
     if !len(pattern)
-      return
+      if exists('s:previous') && len(s:previous)
+        let pattern = s:previous
+      else
+        return
+      endif
     endif
     let @/ = pattern
     call search(pattern, a:flag)
@@ -30,6 +34,7 @@ function! cmd2#ext#quicksearch#Search(flag)
     let s:tab_search_hl = matchadd(g:cmd2__quicksearch_hl, flag . pattern)
     let s:tab_search_current_hl = matchadd(g:cmd2__quicksearch_current_hl,
           \ flag . '\V\%' . line . 'l\%\>' . (col - 1) . 'c' . pattern . '\%\<' . (col + len(pattern) + 1) . 'c')
+    let s:previous = pattern
     " for lazyredraw
     redraw
   finally
