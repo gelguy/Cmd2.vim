@@ -185,6 +185,14 @@ function! cmd2#util#SaveLaststatus()
   let g:cmd2_old_laststatus = &laststatus
 endfunction
 
+function! cmd2#util#SetLastStatus()
+  if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
+    let &laststatus = 0
+  else
+    let &laststatus = g:cmd2_old_laststatus
+  endif
+endfunction
+
 function! cmd2#util#ResetLaststatus()
   let &laststatus = g:cmd2_old_laststatus
 endfunction
