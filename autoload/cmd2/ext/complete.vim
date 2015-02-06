@@ -87,7 +87,7 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let old_view = winsaveview()
   let matches = []
   call cursor(1,1)
-  let ignore_case = g:cmd2__complete_ignore_case ? '\c' : ''
+  let ignore_case = g:cmd2__complete_ignorecase ? '\c' : ''
   let pattern = '\V' . ignore_case . '\<'
   if g:cmd2__complete_fuzzy
     let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:cmd2__complete_pattern . '\*')
