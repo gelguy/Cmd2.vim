@@ -79,7 +79,8 @@ function! cmd2#main#FeedCmdLine()
   " -1 since cmd2_cursor_pos includes the prompt char
   let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
   " to prevent wrapping with [0:-1]
-  let display_chars = offset > 0 ? strdisplaywidth(full_cmd[0 : offset - 1]) : 0
+  let byte_index = byteidx(full_cmd, offset)
+  let display_chars = offset > 0 ? strdisplaywidth(full_cmd[0 : byte_index - 1]) : 0
   let right_times = repeat("\<Right>", display_chars)
   call feedkeys(right_times, 'n')
 endfunction
