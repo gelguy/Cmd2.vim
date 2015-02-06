@@ -179,7 +179,6 @@ function! cmd2#util#SetCmdHeight()
   let &cmdheight = max([g:cmd2_old_cmdheight,
         \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_temp_output . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) + 1) / &columns
         \ + 1 + menu_height])
-  let @a .= string(&cmdheight) . " "
 endfunction
 
 function! cmd2#util#SaveLaststatus()
