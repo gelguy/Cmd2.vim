@@ -10,14 +10,14 @@ function! cmd2#ext#complete#Main()
     let old_menu = g:cmd2_menu
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
     let candidates = cmd2#ext#complete#GenerateCandidates()
-    if g:cmd2__complete_ignore_case
-      if g:cmd2__complete_uniq_case
+    if g:cmd2__complete_ignorecase
+      if g:cmd2__complete_uniq_ignorecase
         call uniq(sort(candidates, 'i'), 'i')
       else
         call uniq(sort(candidates, 'i'))
       endif
     else
-      if g:cmd2__complete_uniq_case
+      if g:cmd2__complete_uniq_ignorecase
         call uniq(sort(candidates), 'i')
       else
         call uniq(sort(candidates))
@@ -61,6 +61,7 @@ function! cmd2#ext#complete#Handle(input, state)
     let a:state.force_render = 1
   elseif a:input == "\<Esc>"
     let g:cmd2_output = ""
+    let g:cmd2_output = s:old_cmd_0
     let a:state.stopped = 1
   else
     let g:cmd2_output = cmd2#ext#complete#GetOutput()
