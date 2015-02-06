@@ -28,7 +28,9 @@ function! cmd2#loop#Loop(render, handle, state)
           \ cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:cmd2_timeoutlen
       break
     endif
-    execute "sleep " . g:cmd2_loop_refresh_rate . "m"
+    if g:cmd2_loop_refresh_rate
+      execute "sleep " . g:cmd2_loop_refresh_rate . "m"
+    endif
   endwhile
   return state.result
 endfunction
