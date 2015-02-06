@@ -32,7 +32,6 @@ function! cmd2#ext#complete#Main()
     endif
   finally
     let g:cmd2_menu = old_menu
-    let g:cmd2_pending_cmd[0] = s:old_cmd_0
   endtry
 endfunction
 
@@ -115,8 +114,9 @@ function! cmd2#ext#complete#GetTempOutput()
 endfunction
 
 function! cmd2#ext#complete#GetOutput()
+  let g:cmd2_pending_cmd[0] = s:old_cmd_0[0 : -len(cmd2#ext#complete#StringToMatch()) - 1]
   let string = cmd2#menu#Current(g:cmd2_menu)
-  return cmd2#ext#complete#GetCmdSubstring(string)
+  return string
 endfunction
 
 function! cmd2#ext#complete#GetCmdSubstring(str)
