@@ -27,8 +27,8 @@ function! cmd2#ext#quicksearch#Search(flag)
     call cmd2#ext#quicksearch#ClearHl()
     let [line, col] = getpos('.')[1:2]
     let flag = g:cmd2__quicksearch_ignorecase ? '\c' : ''
-    let s:tab_search_hl = matchadd('Search', flag . pattern)
-    let s:tab_search_current_hl = matchadd('ErrorMsg',
+    let s:tab_search_hl = matchadd(g:cmd2__quicksearch_hl, flag . pattern)
+    let s:tab_search_current_hl = matchadd(g:cmd2__quicksearch_current_hl,
           \ flag . '\V\%' . line . 'l\%\>' . (col - 1) . 'c' . pattern . '\%\<' . (col + len(pattern) + 1) . 'c')
     " for lazyredraw
     redraw
