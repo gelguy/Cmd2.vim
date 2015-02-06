@@ -88,7 +88,7 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let matches = []
   call cursor(1,1)
   let ignore_case = g:cmd2__complete_ignorecase ? '\c' : ''
-  let pattern = '\V' . ignore_case . '\<'
+  let pattern = '\V' . ignore_case . g:cmd2__complete_start_pattern
   if g:cmd2__complete_fuzzy
     let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:cmd2__complete_pattern . '\*')
   else
