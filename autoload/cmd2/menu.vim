@@ -104,6 +104,13 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
       let text = page[i]
     endif
     let hl = a:pos[1] == i ? g:cmd2_menu_selected_hl : g:cmd2_menu_hl
+    if len(text) + strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 2 > a:columns
+      " + 3 to include extra space after item
+      let end_pos = &columns - (strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 3)
+      let end_pos -= len(strdisplaywidth(g:cmd2_menu_more))
+      let text = text[0 : end_pos - 1]
+      let text .= g:cmd2_menu_more
+    endif
     call add(line, {'text': text, 'hl': hl})
     call add(line, {'text': ' ', 'hl': g:cmd2_menu_hl})
     let cur_length += strdisplaywidth(text) + 1
