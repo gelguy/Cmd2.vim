@@ -14,10 +14,7 @@ endfunction
 
 " Helper function for init#Options()
 function! cmd2#init#Option(key, value)
-  " a:value has to be wrapped in '' (treated as literal string)
-  " ' needs to be escaped using ''
-  let value = substitute(a:value, "'", "''", "g")
-  execute "let g:cmd2_" . a:key . " = " . "'" . value . "'"
+  let g:cmd2_{a:key} = a:value
 endfunction
 
 function! cmd2#init#CmdMappings(default_cmd_mappings)
