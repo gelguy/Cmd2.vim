@@ -133,7 +133,7 @@ function! cmd2#commands#HandleRemap(cmd, ccount)
   endif
   let node = cmd2#util#FindNode(a:cmd, g:cmd2_mapping_tree)
   if !empty(node)
-    call cmd2#commands#DoMapping(node, a:ccount)
+    call cmd2#commands#DoMapping({'node': node, 'ccount': a:ccount})
   endif
 endfunction
 
