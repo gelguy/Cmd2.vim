@@ -88,7 +88,9 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let matches = []
   call cursor(1,1)
   let ignore_case = g:cmd2__complete_ignore_case ? '\c' : ''
-  let pattern = '\V' . ignore_case . '\<' . a:string . g:cmd2__complete_pattern
+  let pattern = '\V' . ignore_case . '\<'
+  let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:cmd2__complete_pattern . '\*')
+  let pattern .= g:cmd2__complete_pattern . '\+'
   let match = search(pattern, 'cnW')
   while match
     let matches += cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
@@ -114,6 +116,17 @@ function! cmd2#ext#complete#GetMatchesOnLine(line_num, pattern, string)
     let start_pos = match(line, a:pattern, end_pos)
   endwhile
   return matches
+endfunction
+
+function! cmd2#ext#complete#CreateFuzzyPattern(string, pattern)
+  let result = ''
+  let i = 0
+  while i < len(a:string)
+    let result .= a:string[i]
+    let result .= a:pattern
+    let i += 1
+  endwhile
+  return result
 endfunction
 
 function! cmd2#ext#complete#StringToMatch()
