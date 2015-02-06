@@ -25,6 +25,7 @@ let s:cmd2_default_options = {
       \ 'menu_hl': 'StatusLine',
       \ 'menu_next': '>',
       \ 'menu_previous': '<',
+      \ '_complete_ignore_case': 0,
       \ }
 
 if !exists('g:cmd2_options')
