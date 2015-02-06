@@ -77,7 +77,7 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let matches = []
   call cursor(1,1)
   let ignore_case = g:cmd2__complete_ignore_case ? '\c' : ''
-  let pattern = '\V' . ignore_case . '\<' . a:string . '\k\+'
+  let pattern = '\V' . ignore_case . '\<' . a:string . g:cmd2__complete_pattern
   let match = search(pattern, 'cnW')
   while match
     let matches += cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
