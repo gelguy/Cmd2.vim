@@ -6,9 +6,6 @@ function! cmd2#loop#Autoload()
 endfunction
 
 function! cmd2#loop#Init(args)
-  if !has_key(a:args, 'state')
-    let a:args.state = {}
-  endif
   let result = cmd2#loop#Loop(a:args.render, a:args.handle, a:args.state)
   call call(a:args.finish, [result])
 endfunction

@@ -29,6 +29,7 @@ function! cmd2#main#Run()
           \ 'render': function('cmd2#render#Prepare'),
           \ 'handle': function('cmd2#handle#Handle'),
           \ 'finish': function('cmd2#commands#DoMapping'),
+          \ 'state': {},
           \ }
     call cmd2#loop#Init(args)
   catch /^Vim:Interrupt$/
