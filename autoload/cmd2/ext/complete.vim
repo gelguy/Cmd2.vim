@@ -10,8 +10,19 @@ function! cmd2#ext#complete#Main()
     let old_menu = g:cmd2_menu
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
     let candidates = cmd2#ext#complete#GenerateCandidates()
-    " use ignorecase for all cases since case will be accounted for in candidates
-    call uniq(sort(candidates, 'i'), 'i')
+    if g:cmd2__complete_ignore_case
+      if g:cmd2__complete_uniq_case
+        call uniq(sort(candidates, 'i'), 'i')
+      else
+        call uniq(sort(candidates, 'i'))
+      endif
+    else
+      if g:cmd2__complete_uniq_case
+        call uniq(sort(candidates), 'i')
+      else
+        call uniq(sort(candidates))
+      endif
+    endif
     if len(candidates)
       " insert original string at the front
       call insert(candidates, cmd2#ext#complete#StringToMatch())
