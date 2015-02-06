@@ -26,8 +26,9 @@ let s:cmd2_default_options = {
       \ 'menu_next': '>',
       \ 'menu_previous': '<',
       \ '_complete_ignorecase': 0,
-      \ '_complete_uniq_ignorecase': '1',
+      \ '_complete_uniq_ignorecase': 1,
       \ '_complete_pattern': '\k\+',
+      \ '_quicksearch_ignorecase': 0,
       \ }
 
 if !exists('g:cmd2_options')
