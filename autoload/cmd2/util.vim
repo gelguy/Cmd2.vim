@@ -176,7 +176,7 @@ endfunction
 function! cmd2#util#SetCmdHeight()
   let menu_height = has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages)
   let &cmdheight = max([&cmdheight,
-        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns
+        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_temp_output . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns
         \ + 1 + menu_height])
 endfunction
 
