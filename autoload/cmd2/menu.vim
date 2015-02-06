@@ -37,6 +37,9 @@ function! cmd2#menu#CreatePages(list, columns, offset)
 endfunction
 
 function! cmd2#menu#Next(menu)
+  if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
+    return
+  endif
   let page = a:menu.pos[0]
   let index = a:menu.pos[1]
   let index += 1
@@ -52,6 +55,9 @@ function! cmd2#menu#Next(menu)
 endfunction
 
 function! cmd2#menu#Previous(menu)
+  if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
+    return
+  endif
   let page = a:menu.pos[0]
   let index = a:menu.pos[1]
   let index -= 1
@@ -67,6 +73,9 @@ function! cmd2#menu#Previous(menu)
 endfunction
 
 function! cmd2#menu#Current(menu)
+  if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
+    return ""
+  endif
   let item = a:menu.pages[a:menu.pos[0]][a:menu.pos[1]]
   return item
 endfunction
