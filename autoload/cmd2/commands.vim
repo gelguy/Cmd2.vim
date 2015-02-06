@@ -96,16 +96,10 @@ function! cmd2#commands#HandleLine(cmd, ccount)
 endfunction
 
 function! cmd2#commands#HandleFunction(cmd, ccount)
-  if type(a:cmd) != 2
-    " convert all other types to string
-    let function = substitute(a:cmd, '\v\(\)$', "", "")
-    execute "call call('" . function . "', [" . a:ccount . "])"
+  if len(a:ccount)
+    call call(a:cmd, [a:ccount])
   else
-    if len(a:ccount)
-      call a:cmd(ccount)
-    else
-      call a:cmd()
-    endif
+    call call(a:cmd, [])
   endif
 endfunction
 
