@@ -39,8 +39,8 @@ endfunction
 
 function! cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
+  call cmd2#util#SetCmdHeight()
   if len(g:cmd2_menu) > 0
-    call cmd2#util#SetCmdHeightWithMenu()
     let &laststatus = 0
     let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
     let result += menu

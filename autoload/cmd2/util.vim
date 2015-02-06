@@ -165,15 +165,19 @@ function! cmd2#util#ResetCursorOffset()
   let g:cmd2_cursor_offset = 0
 endfunction
 
-function! cmd2#util#SetCmdHeight()
+function! cmd2#util#SaveCmdHeight()
   let g:cmd2_old_cmdheight = &cmdheight
-  let &cmdheight = max([&cmdheight,
-        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns + 1])
 endfunction
 
-function! cmd2#util#SetCmdHeightWithMenu()
+function! cmd2#util#ResetCmdHeight()
+  let &cmdheight = g:cmd2_old_cmdheight
+endfunction
+
+function! cmd2#util#SetCmdHeight()
+  let menu_height = !!len(g:cmd2_menu)
   let &cmdheight = max([&cmdheight,
-        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns + 2])
+        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns
+        \ + 1 + menu_height])
 endfunction
 
 function! cmd2#util#SaveLaststatus()
@@ -187,10 +191,6 @@ endfunction
 function! cmd2#util#SetMore()
   let g:cmd2_old_more = &more
   set nomore
-endfunction
-
-function! cmd2#util#ResetCmdHeight()
-  let &cmdheight = g:cmd2_old_cmdheight
 endfunction
 
 function! cmd2#util#ResetMore()

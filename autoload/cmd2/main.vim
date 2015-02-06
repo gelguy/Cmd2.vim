@@ -48,7 +48,7 @@ function! cmd2#main#PreRun()
   call cmd2#util#ResetReenter()
   call cmd2#util#ResetCursorOffset()
   call cmd2#util#BufferCursorHl()
-  call cmd2#util#SetCmdHeight()
+  call cmd2#util#SaveCmdHeight()
   call cmd2#util#SetMore()
   call cmd2#util#SaveLaststatus()
   let g:cmd2_menu = {}
