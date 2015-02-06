@@ -40,7 +40,7 @@ endfunction
 function! cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
   call cmd2#util#SetCmdHeight()
-  if len(g:cmd2_menu) > 0
+  if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
     let &laststatus = 0
     let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
     let result += menu
