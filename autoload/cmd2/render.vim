@@ -6,7 +6,7 @@ function! cmd2#render#Autoload()
 endfunction
 
 function! cmd2#render#Prepare(state)
-  let CmdLine = function('cmd2#render#PrepareCmdLine')
+  let CmdLine = function('cmd2#render#PrepareCmdLineWithMenu')
   call cmd2#render#Main(CmdLine, a:state)
 endfunction
 
@@ -24,14 +24,28 @@ function! cmd2#render#Main(cmd, state)
 endfunction
 
 function! cmd2#render#PrepareCmdLine(state)
-  let result = [{'text': g:cmd2_cmd_type}]
+  let result = []
+  let result += [{'text': g:cmd2_cmd_type}]
   let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[0], g:cmd2_snippet_cursor)
+  let result += [{'text': g:cmd2_temp_output}]
   if g:cmd2_blink_state
     call add(result, {'text': g:cmd2_cursor_text, 'hl': g:cmd2_cursor_hl})
   else
     call add(result, {'text': g:cmd2_cursor_text})
   endif
   let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[1], g:cmd2_snippet_cursor)
+  return result
+endfunction
+
+function! cmd2#render#PrepareCmdLineWithMenu(state)
+  let result = []
+  if len(g:cmd2_menu) > 0
+    call cmd2#util#SetCmdHeightWithMenu()
+    let &laststatus = 0
+    let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
+    let result += menu
+  endif
+  let result += cmd2#render#PrepareCmdLine(a:state)
   return result
 endfunction
 

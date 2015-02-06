@@ -50,6 +50,9 @@ function! cmd2#main#PreRun()
   call cmd2#util#BufferCursorHl()
   call cmd2#util#SetCmdHeight()
   call cmd2#util#SetMore()
+  call cmd2#util#SaveLaststatus()
+  let g:cmd2_menu = {}
+  let g:cmd2_temp_output = ""
   let g:cmd2_output = ""
   let g:cmd2_leftover_key = ""
   let g:cmd2_blink_state = -1
@@ -63,6 +66,7 @@ function! cmd2#main#PostRun()
   call cmd2#util#ClearRemapDepth()
   call cmd2#util#ResetCmdHeight()
   call cmd2#util#ResetMore()
+  call cmd2#util#ResetLaststatus()
 endfunction
 
 function! cmd2#main#FeedCmdLine()

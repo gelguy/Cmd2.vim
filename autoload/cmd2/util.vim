@@ -171,6 +171,19 @@ function! cmd2#util#SetCmdHeight()
         \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns + 1])
 endfunction
 
+function! cmd2#util#SetCmdHeightWithMenu()
+  let &cmdheight = max([&cmdheight,
+        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) - 1) / &columns + 2])
+endfunction
+
+function! cmd2#util#SaveLaststatus()
+  let g:cmd2_old_laststatus = &laststatus
+endfunction
+
+function! cmd2#util#ResetLaststatus()
+  let &laststatus = g:cmd2_old_laststatus
+endfunction
+
 function! cmd2#util#SetMore()
   let g:cmd2_old_more = &more
   set nomore

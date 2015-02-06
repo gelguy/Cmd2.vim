@@ -6,15 +6,18 @@ function! cmd2#loop#Autoload()
 endfunction
 
 function! cmd2#loop#Init(args)
-  let result = cmd2#loop#Loop(a:args.render, a:args.handle)
+  if !has_key(a:args, 'state')
+    let a:args.state = {}
+  endif
+  let result = cmd2#loop#Loop(a:args.render, a:args.handle, a:args.state)
   call call(a:args.finish, [result])
 endfunction
 
-function! cmd2#loop#Loop(render, handle)
-  let state = {}
+function! cmd2#loop#Loop(render, handle, state)
+  let state = a:state
   call cmd2#loop#PrepareState(state)
   while 1
-    call call(a:render, [state])
+    call call(a:render, [a:state])
     let input = cmd2#loop#Getchar(0)
     if type(input) != type(0)
       call call(a:handle, [input, state])
@@ -34,13 +37,17 @@ function! cmd2#loop#Loop(render, handle)
 endfunction
 
 function! cmd2#loop#PrepareState(state)
-  let a:state.force_render = 0
-  let a:state.result = 0
-  let a:state.start_time = reltime()
-  let a:state.current_time = a:state.start_time
-  let a:state.start_timeout = 0
-  let a:state.stopped = 0
-  let a:state.timeout_started = 0
+  let reltime = reltime()
+  let default = {
+        \ 'force_render' : 0,
+        \ 'result' : 0,
+        \ 'start_time' : reltime,
+        \ 'current_time' : reltime,
+        \ 'start_timeout' : 0,
+        \ 'stopped' : 0,
+        \ 'timeout_started' : 0,
+        \ }
+  call extend(a:state, default, 'keep')
 endfunction
 
 " https://github.com/haya14busa/incsearch.vim/blob/392adbfaa4343f0b99c5b90e38470e88e44c5ec3/autoload/vital/_incsearch/Over/Input.vim#L6

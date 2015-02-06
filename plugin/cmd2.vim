@@ -21,6 +21,10 @@ let s:cmd2_default_options = {
       \ 'snippet_cursor_hl': 'Title',
       \ 'snippet_cursor_replace': '###',
       \ 'timeoutlen': &timeoutlen,
+      \ 'menu_selected_hl': 'WildMenu',
+      \ 'menu_hl': 'StatusLine',
+      \ 'menu_next': '>',
+      \ 'menu_previous': '<',
       \ }
 
 if !exists('g:cmd2_options')
