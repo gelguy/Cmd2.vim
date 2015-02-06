@@ -127,9 +127,10 @@ function! cmd2#ext#complete#CreateFuzzyPattern(string, pattern)
   let result = ''
   let i = 0
   while i < len(a:string)
-    let result .= a:string[i]
+    let char = matchstr(a:string, ".", byteidx(a:string, i))
+    let result .= char
     let result .= a:pattern
-    let i += 1
+    let i += len(char)
   endwhile
   return result
 endfunction
