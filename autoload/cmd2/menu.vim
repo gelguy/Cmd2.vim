@@ -15,7 +15,11 @@ function! cmd2#menu#CreateMenu(list, pos, columns)
 endfunction
 
 function! cmd2#menu#CreatePages(list, columns, offset)
-  let pages = [[]]
+  if !len(a:list)
+    return []
+  else
+    let pages = [[]]
+  endif
   let cur_page = 0
   let cur_length = 0
   for item in a:list
