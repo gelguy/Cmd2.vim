@@ -28,6 +28,7 @@ let s:cmd2_default_options = {
       \ '_complete_ignorecase': 0,
       \ '_complete_uniq_ignorecase': 1,
       \ '_complete_pattern': '\k',
+      \ '_complete_fuzzy': 1,
       \ '_quicksearch_ignorecase': 0,
       \ }
 
