@@ -12,6 +12,8 @@ endfunction
 
 function! cmd2#render#Main(cmd, state)
   if cmd2#render#CheckBlink(a:state) || a:state.force_render
+    call cmd2#util#SetCmdHeight()
+    call cmd2#util#SetLastStatus()
     redraw
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
@@ -39,9 +41,6 @@ endfunction
 
 function! cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
-  call cmd2#util#SetCmdHeight()
-  call cmd2#util#SetLastStatus()
-  redraw
   if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
     let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
     let result += menu
