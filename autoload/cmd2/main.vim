@@ -41,7 +41,7 @@ function! cmd2#main#Run()
   call cmd2#main#FeedCmdLine()
   call cmd2#util#ReselectVisual()
   call cmd2#main#Reenter()
-   call cmd2#main#LeftoverKey()
+  call cmd2#main#LeftoverKey()
 endfunction
 
 function! cmd2#main#PreRun()
@@ -79,9 +79,22 @@ function! cmd2#main#FeedCmdLine()
   " -1 since cmd2_cursor_pos includes the prompt char
   let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
   " to prevent wrapping with [0:-1]
-  let byte_index = byteidx(full_cmd, offset)
-  let display_chars = offset > 0 ? strdisplaywidth(full_cmd[0 : byte_index - 1]) : 0
-  let right_times = repeat("\<Right>", display_chars)
+  let right = 0
+  let len = strlen(substitute(full_cmd, ".", "x", "g"))
+  let j = 0
+  while j < len
+    let byte_index = byteidx(full_cmd, j)
+    let char = matchstr(full_cmd, ".", byteidx(full_cmd, j))
+    let display_width = strdisplaywidth(char)
+    if offset < display_width
+      break
+    else
+      let right += 1
+      let offset -= display_width
+      let j += 1
+    endif
+  endwhile
+  let right_times = repeat("\<Right>", right)
   call feedkeys(right_times, 'n')
 endfunction
 
