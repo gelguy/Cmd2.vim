@@ -31,15 +31,24 @@ function! cmd2#functions#GetLines(type)
   endif
 endfunction
 
-function! cmd2#functions#TabForward()
-  call cmd2#functions#Tab('forwards')
+function! cmd2#functions#TabForward(...)
+  call cmd2#functions#TabCount('forwards', a:000)
 endfunction
 
-function! cmd2#functions#TabBackward()
-  call cmd2#functions#Tab('backwards')
+function! cmd2#functions#TabBackward(...)
+  call cmd2#functions#TabCount('backwards', a:000)
 endfunction
 
-function! cmd2#functions#Tab(direction)
+function! cmd2#functions#TabCount(direction, count_list)
+  let ccount = get(a:count_list, 0, 1)
+  let i = 0
+  while i < ccount
+    call cmd2#functions#Tab(a:direction)
+    let i += 1
+  endwhile
+endfunction
+
+function! cmd2#functions#Tab(direction, ...)
   let cmd = g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]
   let current_pos = strlen(g:cmd2_pending_cmd[0])
   if a:direction == 'backwards'
@@ -65,7 +74,8 @@ endfunction
 
 let s:cmd2_cword_pos = [-1,-1]
 
-function! cmd2#functions#Cword(ccount)
+function! cmd2#functions#Cword(...)
+  let ccount = get(a:000, 0, 1)
   let current_pos = getpos('.')
   if current_pos[1] == s:cmd2_cword_pos[0] &&
         \ current_pos[2] == col('$') - 1 &&
@@ -77,7 +87,7 @@ function! cmd2#functions#Cword(ccount)
   let &selection = 'exclusive'
   normal! viw
   let i = 1
-  while i < a:ccount
+  while i < ccount
     normal! e
     let i += 1
   endwhile
@@ -90,7 +100,7 @@ function! cmd2#functions#Cword(ccount)
   let s:cmd2_cword_pos = [getpos('.')[1], (getpos("'>")[2] - 1)]
 endfunction
 
-function! cmd2#functions#CopySearch()
+function! cmd2#functions#CopySearch(...)
   let cmd = g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]
   let matchstr = matchlist(cmd, '\vs/(.{-})/')
   if !empty(matchstr[1])
@@ -98,38 +108,48 @@ function! cmd2#functions#CopySearch()
   endif
 endfunction
 
-function! cmd2#functions#Back()
-  let head = g:cmd2_pending_cmd[0]
-  let current_pos = 0
-  let next_pos = 0
-  while 1
-    let next_match = match(head, '\v\k+', next_pos)
-    if next_match >= 0 && next_match < strlen(head)
-      let current_pos = next_match
-      let next_pos = matchend(head, '\v\k+', next_pos)
+function! cmd2#functions#Back(...)
+  let ccount = get(a:000, 0, 1)
+  let j = 0
+  while j < ccount
+    let head = g:cmd2_pending_cmd[0]
+    let current_pos = 0
+    let next_pos = 0
+    while 1
+      let next_match = match(head, '\v\k+', next_pos)
+      if next_match >= 0 && next_match < strlen(head)
+        let current_pos = next_match
+        let next_pos = matchend(head, '\v\k+', next_pos)
+      else
+        break
+      endif
+    endwhile
+    let head = g:cmd2_pending_cmd[0]
+    if current_pos == 0
+      let g:cmd2_pending_cmd[0] = ""
     else
-      break
+      let g:cmd2_pending_cmd[0] = head[0 : current_pos - 1]
     endif
+    let g:cmd2_pending_cmd[1] = head[current_pos : -1] . g:cmd2_pending_cmd[1]
+    let j += 1
   endwhile
-  let head = g:cmd2_pending_cmd[0]
-  if current_pos == 0
-    let g:cmd2_pending_cmd[0] = ""
-  else
-    let g:cmd2_pending_cmd[0] = head[0 : current_pos - 1]
-  endif
-  let g:cmd2_pending_cmd[1] = head[current_pos : -1] . g:cmd2_pending_cmd[1]
 endfunction
 
-function! cmd2#functions#End()
-  let tail = g:cmd2_pending_cmd[1]
-  let matchend = matchend(tail, '\v\k+')
-  if matchend <= 0
-    let g:cmd2_pending_cmd[0] .= tail
-    let g:cmd2_pending_cmd[1] = ""
-  else
-    let g:cmd2_pending_cmd[0] .= tail[0 : matchend - 1]
-    let g:cmd2_pending_cmd[1] = tail[matchend : -1]
-  endif
+function! cmd2#functions#End(...)
+  let ccount = get(a:000, 0, 1)
+  let j = 0
+  while j < ccount
+    let tail = g:cmd2_pending_cmd[1]
+    let matchend = matchend(tail, '\v\k+')
+    if matchend <= 0
+      let g:cmd2_pending_cmd[0] .= tail
+      let g:cmd2_pending_cmd[1] = ""
+    else
+      let g:cmd2_pending_cmd[0] .= tail[0 : matchend - 1]
+      let g:cmd2_pending_cmd[1] = tail[matchend : -1]
+    endif
+    let j += 1
+  endwhile
 endfunction
 
 let &cpo = s:save_cpo
