@@ -70,28 +70,17 @@ endfunction
 
 function! cmd2#main#FeedCmdLine()
   let cmd = g:cmd2_pending_cmd
-  call feedkeys(g:cmd2_cmd_type . "\<C-U>". cmd[0] . g:cmd2_output . cmd[1], 'n')
-  " reposition cursor
-  let full_cmd = cmd[0] . g:cmd2_output . cmd[1]
-  call feedkeys("\<C-B>", 'n')
-  let offset = strdisplaywidth(g:cmd2_output) + strdisplaywidth(cmd[0])
-  let right = 0
-  let len = strlen(substitute(full_cmd, ".", "x", "g"))
-  let j = 0
-  while j < len
-    let byte_index = byteidx(full_cmd, j)
-    let char = matchstr(full_cmd, ".", byteidx(full_cmd, j))
-    let display_width = strdisplaywidth(char)
-    if offset < display_width
-      break
-    else
-      let right += 1
-      let offset -= display_width
-      let j += 1
-    endif
+  call feedkeys(g:cmd2_cmd_type . "\<C-U>". cmd[0] . g:cmd2_output, 'n')
+  let len = strlen(substitute(cmd[1], ".", "x", "g"))
+  let i = 0
+  while i < len
+    let char = matchstr(cmd[1], ".", byteidx(cmd[1], i))
+    call feedkeys(char, 'n')
+    let i += 1
   endwhile
-  let right_times = repeat("\<Right>", right)
-  call feedkeys(right_times, 'n')
+  call feedkeys("\<C-E>", 'n')
+  let left = repeat("\<Left>", len)
+  call feedkeys(left, 'n')
 endfunction
 
 function! cmd2#main#Reenter()
