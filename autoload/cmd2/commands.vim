@@ -18,17 +18,17 @@ function! cmd2#commands#DoMapping(input)
         \ : flags =~# 'c' ? a:input.ccount
         \ : ""
   let old_view = winsaveview()
-  let [vstart, vend, vpos, vmode] = cmd2#commands#VisualPre(old_view, flags)
+  let [vstart, vend, vpos, vmode] = cmd2#commands#VisualPre(flags)
+  call winrestview(old_view)
   call cmd2#commands#HandleType(Cmd, type, ccount)
   call cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
   call cmd2#commands#Pflag(old_view, flags)
   call cmd2#commands#Rflag(mapping, flags)
 endfunction
 
-function! cmd2#commands#VisualPre(old_view, flags)
+function! cmd2#commands#VisualPre(flags)
   if a:flags =~# 'v' && g:cmd2_visual_select
     let [vstart, vend, vpos, vmode] = cmd2#util#SaveVisual()
-    call winrestview(a:old_view)
     return [vstart, vend, vpos, vmode]
   else
     return [-1, -1, -1, -1]
@@ -80,7 +80,11 @@ function! cmd2#commands#HandleType(cmd, type, ccount)
 endfunction
 
 function! cmd2#commands#HandleLiteral(cmd, ccount)
-  let g:cmd2_output = a:cmd
+  if !len(a:ccount)
+    let g:cmd2_output = a:cmd
+  else
+    let g:cmd2_output = repeat(a:cmd, a:ccount)
+  endif
 endfunction
 
 function! cmd2#commands#HandleText(cmd, ccount)
@@ -122,7 +126,7 @@ endfunction
 
 function! cmd2#commands#HandleNormal(cmd, ccount, bang)
   let bang = a:bang ? '!' : ''
-  execute "normal" . bang . " " . a:cmd
+  execute "normal" . bang . " " . a:ccount . a:cmd
 endfunction
 
 let g:cmd2_remap_depth = 0
