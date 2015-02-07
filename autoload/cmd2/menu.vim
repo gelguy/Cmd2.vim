@@ -90,6 +90,7 @@ endfunction
 
 function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
   let line = []
+  let @d = string(g:cmd2_menu)
   let cur_length = 0
   let page = a:pages[a:pos[0]]
   let i = 0
@@ -106,10 +107,24 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
     let hl = a:pos[1] == i ? g:cmd2_menu_selected_hl : g:cmd2_menu_hl
     if len(text) + strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 2 > a:columns
       " + 3 to include extra space after item
-      let end_char = &columns - (strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 3)
-      let end_char -= len(strdisplaywidth(g:cmd2_menu_more))
-      let end_pos = byteidx(text, end_char)
-      let text = text[0 : end_pos - 1]
+      let space_left = &columns - (strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 3)
+      let space_left -= len(strdisplaywidth(g:cmd2_menu_more))
+      let len = strlen(substitute(text, ".", "x", "g"))
+      let j = 0
+      let result = ""
+      while j < len
+        let byte_index = byteidx(text, j)
+        let char = matchstr(text, ".", byteidx(text, j))
+        let display_width = strdisplaywidth(char)
+        if space_left < display_width
+          break
+        else
+          let result .= char
+          let space_left -= display_width
+          let j += 1
+        endif
+      endwhile
+      let text = result
       let text .= g:cmd2_menu_more
     endif
     call add(line, {'text': text, 'hl': hl})
