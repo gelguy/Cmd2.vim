@@ -60,8 +60,6 @@ function! cmd2#functions#Tab(direction)
   if new_pos >= 0
     let cursor_width = strlen(g:cmd2_snippet_cursor)
     let g:cmd2_pending_cmd = [cmd[0 : (new_pos-1)], cmd[(new_pos + cursor_width) : -1]]
-    " +1 to include cmdline type
-    let g:cmd2_cursor_pos = strlen(g:cmd2_pending_cmd[0]) + 1
   endif
 endfunction
 

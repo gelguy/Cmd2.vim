@@ -77,7 +77,7 @@ function! cmd2#main#FeedCmdLine()
   let full_cmd = cmd[0] . g:cmd2_output . cmd[1]
   call feedkeys("\<C-B>", 'n')
   " -1 since cmd2_cursor_pos includes the prompt char
-  let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
+  let offset = strdisplaywidth(g:cmd2_output) + strdisplaywidth(cmd[0])
   " to prevent wrapping with [0:-1]
   let right = 0
   let len = strlen(substitute(full_cmd, ".", "x", "g"))
