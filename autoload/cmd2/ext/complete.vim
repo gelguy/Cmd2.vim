@@ -95,15 +95,14 @@ function! cmd2#ext#complete#ScanBuffer(string)
     let pattern .= a:string
   endif
   let pattern .= g:cmd2__complete_pattern . '\+'
-  let match = search(pattern, 'cnW')
+  let match = search(pattern, 'W')
   while match
-  let @d = @d + 1
     let matches += cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
     if match == line('$')
       break
     else
       call cursor((getpos('.')[1] + 1), 1)
-      let match = search(pattern, 'cnW')
+      let match = search(pattern, 'W')
     endif
   endwhile
   call winrestview(old_view)
