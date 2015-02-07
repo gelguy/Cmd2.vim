@@ -150,7 +150,7 @@ endfunction
 function! cmd2#ext#complete#InContext()
   let pos = getcmdpos()
   let cmdline = getcmdline()[0 : pos]
-  return getcmdtype() =~ '\v[?/]' || match(cmdline, '\v[?/]\k*$') >= 0
+  return !wildmenumode() && (getcmdtype() =~ '\v[?/]' || match(cmdline, '\v[?/]\k*$') >= 0)
 endfunction
 
 function! cmd2#ext#complete#Uniq(list)
