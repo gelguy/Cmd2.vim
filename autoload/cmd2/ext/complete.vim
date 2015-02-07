@@ -11,13 +11,8 @@ function! cmd2#ext#complete#Main()
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
     let candidates = call(g:cmd2__complete_generate, [s:old_cmd_0])
     if len(candidates)
-      if g:cmd2__complete_ignorecase
-        let candidates = cmd2#ext#complete#Uniq(candidates)
-        call sort(candidates, 'i')
-      else
-        let candidates = cmd2#ext#complete#Uniq(candidates)
-        call sort(candidates)
-      endif
+      let candidates = cmd2#ext#complete#Uniq(candidates)
+      call cmd2#ext#complete#Sort(candidates, g:cmd2__complete_ignorecase)
       let idx = index(candidates, cmd2#ext#complete#StringToMatch())
       if idx >= 0
         call remove(candidates, idx)
@@ -169,6 +164,29 @@ function! cmd2#ext#complete#Uniq(list)
     endif
   endfor
   return keys(dict)
+endfunction
+
+function! cmd2#ext#complete#Sort(candidates, ignorecase)
+  if a:ignorecase
+    call sort(a:candidates, 'cmd2#ext#complete#Compare')
+  else
+    call sort(a:candidates)
+  endif
+endfunction
+
+function! cmd2#ext#complete#Compare(a1, a2)
+  let a1 = tolower(a:a1)
+  let a2 = tolower(a:a2)
+  let i = 0
+  let len = min([len(a1), len(a2)])
+  while i < len
+    let comp = a1[i] == a2[i] ? 0 : a1[i] > a2[i] ? 1 : -1
+    if comp
+      return comp
+    endif
+    let i += 1
+  endwhile
+  return len(a1) == len(a2) ? 0 : len(a1) > len(a2) ? 1 : -1
 endfunction
 
 let &cpo = s:save_cpo
