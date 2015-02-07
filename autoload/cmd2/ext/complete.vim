@@ -10,14 +10,18 @@ function! cmd2#ext#complete#Main()
     let old_menu = g:cmd2_menu
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
     let candidates = call(g:cmd2__complete_generate, [s:old_cmd_0])
-    if g:cmd2__complete_ignorecase
-      let candidates = cmd2#ext#complete#Uniq(candidates)
-      call sort(candidates, 'i')
-    else
-      let candidates = cmd2#ext#complete#Uniq(candidates)
-      call sort(candidates)
-    endif
     if len(candidates)
+      if g:cmd2__complete_ignorecase
+        let candidates = cmd2#ext#complete#Uniq(candidates)
+        call sort(candidates, 'i')
+      else
+        let candidates = cmd2#ext#complete#Uniq(candidates)
+        call sort(candidates)
+      endif
+      let idx = index(candidates, cmd2#ext#complete#StringToMatch())
+      if idx >= 0
+        call remove(candidates, idx)
+      endif
       " insert original string at the front
       call insert(candidates, cmd2#ext#complete#StringToMatch())
       let g:cmd2_menu = cmd2#menu#CreateMenu(candidates, [0,0], &columns)
@@ -88,7 +92,7 @@ function! cmd2#ext#complete#ScanBuffer(string)
   else
     let pattern .= a:string
   endif
-  let pattern .= g:cmd2__complete_pattern . '\+'
+  let pattern .= g:cmd2__complete_pattern . '\*'
   let match = search(pattern, 'W')
   while match
     let matches += cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
