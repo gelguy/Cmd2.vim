@@ -41,6 +41,7 @@ function! cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
   call cmd2#util#SetCmdHeight()
   call cmd2#util#SetLastStatus()
+  redraw
   if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
     let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
     let result += menu
