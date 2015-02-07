@@ -90,7 +90,6 @@ endfunction
 
 function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
   let line = []
-  let @d = string(g:cmd2_menu)
   let cur_length = 0
   let page = a:pages[a:pos[0]]
   let i = 0
