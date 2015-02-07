@@ -15,7 +15,7 @@ let s:cmd2_default_options = {
       \ 'cursor_hl': cmd2#init#CursorHl(),
       \ 'cursor_text': '_',
       \ 'max_remap_depth': 20,
-      \ 'loop_refresh_rate': 20,
+      \ 'loop_sleep': 20,
       \ 'preload': 0,
       \ 'snippet_cursor': '≡',
       \ 'snippet_cursor_hl': 'Title',
