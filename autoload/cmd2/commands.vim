@@ -106,11 +106,18 @@ endfunction
 function! cmd2#commands#HandleSnippet(cmd, ccount)
   let snippet = substitute(a:cmd, g:cmd2_snippet_cursor_replace, g:cmd2_snippet_cursor, "g")
   let offset = match(snippet, g:cmd2_snippet_cursor)
-  let offset = offset < 0 ? 0 : offset
-  let snippet = substitute(snippet, g:cmd2_snippet_cursor, '', "")
-  " move cursor back to where match starts
-  let g:cmd2_cursor_pos -= strdisplaywidth(snippet) - offset
-  let g:cmd2_output = snippet
+  if offset == -1
+    let g:cmd2_output = snippet
+    return
+  endif
+  if offset == 0
+    let before = ""
+  else
+    let before = snippet[0 : offset - 1]
+  endif
+  let after = snippet[offset + strlen(g:cmd2_snippet_cursor) : -1]
+  let g:cmd2_pending_cmd[0] .= before
+  let g:cmd2_pending_cmd[1] = after . g:cmd2_pending_cmd[1]
 endfunction
 
 function! cmd2#commands#HandleNormal(cmd, ccount, bang)

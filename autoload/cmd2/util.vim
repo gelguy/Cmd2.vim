@@ -161,10 +161,6 @@ function! cmd2#util#ResetReenter()
   let g:cmd2_reenter_key = ""
 endfunction
 
-function! cmd2#util#ResetCursorOffset()
-  let g:cmd2_cursor_offset = 0
-endfunction
-
 function! cmd2#util#SaveCmdHeight()
   let g:cmd2_old_cmdheight = &cmdheight
 endfunction

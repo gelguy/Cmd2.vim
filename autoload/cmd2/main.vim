@@ -13,8 +13,7 @@ function! cmd2#main#Init()
   else
     let g:cmd2_visual_select = 0
   endif
-  let g:cmd2_cursor_pos = getcmdpos()
-  let pos = g:cmd2_cursor_pos
+  let pos = getcmdpos()
   let g:cmd2_cmd_type = getcmdtype()
   let g:cmd2_pending_cmd = [cmd[(pos == 1 ? -1 : 0):(pos > 1 ? pos - 2 : pos - 1)],
         \ cmd[(pos - 1):-1]
@@ -47,7 +46,6 @@ endfunction
 function! cmd2#main#PreRun()
   call cmd2#util#ReselectVisual()
   call cmd2#util#ResetReenter()
-  call cmd2#util#ResetCursorOffset()
   call cmd2#util#BufferCursorHl()
   call cmd2#util#SaveCmdHeight()
   call cmd2#util#SetMore()
@@ -76,9 +74,7 @@ function! cmd2#main#FeedCmdLine()
   " reposition cursor
   let full_cmd = cmd[0] . g:cmd2_output . cmd[1]
   call feedkeys("\<C-B>", 'n')
-  " -1 since cmd2_cursor_pos includes the prompt char
-  let offset = strdisplaywidth(g:cmd2_output) + g:cmd2_cursor_pos - 1
-  " to prevent wrapping with [0:-1]
+  let offset = strdisplaywidth(g:cmd2_output) + strdisplaywidth(cmd[0])
   let right = 0
   let len = strlen(substitute(full_cmd, ".", "x", "g"))
   let j = 0

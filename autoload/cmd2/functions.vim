@@ -60,8 +60,6 @@ function! cmd2#functions#Tab(direction)
   if new_pos >= 0
     let cursor_width = strlen(g:cmd2_snippet_cursor)
     let g:cmd2_pending_cmd = [cmd[0 : (new_pos-1)], cmd[(new_pos + cursor_width) : -1]]
-    " +1 to include cmdline type
-    let g:cmd2_cursor_pos = strlen(g:cmd2_pending_cmd[0]) + 1
   endif
 endfunction
 
@@ -113,17 +111,24 @@ function! cmd2#functions#Back()
       break
     endif
   endwhile
-  " to include prompt
-  let g:cmd2_cursor_pos = current_pos + 1
+  let head = g:cmd2_pending_cmd[0]
+  if current_pos == 0
+    let g:cmd2_pending_cmd[0] = ""
+  else
+    let g:cmd2_pending_cmd[0] = head[0 : current_pos - 1]
+  endif
+  let g:cmd2_pending_cmd[1] = head[current_pos : -1] . g:cmd2_pending_cmd[1]
 endfunction
 
 function! cmd2#functions#End()
   let tail = g:cmd2_pending_cmd[1]
   let matchend = matchend(tail, '\v\k+')
-  if matchend < 0
-    let g:cmd2_cursor_pos += strlen(tail)
+  if matchend <= 0
+    let g:cmd2_pending_cmd[0] .= tail
+    let g:cmd2_pending_cmd[1] = ""
   else
-    let g:cmd2_cursor_pos += matchend
+    let g:cmd2_pending_cmd[0] .= tail[0 : matchend - 1]
+    let g:cmd2_pending_cmd[1] = tail[matchend : -1]
   endif
 endfunction
 
