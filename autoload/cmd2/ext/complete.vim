@@ -11,17 +11,11 @@ function! cmd2#ext#complete#Main()
     let s:old_cmd_0 = g:cmd2_pending_cmd[0]
     let candidates = call(g:cmd2__complete_generate, [s:old_cmd_0])
     if g:cmd2__complete_ignorecase
-      if g:cmd2__complete_uniq_ignorecase
-        call uniq(sort(candidates, 'i'), 'i')
-      else
-        call uniq(sort(candidates, 'i'))
-      endif
+      let candidates = cmd2#ext#complete#Uniq(candidates)
+      call sort(candidates, 'i')
     else
-      if g:cmd2__complete_uniq_ignorecase
-        call uniq(sort(candidates), 'i')
-      else
-        call uniq(sort(candidates))
-      endif
+      let candidates = cmd2#ext#complete#Uniq(candidates)
+      call sort(candidates)
     endif
     if len(candidates)
       " insert original string at the front
@@ -158,6 +152,19 @@ function! cmd2#ext#complete#HasComplete()
   let pos = getcmdpos()
   let cmdline = getcmdline()[0 : pos]
   return getcmdtype() =~ '\v[?/]' || match(cmdline, '\v[?/]\k*$') >= 0
+endfunction
+
+function! cmd2#ext#complete#Uniq(list)
+  let dict = {}
+  for item in a:list
+    if g:cmd2__complete_uniq_ignorecase
+      let item = tolower(item)
+    endif
+    if !has_key(dict, item)
+      let dict[item] = 1
+    endif
+  endfor
+  return keys(dict)
 endfunction
 
 let &cpo = s:save_cpo
