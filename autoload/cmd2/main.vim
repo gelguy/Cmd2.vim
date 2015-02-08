@@ -1,15 +1,15 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#main#Autoload()
+function! Cmd2#main#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#main#Init()
+function! Cmd2#main#Init()
   let cmd = getcmdline()
   if cmd =~ '\M^''<,''>' ? 1 : 0
     let g:Cmd2_visual_select = 1
-    call cmd2#util#HighlightVisual()
+    call Cmd2#util#HighlightVisual()
   else
     let g:Cmd2_visual_select = 0
   endif
@@ -18,38 +18,38 @@ function! cmd2#main#Init()
   let g:Cmd2_pending_cmd = [cmd[(pos == 1 ? -1 : 0):(pos > 1 ? pos - 2 : pos - 1)],
         \ cmd[(pos - 1):-1]
         \ ]
-  silent! call cmd2#util#HideCursor()
+  silent! call Cmd2#util#HideCursor()
 endfunction
 
-function! cmd2#main#Run()
+function! Cmd2#main#Run()
   try
-    call cmd2#main#PreRun()
+    call Cmd2#main#PreRun()
     let args = {
-          \ 'render': function('cmd2#render#Prepare'),
-          \ 'handle': function('cmd2#handle#Handle'),
-          \ 'finish': function('cmd2#commands#DoMapping'),
+          \ 'render': function('Cmd2#render#Prepare'),
+          \ 'handle': function('Cmd2#handle#Handle'),
+          \ 'finish': function('Cmd2#commands#DoMapping'),
           \ 'state': {},
           \ }
-    call cmd2#loop#Init(args)
+    call Cmd2#loop#Init(args)
   catch /^Vim:Interrupt$/
     let g:Cmd2_output = ""
   finally
-    call cmd2#main#PostRun()
+    call Cmd2#main#PostRun()
   endtry
   redraw
-  call cmd2#main#FeedCmdLine()
-  call cmd2#util#ReselectVisual()
-  call cmd2#main#Reenter()
-  call cmd2#main#LeftoverKey()
+  call Cmd2#main#FeedCmdLine()
+  call Cmd2#util#ReselectVisual()
+  call Cmd2#main#Reenter()
+  call Cmd2#main#LeftoverKey()
 endfunction
 
-function! cmd2#main#PreRun()
-  call cmd2#util#ReselectVisual()
-  call cmd2#util#ResetReenter()
-  call cmd2#util#BufferCursorHl()
-  call cmd2#util#SaveCmdHeight()
-  call cmd2#util#SetMore()
-  call cmd2#util#SaveLaststatus()
+function! Cmd2#main#PreRun()
+  call Cmd2#util#ReselectVisual()
+  call Cmd2#util#ResetReenter()
+  call Cmd2#util#BufferCursorHl()
+  call Cmd2#util#SaveCmdHeight()
+  call Cmd2#util#SetMore()
+  call Cmd2#util#SaveLaststatus()
   let g:Cmd2_menu = {}
   let g:Cmd2_temp_output = ""
   let g:Cmd2_output = ""
@@ -57,18 +57,18 @@ function! cmd2#main#PreRun()
   let g:Cmd2_blink_state = -1
 endfunction
 
-function! cmd2#main#PostRun()
-  call cmd2#util#ResetGuiCursor()
-  call cmd2#util#ClearBufferCursorHl()
-  call cmd2#util#ClearHighlightVisual()
-  call cmd2#util#ClearBlinkState()
-  call cmd2#util#ClearRemapDepth()
-  call cmd2#util#ResetCmdHeight()
-  call cmd2#util#ResetMore()
-  call cmd2#util#ResetLaststatus()
+function! Cmd2#main#PostRun()
+  call Cmd2#util#ResetGuiCursor()
+  call Cmd2#util#ClearBufferCursorHl()
+  call Cmd2#util#ClearHighlightVisual()
+  call Cmd2#util#ClearBlinkState()
+  call Cmd2#util#ClearRemapDepth()
+  call Cmd2#util#ResetCmdHeight()
+  call Cmd2#util#ResetMore()
+  call Cmd2#util#ResetLaststatus()
 endfunction
 
-function! cmd2#main#FeedCmdLine()
+function! Cmd2#main#FeedCmdLine()
   let cmd = g:Cmd2_pending_cmd
   call feedkeys(g:Cmd2_cmd_type . "\<C-U>". cmd[0] . g:Cmd2_output, 'n')
   let len = strlen(substitute(cmd[1], ".", "x", "g"))
@@ -83,14 +83,14 @@ function! cmd2#main#FeedCmdLine()
   call feedkeys(left, 'n')
 endfunction
 
-function! cmd2#main#Reenter()
+function! Cmd2#main#Reenter()
   if g:Cmd2_reenter
     call feedkeys("\<Plug>Cmd2", 'm')
     call feedkeys(g:Cmd2_reenter_key, 'm')
   endif
 endfunction
 
-function! cmd2#main#LeftoverKey()
+function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
     call feedkeys(g:Cmd2_leftover_key, 'm')
   endif

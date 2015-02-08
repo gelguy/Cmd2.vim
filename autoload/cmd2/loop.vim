@@ -1,21 +1,21 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#loop#Autoload()
+function! Cmd2#loop#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#loop#Init(args)
-  let result = cmd2#loop#Loop(a:args.render, a:args.handle, a:args.state)
+function! Cmd2#loop#Init(args)
+  let result = Cmd2#loop#Loop(a:args.render, a:args.handle, a:args.state)
   call call(a:args.finish, [result])
 endfunction
 
-function! cmd2#loop#Loop(render, handle, state)
+function! Cmd2#loop#Loop(render, handle, state)
   let state = a:state
-  call cmd2#loop#PrepareState(state)
+  call Cmd2#loop#PrepareState(state)
   while 1
     call call(a:render, [a:state])
-    let input = cmd2#loop#Getchar(0)
+    let input = Cmd2#loop#Getchar(0)
     if type(input) != type(0)
       call call(a:handle, [input, state])
       if state.start_timeout
@@ -25,7 +25,7 @@ function! cmd2#loop#Loop(render, handle, state)
     endif
     let state.current_time = reltime()
     if state.stopped || state.timeout_started &&
-          \ cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:Cmd2_timeoutlen
+          \ Cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:Cmd2_timeoutlen
       break
     endif
     if g:Cmd2_loop_sleep
@@ -35,7 +35,7 @@ function! cmd2#loop#Loop(render, handle, state)
   return state.result
 endfunction
 
-function! cmd2#loop#PrepareState(state)
+function! Cmd2#loop#PrepareState(state)
   let reltime = reltime()
   let default = {
         \ 'force_render' : 0,
@@ -50,7 +50,7 @@ function! cmd2#loop#PrepareState(state)
 endfunction
 
 " https://github.com/haya14busa/incsearch.vim/blob/392adbfaa4343f0b99c5b90e38470e88e44c5ec3/autoload/vital/_incsearch/Over/Input.vim#L6
-function! cmd2#loop#Getchar(...)
+function! Cmd2#loop#Getchar(...)
   let mode = get(a:, 1, 0)
   while 1
     try

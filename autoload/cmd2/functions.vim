@@ -1,11 +1,11 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#functions#Autoload()
+function! Cmd2#functions#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#functions#GetContents(type)
+function! Cmd2#functions#GetContents(type)
   let old_reg = @@
   let sel_save = &selection
   let &selection = "inclusive"
@@ -19,7 +19,7 @@ function! cmd2#functions#GetContents(type)
   let @@ = old_reg
 endfunction
 
-function! cmd2#functions#GetLines(type)
+function! Cmd2#functions#GetLines(type)
   silent exe "normal! '["
   let start_line = getpos('.')[1]
   silent exe "normal! ']"
@@ -31,24 +31,24 @@ function! cmd2#functions#GetLines(type)
   endif
 endfunction
 
-function! cmd2#functions#TabForward(...)
-  call cmd2#functions#TabCount('forwards', a:000)
+function! Cmd2#functions#TabForward(...)
+  call Cmd2#functions#TabCount('forwards', a:000)
 endfunction
 
-function! cmd2#functions#TabBackward(...)
-  call cmd2#functions#TabCount('backwards', a:000)
+function! Cmd2#functions#TabBackward(...)
+  call Cmd2#functions#TabCount('backwards', a:000)
 endfunction
 
-function! cmd2#functions#TabCount(direction, count_list)
+function! Cmd2#functions#TabCount(direction, count_list)
   let ccount = get(a:count_list, 0, 1)
   let i = 0
   while i < ccount
-    call cmd2#functions#Tab(a:direction)
+    call Cmd2#functions#Tab(a:direction)
     let i += 1
   endwhile
 endfunction
 
-function! cmd2#functions#Tab(direction, ...)
+function! Cmd2#functions#Tab(direction, ...)
   let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
   let current_pos = strlen(g:Cmd2_pending_cmd[0])
   if a:direction == 'backwards'
@@ -74,7 +74,7 @@ endfunction
 
 let s:Cmd2_cword_pos = [-1,-1]
 
-function! cmd2#functions#Cword(...)
+function! Cmd2#functions#Cword(...)
   let ccount = get(a:000, 0, 1)
   let current_pos = getpos('.')
   if current_pos[1] == s:Cmd2_cword_pos[0] &&
@@ -100,7 +100,7 @@ function! cmd2#functions#Cword(...)
   let s:Cmd2_cword_pos = [getpos('.')[1], (getpos("'>")[2] - 1)]
 endfunction
 
-function! cmd2#functions#CopySearch(...)
+function! Cmd2#functions#CopySearch(...)
   let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
   let matchstr = matchlist(cmd, '\vs/(.{-})/')
   if !empty(matchstr[1])
@@ -108,7 +108,7 @@ function! cmd2#functions#CopySearch(...)
   endif
 endfunction
 
-function! cmd2#functions#Back(...)
+function! Cmd2#functions#Back(...)
   let ccount = get(a:000, 0, 1)
   let j = 0
   while j < ccount
@@ -135,7 +135,7 @@ function! cmd2#functions#Back(...)
   endwhile
 endfunction
 
-function! cmd2#functions#End(...)
+function! Cmd2#functions#End(...)
   let ccount = get(a:000, 0, 1)
   let j = 0
   while j < ccount

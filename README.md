@@ -30,14 +30,14 @@ let g:Cmd2_cmd_mappings = {
       \ 'ap': {'command': 'ap', 'type': 'line', 'flags': 'pv'},
       \ '^': {'command': '^', 'type': 'normal!', 'flags': 'r'},
       \ 's': {'command': 's/###/###/g', 'type': 'snippet'},
-      \ 'S': {'command': 'cmd2#functions#CopySearch', 'type': 'function'},
-      \ 'b': {'command': 'cmd2#functions#Back', 'type': 'function', 'flags': 'r'},
-      \ 'e': {'command': 'cmd2#functions#End', 'type': 'function', 'flags': 'r'},
-      \ "CF": {'command': function('cmd2#ext#complete#Main'), 'type': 'function'},
-      \ "CB": {'command': function('cmd2#ext#complete#Main'), 'type': 'function'},
-      \ 'w': {'command': 'cmd2#functions#Cword', 'type': 'function', 'flags': 'Cr'},
-      \ "\<Plug>Cmd2Tab": {'command': "cmd2#functions#TabForward", 'type': 'function', 'flags': 'C'},
-      \ "\<Plug>Cmd2STab": {'command': "cmd2#functions#TabBackward", 'type': 'function', 'flags': 'C'},
+      \ 'S': {'command': 'Cmd2#functions#CopySearch', 'type': 'function'},
+      \ 'b': {'command': 'Cmd2#functions#Back', 'type': 'function', 'flags': 'r'},
+      \ 'e': {'command': 'Cmd2#functions#End', 'type': 'function', 'flags': 'r'},
+      \ "CF": {'command': function('Cmd2#ext#complete#Main'), 'type': 'function'},
+      \ "CB": {'command': function('Cmd2#ext#complete#Main'), 'type': 'function'},
+      \ 'w': {'command': 'Cmd2#functions#Cword', 'type': 'function', 'flags': 'Cr'},
+      \ "\<Plug>Cmd2Tab": {'command': "Cmd2#functions#TabForward", 'type': 'function', 'flags': 'C'},
+      \ "\<Plug>Cmd2STab": {'command': "Cmd2#functions#TabBackward", 'type': 'function', 'flags': 'C'},
       \ "\<Tab>": {'command': "\<Plug>Cmd2Tab", 'type': 'remap', 'flags': 'C'},
       \ "\<S-Tab>": {'command': "\<Plug>Cmd2STab", 'type': 'remap', 'flags': 'C'},
 
@@ -52,8 +52,8 @@ let g:Cmd2_options = {
       \ }
 
 cmap <C-S> <Plug>Cmd2
-cmap <expr> <Tab> cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CF" : "\<Tab>"
-cmap <expr> <S-Tab> cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CB" : "\<S-Tab>"
+cmap <expr> <Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CF" : "\<Tab>"
+cmap <expr> <S-Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CB" : "\<S-Tab>"
 ```
 ## Creating a mapping
 To create a mapping, create the corresponding entry in the `g:Cmd2_cmd_mappings` dictionary. The key cannot start with a digit as that will be confused with the current count input. Mappings will be generated when the plugin is initialised and cannot be changed without restarting Vim.
@@ -81,7 +81,7 @@ The input to handle. Each type expects a different form of command, as follows:
 
 * `snippet`
 
-  A snippet - text with jump targets which the users can jump to. The jump targets are defaulted to be `g:Cmd2_snippet_cursor_replace`. The default is `'###'`. The jump targets are rendered as `g:Cmd2_snippet_cursor`. The default is `≡`. The first target is automatically jumped to. For example, `s/###/###/g` results in the text `s//≡/g` with the cursor after the first `/`. The user can then use the `cmd2#functions#TabForward` function to jump forward to the next target.
+  A snippet - text with jump targets which the users can jump to. The jump targets are defaulted to be `g:Cmd2_snippet_cursor_replace`. The default is `'###'`. The jump targets are rendered as `g:Cmd2_snippet_cursor`. The default is `≡`. The first target is automatically jumped to. For example, `s/###/###/g` results in the text `s//≡/g` with the cursor after the first `/`. The user can then use the `Cmd2#functions#TabForward` function to jump forward to the next target.
 
 * `remap`
 
@@ -100,7 +100,7 @@ Setting these flags will determine the behaviour before, during and after an act
 
 * **reenter** `r`
 
-  After completing the action, the keys `\<Plug>Cmd2` are fed, triggering Cmd2 again. This is convenient for functions which do not want to exit Cmd2, e.g. manipulating the cmd cursor position with `cmd2#functions#End`. `g:Cmd2_reenter_key` can be defined which will feed the keys after reentering Cmd2.
+  After completing the action, the keys `\<Plug>Cmd2` are fed, triggering Cmd2 again. This is convenient for functions which do not want to exit Cmd2, e.g. manipulating the cmd cursor position with `Cmd2#functions#End`. `g:Cmd2_reenter_key` can be defined which will feed the keys after reentering Cmd2.
 
 * **position** `p`
 
@@ -113,7 +113,7 @@ Setting these flags will determine the behaviour before, during and after an act
 ## Writing a custom function
 The custom function takes 0 or 1 arguments, depending on whether the `c` flag is set. In practice, it is best to use a variadic function, which can accept any number of arguments.
 ``` vim
-function! cmd2#functions#Cword(...)
+function! Cmd2#functions#Cword(...)
   let ccount = get(a:000, 0, 1)
 ```
 
@@ -127,7 +127,7 @@ To manipulate the cursor position, `g:Cmd2_pending_cmd` will need to be modified
 
 Example:
 ``` vim
-function! cmd2#functions#CopySearch(...)
+function! Cmd2#functions#CopySearch(...)
   let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
   let matchstr = matchlist(cmd, '\vs/(.{-})/')
   if !empty(matchstr[1])
@@ -142,9 +142,9 @@ Cmd2 options can be set by defining the `g:Cmd2_options` dictionary in your .vim
 
 Below are the possible options, their default setting and description.
 
-* `buffer_cursor_hl`: `cmd2#init#BufferCursorHl()`
+* `buffer_cursor_hl`: `Cmd2#init#BufferCursorHl()`
 
-  The hlgroup to use to highlight the current cursor position in the buffer. Note that when Vim enters cmdline-mode, the cursor disappears from the buffer as it moves to the cmdline. `cmd2#init#BufferCursorHl()` is used to create the `Cmd2Cursor` hlgroup, which links to `Cursor` if the hlgroup exists or reverse otherwise.
+  The hlgroup to use to highlight the current cursor position in the buffer. Note that when Vim enters cmdline-mode, the cursor disappears from the buffer as it moves to the cmdline. `Cmd2#init#BufferCursorHl()` is used to create the `Cmd2Cursor` hlgroup, which links to `Cursor` if the hlgroup exists or reverse otherwise.
 
 * `buffer_cursor_show`: `1`
 
@@ -158,9 +158,9 @@ Below are the possible options, their default setting and description.
 
   The behaviour of how the cmdline cursor blinks. `cursor_blinkwait` is the delay before the cursor starts blinking, `cursor_blinkon` is the time the cursor is shown and `cursor_blinkoff` is the time the cursor is not shown. The times are in msec. In gVim, the default behaviour of the cursor out of Cmd2 can be found using `&guicursor`. See `:h guicursor`.
 
-* `cursor_hl`: `cmd2#init#CursorHl()`
+* `cursor_hl`: `Cmd2#init#CursorHl()`
 
-  The hlgroup to use to highlight the cmdline cursor when it is shown. `cmd2#init#BufferCursorHl()` is used to create the `Cmd2Cursor` hlgroup, which links to `Cursor` if the hlgroup exists or reverse otherwise.
+  The hlgroup to use to highlight the cmdline cursor when it is shown. `Cmd2#init#BufferCursorHl()` is used to create the `Cmd2Cursor` hlgroup, which links to `Cursor` if the hlgroup exists or reverse otherwise.
 
 * `cursor_text`: `'_'`
 
@@ -215,7 +215,7 @@ Below are the possible options, their default setting and description.
   The string used to append to a menu item if it is truncated because it is too long. Can be multibyte.
 
 ## Cmd2Complete extension
-  **Cmd2Complete** is an extension built on Cmd2. It provides fuzzy completion for search in wildmenu style. Refer to the gif for an example. It can be mapped as a function using `cmd2#ext#complete#Main`. Once activated, the next and previous keys will cycle through the candidates, listed in wildmenu style.
+  **Cmd2Complete** is an extension built on Cmd2. It provides fuzzy completion for search in wildmenu style. Refer to the gif for an example. It can be mapped as a function using `Cmd2#ext#complete#Main`. Once activated, the next and previous keys will cycle through the candidates, listed in wildmenu style.
 
   Options are defined in the same `g:Cmd2_options` dictionary. As an extension, the options are prepended with `_`. The options are lsited below.
 
@@ -247,7 +247,7 @@ Below are the possible options, their default setting and description.
 
   Key to enter to go to the previous item in the menu.
 
-* `_complete_generate`: `'cmd2#ext#complete#GenerateCandidates'`
+* `_complete_generate`: `'Cmd2#ext#complete#GenerateCandidates'`
 
   A string or a funcref. If a string, needs to be the name of a function. The function is called to generate the list of candidates. The function is passed 1 argument, which is the substring of the cmdline before the cursor. The function will have access to the global variables such as `g:cmd2_pending_cmd` if the argument is not enough. The list should be a list of strings, in the order they would appear in the menu. This means searching, sorting, uniq-ng and ranking should be done.
 

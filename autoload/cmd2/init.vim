@@ -1,32 +1,32 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#init#Autoload()
+function! Cmd2#init#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#init#Options(default_options)
+function! Cmd2#init#Options(default_options)
   let Cmd2_options = extend(copy(a:default_options), g:Cmd2_options, 'force')
   for key in keys(Cmd2_options)
-    call cmd2#init#Option(key, Cmd2_options[key])
+    call Cmd2#init#Option(key, Cmd2_options[key])
   endfor
 endfunction
 
 " Helper function for init#Options()
-function! cmd2#init#Option(key, value)
+function! Cmd2#init#Option(key, value)
   let g:Cmd2_{a:key} = a:value
 endfunction
 
-function! cmd2#init#CmdMappings(default_cmd_mappings)
-  let g:Cmd2_mapping_tree = cmd2#tree#New({'value': {'command': ''}})
+function! Cmd2#init#CmdMappings(default_cmd_mappings)
+  let g:Cmd2_mapping_tree = Cmd2#tree#New({'value': {'command': ''}})
   let Cmd2_cmd_mappings = extend(copy(a:default_cmd_mappings), g:Cmd2_cmd_mappings, 'force')
   for key in keys(Cmd2_cmd_mappings)
     let mapping = Cmd2_cmd_mappings[key]
-    call cmd2#init#CmdMapping(key, mapping, g:Cmd2_mapping_tree)
+    call Cmd2#init#CmdMapping(key, mapping, g:Cmd2_mapping_tree)
   endfor
 endfunction
 
-function! cmd2#init#CmdMapping(key, value, root)
+function! Cmd2#init#CmdMapping(key, value, root)
   let current_node = a:root
   let key = a:key
   " split key into multibyte characters
@@ -41,27 +41,27 @@ function! cmd2#init#CmdMapping(key, value, root)
       let char = key[0]
       let key = key[1:-1]
     endif
-    if !cmd2#tree#NodeHasKey(current_node, char)
-      let current_node = cmd2#tree#NodeAddNode(current_node, char)
+    if !Cmd2#tree#NodeHasKey(current_node, char)
+      let current_node = Cmd2#tree#NodeAddNode(current_node, char)
     else
       let current_node = current_node[char]
     endif
   endwhile
-  call cmd2#tree#NodeAddValue(current_node, a:value)
+  call Cmd2#tree#NodeAddValue(current_node, a:value)
 endfunction
 
-function! cmd2#init#Mappings()
-  let Cmd2_mappings = extend(cmd2#Cmd2_default_mappings, g:Cmd2_mappings, 'force')
+function! Cmd2#init#Mappings()
+  let Cmd2_mappings = extend(Cmd2#Cmd2_default_mappings, g:Cmd2_mappings, 'force')
   for key in keys(Cmd2_mappings)
-    call cmd2#init#Mapping(key, Cmd2_mappings[key])
+    call Cmd2#init#Mapping(key, Cmd2_mappings[key])
   endfor
 endfunction
 
-function! cmd2#init#Mapping(key, value)
+function! Cmd2#init#Mapping(key, value)
   " TODO
 endfunction
 
-function! cmd2#init#CursorHl()
+function! Cmd2#init#CursorHl()
   if hlID('Cursor')
     hi! link Cmd2Cursor Cursor
   else
@@ -70,7 +70,7 @@ function! cmd2#init#CursorHl()
   return 'Cmd2Cursor'
 endfunction
 
-function! cmd2#init#BufferCursorHl()
+function! Cmd2#init#BufferCursorHl()
   if hlID('Cursor')
     hi! link Cmd2BufferCursor Cursor
   else

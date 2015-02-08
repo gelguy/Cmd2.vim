@@ -1,20 +1,20 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#menu#Autoload()
+function! Cmd2#menu#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#menu#CreateMenu(list, pos, columns)
+function! Cmd2#menu#CreateMenu(list, pos, columns)
   let menu = {}
   let offset = strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 2
-  let menu.pages = cmd2#menu#CreatePages(a:list, a:columns, offset)
+  let menu.pages = Cmd2#menu#CreatePages(a:list, a:columns, offset)
   let menu.pos = a:pos
   let menu.columns = a:columns
   return menu
 endfunction
 
-function! cmd2#menu#CreatePages(list, columns, offset)
+function! Cmd2#menu#CreatePages(list, columns, offset)
   if !len(a:list)
     return []
   else
@@ -40,7 +40,7 @@ function! cmd2#menu#CreatePages(list, columns, offset)
   return pages
 endfunction
 
-function! cmd2#menu#Next(menu)
+function! Cmd2#menu#Next(menu)
   if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
     return
   endif
@@ -58,7 +58,7 @@ function! cmd2#menu#Next(menu)
   let a:menu.pos[1] = index
 endfunction
 
-function! cmd2#menu#Previous(menu)
+function! Cmd2#menu#Previous(menu)
   if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
     return
   endif
@@ -76,7 +76,7 @@ function! cmd2#menu#Previous(menu)
   let a:menu.pos[1] = index
 endfunction
 
-function! cmd2#menu#Current(menu)
+function! Cmd2#menu#Current(menu)
   if !len(a:menu.pages) || !len(a:menu.pages[a:menu.pos[0]])
     return ""
   endif
@@ -84,11 +84,11 @@ function! cmd2#menu#Current(menu)
   return item
 endfunction
 
-function! cmd2#menu#PrepareMenuLineFromMenu(menu)
-  return cmd2#menu#PrepareMenuLine(a:menu.pages, a:menu.pos, a:menu.columns)
+function! Cmd2#menu#PrepareMenuLineFromMenu(menu)
+  return Cmd2#menu#PrepareMenuLine(a:menu.pages, a:menu.pos, a:menu.columns)
 endfunction
 
-function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
+function! Cmd2#menu#PrepareMenuLine(pages, pos, columns)
   let line = []
   let cur_length = 0
   let page = a:pages[a:pos[0]]

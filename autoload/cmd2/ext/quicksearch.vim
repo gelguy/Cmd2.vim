@@ -1,19 +1,19 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#ext#quicksearch#Autoload()
+function! Cmd2#ext#quicksearch#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#ext#quicksearch#Forward()
-  call cmd2#ext#quicksearch#Search('')
+function! Cmd2#ext#quicksearch#Forward()
+  call Cmd2#ext#quicksearch#Search('')
 endfunction
 
-function! cmd2#ext#quicksearch#Backward()
-  call cmd2#ext#quicksearch#Search('b')
+function! Cmd2#ext#quicksearch#Backward()
+  call Cmd2#ext#quicksearch#Search('b')
 endfunction
 
-function! cmd2#ext#quicksearch#Search(flag)
+function! Cmd2#ext#quicksearch#Search(flag)
   let old_hlsearch = &hlsearch
   let old_ignorecase = &ignorecase
   try
@@ -28,7 +28,7 @@ function! cmd2#ext#quicksearch#Search(flag)
     endif
     let @/ = pattern
     call search(pattern, a:flag)
-    call cmd2#ext#quicksearch#ClearHl()
+    call Cmd2#ext#quicksearch#ClearHl()
     let [line, col] = getpos('.')[1:2]
     let flag = g:Cmd2__quicksearch_ignorecase ? '\c' : ''
     let s:tab_search_hl = matchadd(g:Cmd2__quicksearch_hl, flag . pattern)
@@ -43,7 +43,7 @@ function! cmd2#ext#quicksearch#Search(flag)
   endtry
 endfunction
 
-function! cmd2#ext#quicksearch#ClearHl()
+function! Cmd2#ext#quicksearch#ClearHl()
   if exists('s:tab_search_hl') && s:tab_search_hl >= 0
     call matchdelete(s:tab_search_hl)
     let s:tab_search_hl = -1

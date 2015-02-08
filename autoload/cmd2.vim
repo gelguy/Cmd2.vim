@@ -1,20 +1,20 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#Autoload()
-  call cmd2#commands#Autoload()
-  call cmd2#functions#Autoload()
-  call cmd2#handle#Autoload()
-  call cmd2#init#Autoload()
-  call cmd2#loop#Autoload()
-  call cmd2#main#Autoload()
-  call cmd2#menu#Autoload()
-  call cmd2#render#Autoload()
-  call cmd2#tree#Autoload()
-  call cmd2#util#Autoload()
+function! Cmd2#Autoload()
+  call Cmd2#commands#Autoload()
+  call Cmd2#functions#Autoload()
+  call Cmd2#handle#Autoload()
+  call Cmd2#init#Autoload()
+  call Cmd2#loop#Autoload()
+  call Cmd2#main#Autoload()
+  call Cmd2#menu#Autoload()
+  call Cmd2#render#Autoload()
+  call Cmd2#tree#Autoload()
+  call Cmd2#util#Autoload()
 
-  call cmd2#ext#complete#Autoload()
-  call cmd2#ext#quicksearch#Autoload()
+  call Cmd2#ext#complete#Autoload()
+  call Cmd2#ext#quicksearch#Autoload()
 endfunction
 
 let &cpo = s:save_cpo

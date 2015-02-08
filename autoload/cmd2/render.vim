@@ -1,55 +1,55 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! cmd2#render#Autoload()
+function! Cmd2#render#Autoload()
   " do nothing
 endfunction
 
-function! cmd2#render#Prepare(state)
-  let CmdLine = function('cmd2#render#PrepareCmdLineWithMenu')
-  call cmd2#render#Main(CmdLine, a:state)
+function! Cmd2#render#Prepare(state)
+  let CmdLine = function('Cmd2#render#PrepareCmdLineWithMenu')
+  call Cmd2#render#Main(CmdLine, a:state)
 endfunction
 
-function! cmd2#render#Main(cmd, state)
-  if cmd2#render#CheckBlink(a:state) || a:state.force_render
-    call cmd2#util#SetCmdHeight()
-    call cmd2#util#SetLastStatus()
+function! Cmd2#render#Main(cmd, state)
+  if Cmd2#render#CheckBlink(a:state) || a:state.force_render
+    call Cmd2#util#SetCmdHeight()
+    call Cmd2#util#SetLastStatus()
     redraw
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
     let result = call(a:cmd, [a:state])
-    call cmd2#render#Render(result)
+    call Cmd2#render#Render(result)
   endif
   if a:state.force_render == 1
     let a:state.force_render = 0
   endif
 endfunction
 
-function! cmd2#render#PrepareCmdLine(state)
+function! Cmd2#render#PrepareCmdLine(state)
   let result = []
   let result += [{'text': g:Cmd2_cmd_type}]
-  let result += cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
+  let result += Cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
   let result += [{'text': g:Cmd2_temp_output}]
   if g:Cmd2_blink_state
     call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
   else
     call add(result, {'text': g:Cmd2_cursor_text})
   endif
-  let result += cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
+  let result += Cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
   return result
 endfunction
 
-function! cmd2#render#PrepareCmdLineWithMenu(state)
+function! Cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
   if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
-    let menu = cmd2#menu#PrepareMenuLineFromMenu(g:Cmd2_menu)
+    let menu = Cmd2#menu#PrepareMenuLineFromMenu(g:Cmd2_menu)
     let result += menu
   endif
-  let result += cmd2#render#PrepareCmdLine(a:state)
+  let result += Cmd2#render#PrepareCmdLine(a:state)
   return result
 endfunction
 
-function! cmd2#render#Render(list)
+function! Cmd2#render#Render(list)
   try
     for block in a:list
       let hl = get(block, 'hl', 'None')
@@ -62,9 +62,9 @@ function! cmd2#render#Render(list)
 endfunction
 
 " renders the cmdline through echo
-function! cmd2#render#CheckBlink(state)
+function! Cmd2#render#CheckBlink(state)
   let blink = g:Cmd2_cursor_blink ?
-        \ cmd2#render#GetCursorBlink(a:state.start_time, a:state.current_time)
+        \ Cmd2#render#GetCursorBlink(a:state.start_time, a:state.current_time)
         \ : 1
   if g:Cmd2_blink_state == blink
     return 0
@@ -74,7 +74,7 @@ function! cmd2#render#CheckBlink(state)
   endif
 endfunction
 
-function! cmd2#render#SplitSnippet(cmd, split)
+function! Cmd2#render#SplitSnippet(cmd, split)
   let result = []
   let splitcmd = split(a:cmd, a:split, 1)
   call add(result, {'text': splitcmd[0]})
@@ -87,8 +87,8 @@ function! cmd2#render#SplitSnippet(cmd, split)
   return result
 endfunction
 
-function! cmd2#render#GetCursorBlink(start, current)
-  let ms = cmd2#util#GetRelTimeMs(a:start, a:current)
+function! Cmd2#render#GetCursorBlink(start, current)
+  let ms = Cmd2#util#GetRelTimeMs(a:start, a:current)
   if ms < g:Cmd2_cursor_blinkwait
     return 1
   endif

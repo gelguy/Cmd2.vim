@@ -6,13 +6,13 @@ if exists('g:Cmd2_loaded') && g:Cmd2_loaded
 endif
 
 let s:Cmd2_default_options = {
-      \ 'buffer_cursor_hl': cmd2#init#BufferCursorHl(),
+      \ 'buffer_cursor_hl': Cmd2#init#BufferCursorHl(),
       \ 'buffer_cursor_show': 1,
       \ 'cursor_blink': 1,
       \ 'cursor_blinkoff': 250,
       \ 'cursor_blinkon': 400,
       \ 'cursor_blinkwait': 700,
-      \ 'cursor_hl': cmd2#init#CursorHl(),
+      \ 'cursor_hl': Cmd2#init#CursorHl(),
       \ 'cursor_text': '_',
       \ 'max_remap_depth': 20,
       \ 'loop_sleep': 20,
@@ -32,7 +32,7 @@ let s:Cmd2_default_options = {
       \ '_complete_middle_pattern': '\k\*',
       \ '_complete_end_pattern': '\k\*',
       \ '_complete_fuzzy': 1,
-      \ '_complete_generate': 'cmd2#ext#complete#GenerateCandidates',
+      \ '_complete_generate': 'Cmd2#ext#complete#GenerateCandidates',
       \ '_complete_next': "\<Tab>",
       \ '_complete_previous': "\<S-Tab>",
       \ '_quicksearch_ignorecase': 0,
@@ -62,14 +62,14 @@ if !exists('g:Cmd2_mappings')
         \ }
 endif
 
-call cmd2#init#Options(s:Cmd2_default_options)
-call cmd2#init#CmdMappings(s:Cmd2_default_cmd_mappings)
+call Cmd2#init#Options(s:Cmd2_default_options)
+call Cmd2#init#CmdMappings(s:Cmd2_default_cmd_mappings)
 
 if g:Cmd2_preload
-  call cmd2#Autoload()
+  call Cmd2#Autoload()
 endif
 
-cnoremap <silent> <expr> <Plug>Cmd2 getcmdtype() =~ '\v[?:\/]' ? cmd2#main#Init() . "<C-E><C-U><C-C>:call cmd2#main#Run()<CR>" : ""
+cnoremap <silent> <expr> <Plug>Cmd2 getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() . "<C-E><C-U><C-C>:call Cmd2#main#Run()<CR>" : ""
 
 let g:Cmd2_loaded = 1
 
