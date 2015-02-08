@@ -28,7 +28,7 @@ let s:Cmd2_default_options = {
       \ 'menu_more': '…',
       \ '_complete_ignorecase': 0,
       \ '_complete_uniq_ignorecase': 1,
-      \ '_complete_pattern': '\k',
+      \ '_complete_pattern': '\k\*',
       \ '_complete_start_pattern': '\<',
       \ '_complete_fuzzy': 1,
       \ '_complete_generate': 'cmd2#ext#complete#GenerateCandidates',

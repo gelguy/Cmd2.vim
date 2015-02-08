@@ -83,11 +83,11 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
   let pattern = '\V' . ignore_case . g:Cmd2__complete_start_pattern
   if g:Cmd2__complete_fuzzy
-    let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:cmd2__complete_pattern . '\*')
+    let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:Cmd2__complete_pattern)
   else
     let pattern .= a:string
   endif
-  let pattern .= g:cmd2__complete_pattern . '\*'
+  let pattern .= g:Cmd2__complete_pattern
   let match = search(pattern, 'W')
   while match
     let matches += cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
