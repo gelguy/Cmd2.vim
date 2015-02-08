@@ -227,13 +227,17 @@ Below are the possible options, their default setting and description.
 
   Boolean to toggle whether to ignore case when removing repeat matches. This is different from ignoring case while searching as we might want to keep the different casings of the same word as options. This value does not matter if `_complete_ignorecase` is not set.
 
-* `_complete_pattern`: `'\k\*'`
-
-  A pattern to use while searching. Note: `\V` or "very nomagic" is on so the characters have to be escaped accordingly. When fuzzy search is off, the pattern is appended to the end of the search string. When fuzzy search is on, the pattern is inserted between each character and then again at the end.
-
 * `_complete_start_pattern`: `'\<'`
 
   A pattern to use while searching. Note: `\V` or "very nomagic" is on so the characters have to be escaped accordingly. The pattern is prepended at the start of the search string.
+
+* `_complete_middle_pattern`: `'\k\*'`
+
+  A pattern to use while searching. Note: `\V` or "very nomagic" is on so the characters have to be escaped accordingly. This pattern is only used when _complete_fuzzy is on. The pattern is added in between each character of the search string. Note that since this pattern will be added a lot of times when the string is long, it is recommended to use `\%(\)` for groupings in the pattern.
+
+* `_complete_end_pattern`: `'\k\*'`
+
+  A pattern to use while searching. Note: `\V` or "very nomagic" is on so the characters have to be escaped accordingly. The pattern is appended at the end of the search string.
 
 * `_complete_fuzzy`: `1`
 
@@ -251,11 +255,33 @@ Below are the possible options, their default setting and description.
 
   A string or a funcref. If a string, needs to be the name of a function. The function is called to generate the list of candidates. The function is passed 1 argument, which is the substring of the cmdline before the cursor. The function will have access to the global variables such as `g:cmd2_pending_cmd` if the argument is not enough. The list should be a list of strings, in the order they would appear in the menu. This means searching, sorting, uniq-ng and ranking should be done.
 
+## Customising fuzzy search
+
+To customise the fuzzy search, `_complete_start_pattern`, `_complete_middle_pattern` and `_complete_end_pattern` have to be set accordingly.
+
+The default options will match strings of keywords which contain a subsequence matching the search string.
+
+To match strings beginning with `g:`, `s:`, etc., we can set `_complete_start_pattern` to `'\<\%(\[agls]\:\)\?\k\*'`.
+
+To match substrings which are delimited (meaning the first match is not necessarily the start of the string), we can set `_complete_start_pattern` to `'\<\(\k\+\(_\|\#\)\)\?'`. This will match `'Cmd2#functions#Cword'` with `Cword`.
+
+To do a stricter match such that each character in the search either follows a previous match or begins after a delimiter, we can set `_complete_middle_pattern` to `'\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?'`. This will match `'Cmd2#functions#TabForwards'` with `CTab` but not `CTb`.
+
+Different behaviours can be achieved by changing the varaibles to suit your needs.
+
 ## FAQ
+
+#### Choosing a cmap key
+
+  Different terminals have different Control keys hence the `\<Plug>Cmd2` mapping may not be available in all terminals. If all else fails, using one of the Vim's default cmdline mappings will help solve the issue. See `:h c_CTRL-V` and onwards.
 
 #### Flickering
 
   As Cmd2 renders the cmdline and menu using `echo`, there might be flickering. Changing the `g:Cmd2_loop_sleep` variable will have different effects depending on the terminal used. In general, a lower value should result in less flickering. Otherwise, setting `g:Cmd2_cursor_blink` to `0` will turn off the cursor blink, which will result in no re-rendering and hence no flickering.
+
+#### Putty mouse flickering
+
+  In Putty, the cursor may flicker between insert text mode and pointer mode when Cmd2 is triggered. This is due to the cursor changing into pointer mode when a sleep command is given to Vim. To prevent this, change `g:Cmd2_loop_sleep` to `0`. This will stop Cmd2 from sleeping in between loops but may affect the cmdline flickering.
 
 #### Writing extensions
 
