@@ -2,9 +2,19 @@
 Power up your Vim's cmdline mode
 
 * Fuzzy completion for search
-* Line numbers
-* Current words
+
+  ![Cmd2complete](http://imgur.com/MOhrapg.gif)
+
+* Get line numbers
+
+  ![Cmd2 line](http://imgur.com/PIgM3h0.gif)
+
+* Input Current words
+
+  ![Cmd2 line](http://imgur.com/YWYF34q.gif)
+
 * Snippets
+* Much more
 
 ## Overview
 **Cmd2.vim** is a Vim plugin which enhances Vim's cmdline mode. It provides a submode where mappings, shortcuts, custom functions and extensions can be defined. A good comparison is `<C-R>`, which prompts for a target register and inserts its contents. Triggering Cmd2 will result in a similar prompt, except you can use predefined or custom functions to handle the input.
