@@ -27,22 +27,22 @@ endfunction
 
 function! cmd2#render#PrepareCmdLine(state)
   let result = []
-  let result += [{'text': g:cmd2_cmd_type}]
-  let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[0], g:cmd2_snippet_cursor)
-  let result += [{'text': g:cmd2_temp_output}]
-  if g:cmd2_blink_state
-    call add(result, {'text': g:cmd2_cursor_text, 'hl': g:cmd2_cursor_hl})
+  let result += [{'text': g:Cmd2_cmd_type}]
+  let result += cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
+  let result += [{'text': g:Cmd2_temp_output}]
+  if g:Cmd2_blink_state
+    call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
   else
-    call add(result, {'text': g:cmd2_cursor_text})
+    call add(result, {'text': g:Cmd2_cursor_text})
   endif
-  let result += cmd2#render#SplitSnippet(g:cmd2_pending_cmd[1], g:cmd2_snippet_cursor)
+  let result += cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
   return result
 endfunction
 
 function! cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
-  if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
-    let menu = cmd2#menu#PrepareMenuLineFromMenu(g:cmd2_menu)
+  if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
+    let menu = cmd2#menu#PrepareMenuLineFromMenu(g:Cmd2_menu)
     let result += menu
   endif
   let result += cmd2#render#PrepareCmdLine(a:state)
@@ -63,13 +63,13 @@ endfunction
 
 " renders the cmdline through echo
 function! cmd2#render#CheckBlink(state)
-  let blink = g:cmd2_cursor_blink ?
+  let blink = g:Cmd2_cursor_blink ?
         \ cmd2#render#GetCursorBlink(a:state.start_time, a:state.current_time)
         \ : 1
-  if g:cmd2_blink_state == blink
+  if g:Cmd2_blink_state == blink
     return 0
   else
-    let g:cmd2_blink_state = blink
+    let g:Cmd2_blink_state = blink
     return 1
   endif
 endfunction
@@ -80,7 +80,7 @@ function! cmd2#render#SplitSnippet(cmd, split)
   call add(result, {'text': splitcmd[0]})
   let i = 1
   while i < len(splitcmd)
-    call add(result, {'text': g:cmd2_snippet_cursor, 'hl': g:cmd2_snippet_cursor_hl})
+    call add(result, {'text': g:Cmd2_snippet_cursor, 'hl': g:Cmd2_snippet_cursor_hl})
     call add(result, {'text': splitcmd[i]})
     let i += 1
   endwhile
@@ -89,11 +89,11 @@ endfunction
 
 function! cmd2#render#GetCursorBlink(start, current)
   let ms = cmd2#util#GetRelTimeMs(a:start, a:current)
-  if ms < g:cmd2_cursor_blinkwait
+  if ms < g:Cmd2_cursor_blinkwait
     return 1
   endif
-  let interval = fmod(ms - g:cmd2_cursor_blinkwait, g:cmd2_cursor_blinkon + g:cmd2_cursor_blinkoff)
-  if interval < g:cmd2_cursor_blinkoff
+  let interval = fmod(ms - g:Cmd2_cursor_blinkwait, g:Cmd2_cursor_blinkon + g:Cmd2_cursor_blinkoff)
+  if interval < g:Cmd2_cursor_blinkoff
     return 0
   else
     return 1

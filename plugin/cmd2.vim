@@ -1,11 +1,11 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-if exists('g:cmd2_loaded') && g:cmd2_loaded
+if exists('g:Cmd2_loaded') && g:Cmd2_loaded
   finish
 endif
 
-let s:cmd2_default_options = {
+let s:Cmd2_default_options = {
       \ 'buffer_cursor_hl': cmd2#init#BufferCursorHl(),
       \ 'buffer_cursor_show': 1,
       \ 'cursor_blink': 1,
@@ -32,48 +32,45 @@ let s:cmd2_default_options = {
       \ '_complete_start_pattern': '\<',
       \ '_complete_fuzzy': 1,
       \ '_complete_generate': 'cmd2#ext#complete#GenerateCandidates',
+      \ '_complete_next': "\<Tab>",
+      \ '_complete_previous': "\<S-Tab>",
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',
       \ }
 
-if !exists('g:cmd2_options')
-  let g:cmd2_options = {
+if !exists('g:Cmd2_options')
+  let g:Cmd2_options = {
         \ }
 endif
 
 " mapping cannot start with number as it will be treated as count
-let s:cmd2_default_cmd_mappings = {
-      \ 'w': {'command': 'cmd2#functions#Cword', 'type': 'function', 'flags': 'Cr'},
-      \ "\<Plug>Cmd2Tab": {'command': "cmd2#functions#TabForward", 'type': 'function', 'flags': 'C'},
-      \ "\<Plug>Cmd2STab": {'command': "cmd2#functions#TabBackward", 'type': 'function', 'flags': 'C'},
-      \ "\<Tab>": {'command': "\<Plug>Cmd2Tab", 'type': 'remap', 'flags': 'C'},
-      \ "\<S-Tab>": {'command': "\<Plug>Cmd2STab", 'type': 'remap', 'flags': 'C'},
+let s:Cmd2_default_cmd_mappings = {
       \ }
 
-if !exists('g:cmd2_cmd_mappings')
-  let g:cmd2_cmd_mappings = {
+if !exists('g:Cmd2_cmd_mappings')
+  let g:Cmd2_cmd_mappings = {
         \ }
 endif
 
-let s:cmd2_default_mappings = {
+let s:Cmd2_default_mappings = {
       \ }
 
-if !exists('g:cmd2_mappings')
-  let g:cmd2_mappings = {
+if !exists('g:Cmd2_mappings')
+  let g:Cmd2_mappings = {
         \ }
 endif
 
-call cmd2#init#Options(s:cmd2_default_options)
-call cmd2#init#CmdMappings(s:cmd2_default_cmd_mappings)
+call cmd2#init#Options(s:Cmd2_default_options)
+call cmd2#init#CmdMappings(s:Cmd2_default_cmd_mappings)
 
-if g:cmd2_preload
+if g:Cmd2_preload
   call cmd2#Autoload()
 endif
 
 cnoremap <silent> <expr> <Plug>Cmd2 getcmdtype() =~ '\v[?:\/]' ? cmd2#main#Init() . "<C-E><C-U><C-C>:call cmd2#main#Run()<CR>" : ""
 
-let g:cmd2_loaded = 1
+let g:Cmd2_loaded = 1
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

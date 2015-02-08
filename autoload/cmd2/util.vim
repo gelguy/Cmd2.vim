@@ -15,7 +15,7 @@ function! cmd2#util#GetRelTimeMs(start, end)
 endfunction
 
 " hides the cursor so the cursor is hidden when getchar() is called
-" saves the old value of &guicursor as g:cmd2_old_guicursor
+" saves the old value of &guicursor as g:Cmd2_old_guicursor
 " returns the old value
 function! cmd2#util#HideCursor()
   " https://github.com/junegunn/vim-pseudocl/blob/4417db3eb095350594cd6a3e91ec8b78312ef06b/autoload/pseudocl/render.vim#L205
@@ -24,7 +24,7 @@ function! cmd2#util#HideCursor()
     set t_ve=
   endif
   if exists('&guicursor')
-    let s:cmd2_old_guicursor = &guicursor
+    let s:Cmd2_old_guicursor = &guicursor
     let hide = cmd2#util#HideCursorString()
     execute "let &guicursor .= '" . hide . "'"
   endif
@@ -35,13 +35,13 @@ function! cmd2#util#HideCursorString()
   return ",a:block-None"
 endfunction
 
-" resets the value of &guicursor using g:cmd2_old_guicursor
+" resets the value of &guicursor using g:Cmd2_old_guicursor
 function! cmd2#util#ResetGuiCursor()
   if exists('&t_ve') && exists('s:old_t_ve')
     let &t_ve = s:old_t_ve
   endif
   if exists('&guicursor')
-    execute "let &guicursor = '" . s:cmd2_old_guicursor . "'"
+    execute "let &guicursor = '" . s:Cmd2_old_guicursor . "'"
   endif
 endfunction
 
@@ -50,40 +50,40 @@ endfunction
 " as getchar() places the cursor after the current highlight
 " for some unknown reason
 function! cmd2#util#BufferCursorHl()
-  if !g:cmd2_buffer_cursor_show
+  if !g:Cmd2_buffer_cursor_show
     return
   endif
   call cmd2#util#ClearBufferCursorHl()
   let curpos = getpos('.')
-  let s:cmd2_buffer_cursor_matchid = matchadd(g:cmd2_buffer_cursor_hl, '\v%' . curpos[1] . 'l%' . curpos[2] . 'c.')
+  let s:Cmd2_buffer_cursor_matchid = matchadd(g:Cmd2_buffer_cursor_hl, '\v%' . curpos[1] . 'l%' . curpos[2] . 'c.')
 endfunction
 
 function! cmd2#util#ClearBufferCursorHl()
-  if exists('s:cmd2_buffer_cursor_matchid') && s:cmd2_buffer_cursor_matchid >= 0
-    call matchdelete(s:cmd2_buffer_cursor_matchid)
+  if exists('s:Cmd2_buffer_cursor_matchid') && s:Cmd2_buffer_cursor_matchid >= 0
+    call matchdelete(s:Cmd2_buffer_cursor_matchid)
   endif
-  let s:cmd2_buffer_cursor_matchid = -1
+  let s:Cmd2_buffer_cursor_matchid = -1
 endfunction
 
 function! cmd2#util#HighlightVisual()
-  if !exists('s:cmd2_visual_matchids')
-    let s:cmd2_visual_matchids = []
+  if !exists('s:Cmd2_visual_matchids')
+    let s:Cmd2_visual_matchids = []
   endif
-  call add(s:cmd2_visual_matchids, matchadd('Visual', '.\%>''<.*\%<''>..'))
+  call add(s:Cmd2_visual_matchids, matchadd('Visual', '.\%>''<.*\%<''>..'))
 endfunction
 
 function! cmd2#util#ClearBlinkState()
-  let g:cmd2_blink_state = -1
+  let g:Cmd2_blink_state = -1
 endfunction
 
 function! cmd2#util#ClearRemapDepth()
-  let g:cmd2_remap_depth = 0
+  let g:Cmd2_remap_depth = 0
 endfunction
 
 function! cmd2#util#ClearHighlightVisual()
-  if exists('s:cmd2_visual_matchids')
-    while !empty(s:cmd2_visual_matchids)
-      silent! call matchdelete(remove(s:cmd2_visual_matchids, -1))
+  if exists('s:Cmd2_visual_matchids')
+    while !empty(s:Cmd2_visual_matchids)
+      silent! call matchdelete(remove(s:Cmd2_visual_matchids, -1))
     endwhile
   endif
 endfunction
@@ -151,55 +151,55 @@ function! cmd2#util#FindNode(key, root)
 endfunction
 
 function! cmd2#util#ReselectVisual()
-  if g:cmd2_visual_select
+  if g:Cmd2_visual_select
     execute "normal! gv\<Esc>"
   endif
 endfunction
 
 function! cmd2#util#ResetReenter()
-  let g:cmd2_reenter = 0
-  let g:cmd2_reenter_key = ""
+  let g:Cmd2_reenter = 0
+  let g:Cmd2_reenter_key = ""
 endfunction
 
 function! cmd2#util#SaveCmdHeight()
-  let g:cmd2_old_cmdheight = &cmdheight
+  let g:Cmd2_old_cmdheight = &cmdheight
 endfunction
 
 function! cmd2#util#ResetCmdHeight()
-  let &cmdheight = g:cmd2_old_cmdheight
+  let &cmdheight = g:Cmd2_old_cmdheight
 endfunction
 
 function! cmd2#util#SetCmdHeight()
-  let menu_height = has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages)
+  let menu_height = has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages)
   " - 1 to round down, + 1 to include cmd_type, + 1 for extra space to buffer
-  let &cmdheight = max([g:cmd2_old_cmdheight,
-        \ (strdisplaywidth(g:cmd2_pending_cmd[0] . g:cmd2_temp_output . g:cmd2_cursor_text . g:cmd2_pending_cmd[1]) + 1) / &columns
+  let &cmdheight = max([g:Cmd2_old_cmdheight,
+        \ (strdisplaywidth(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output . g:Cmd2_cursor_text . g:Cmd2_pending_cmd[1]) + 1) / &columns
         \ + 1 + menu_height])
 endfunction
 
 function! cmd2#util#SaveLaststatus()
-  let g:cmd2_old_laststatus = &laststatus
+  let g:Cmd2_old_laststatus = &laststatus
 endfunction
 
 function! cmd2#util#SetLastStatus()
-  if has_key(g:cmd2_menu, 'pages') && len(g:cmd2_menu.pages) > 0
+  if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
     let &laststatus = 0
   else
-    let &laststatus = g:cmd2_old_laststatus
+    let &laststatus = g:Cmd2_old_laststatus
   endif
 endfunction
 
 function! cmd2#util#ResetLaststatus()
-  let &laststatus = g:cmd2_old_laststatus
+  let &laststatus = g:Cmd2_old_laststatus
 endfunction
 
 function! cmd2#util#SetMore()
-  let g:cmd2_old_more = &more
+  let g:Cmd2_old_more = &more
   set nomore
 endfunction
 
 function! cmd2#util#ResetMore()
-  let &more = g:cmd2_old_more
+  let &more = g:Cmd2_old_more
 endfunction
 
 let &cpo = s:save_cpo

@@ -25,11 +25,11 @@ function! cmd2#loop#Loop(render, handle, state)
     endif
     let state.current_time = reltime()
     if state.stopped || state.timeout_started &&
-          \ cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:cmd2_timeoutlen
+          \ cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:Cmd2_timeoutlen
       break
     endif
-    if g:cmd2_loop_sleep
-      execute "sleep " . g:cmd2_loop_sleep . "m"
+    if g:Cmd2_loop_sleep
+      execute "sleep " . g:Cmd2_loop_sleep . "m"
     endif
   endwhile
   return state.result

@@ -18,7 +18,7 @@ function! cmd2#handle#Handle(input, state)
 endfunction
 
 function! cmd2#handle#PrepareState(state)
-  let a:state.current_node = get(a:state, 'current_node', g:cmd2_mapping_tree)
+  let a:state.current_node = get(a:state, 'current_node', g:Cmd2_mapping_tree)
   let a:state.ccount = get(a:state, 'ccount', 0)
   let a:state.stopped = get(a:state, 'stopped', 0)
   let a:state.start_timeout = get(a:state, 'start_timeout', 0)
@@ -29,7 +29,7 @@ function! cmd2#handle#HandleInputChar(input, node)
     return [a:node[a:input], 0]
   else
     if a:input != "\<Esc>"
-      let g:cmd2_leftover_key = a:input
+      let g:Cmd2_leftover_key = a:input
     endif
     return [a:node, 1]
   endif

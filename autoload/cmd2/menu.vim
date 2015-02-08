@@ -7,7 +7,7 @@ endfunction
 
 function! cmd2#menu#CreateMenu(list, pos, columns)
   let menu = {}
-  let offset = strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 2
+  let offset = strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 2
   let menu.pages = cmd2#menu#CreatePages(a:list, a:columns, offset)
   let menu.pos = a:pos
   let menu.columns = a:columns
@@ -94,8 +94,8 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
   let page = a:pages[a:pos[0]]
   let i = 0
   if a:pos[0] > 0
-    call add(line, {'text': (g:cmd2_menu_previous . ' '), 'hl': g:cmd2_menu_hl})
-    let cur_length += strdisplaywidth(g:cmd2_menu_previous) + 1
+    call add(line, {'text': (g:Cmd2_menu_previous . ' '), 'hl': g:Cmd2_menu_hl})
+    let cur_length += strdisplaywidth(g:Cmd2_menu_previous) + 1
   endif
   while i < len(page)
     if type(page[i]) == 4
@@ -103,11 +103,11 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
     else
       let text = page[i]
     endif
-    let hl = a:pos[1] == i ? g:cmd2_menu_selected_hl : g:cmd2_menu_hl
-    if len(text) + strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 2 > a:columns
+    let hl = a:pos[1] == i ? g:Cmd2_menu_selected_hl : g:Cmd2_menu_hl
+    if len(text) + strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 2 > a:columns
       " + 3 to include extra space after item
-      let space_left = &columns - (strdisplaywidth(g:cmd2_menu_previous) + strdisplaywidth(g:cmd2_menu_next) + 3)
-      let space_left -= len(strdisplaywidth(g:cmd2_menu_more))
+      let space_left = &columns - (strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 3)
+      let space_left -= len(strdisplaywidth(g:Cmd2_menu_more))
       let len = strlen(substitute(text, ".", "x", "g"))
       let j = 0
       let result = ""
@@ -124,21 +124,21 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
         endif
       endwhile
       let text = result
-      let text .= g:cmd2_menu_more
+      let text .= g:Cmd2_menu_more
     endif
     call add(line, {'text': text, 'hl': hl})
-    call add(line, {'text': ' ', 'hl': g:cmd2_menu_hl})
+    call add(line, {'text': ' ', 'hl': g:Cmd2_menu_hl})
     let cur_length += strdisplaywidth(text) + 1
     let i += 1
   endwhile
   let padding_length = a:columns - cur_length
   if len(a:pages) - 1 > a:pos[0]
-    let padding_length -= strdisplaywidth(g:cmd2_menu_next) + 1
+    let padding_length -= strdisplaywidth(g:Cmd2_menu_next) + 1
   endif
   let padding = repeat(' ', padding_length)
-  call add(line, {'text': padding, 'hl': g:cmd2_menu_hl})
+  call add(line, {'text': padding, 'hl': g:Cmd2_menu_hl})
   if len(a:pages) - 1 > a:pos[0]
-    call add(line, {'text': (g:cmd2_menu_next . ' '), 'hl': g:cmd2_menu_hl})
+    call add(line, {'text': (g:Cmd2_menu_next . ' '), 'hl': g:Cmd2_menu_hl})
   endif
   return line
 endfunction

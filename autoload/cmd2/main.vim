@@ -8,14 +8,14 @@ endfunction
 function! cmd2#main#Init()
   let cmd = getcmdline()
   if cmd =~ '\M^''<,''>' ? 1 : 0
-    let g:cmd2_visual_select = 1
+    let g:Cmd2_visual_select = 1
     call cmd2#util#HighlightVisual()
   else
-    let g:cmd2_visual_select = 0
+    let g:Cmd2_visual_select = 0
   endif
   let pos = getcmdpos()
-  let g:cmd2_cmd_type = getcmdtype()
-  let g:cmd2_pending_cmd = [cmd[(pos == 1 ? -1 : 0):(pos > 1 ? pos - 2 : pos - 1)],
+  let g:Cmd2_cmd_type = getcmdtype()
+  let g:Cmd2_pending_cmd = [cmd[(pos == 1 ? -1 : 0):(pos > 1 ? pos - 2 : pos - 1)],
         \ cmd[(pos - 1):-1]
         \ ]
   silent! call cmd2#util#HideCursor()
@@ -32,7 +32,7 @@ function! cmd2#main#Run()
           \ }
     call cmd2#loop#Init(args)
   catch /^Vim:Interrupt$/
-    let g:cmd2_output = ""
+    let g:Cmd2_output = ""
   finally
     call cmd2#main#PostRun()
   endtry
@@ -50,11 +50,11 @@ function! cmd2#main#PreRun()
   call cmd2#util#SaveCmdHeight()
   call cmd2#util#SetMore()
   call cmd2#util#SaveLaststatus()
-  let g:cmd2_menu = {}
-  let g:cmd2_temp_output = ""
-  let g:cmd2_output = ""
-  let g:cmd2_leftover_key = ""
-  let g:cmd2_blink_state = -1
+  let g:Cmd2_menu = {}
+  let g:Cmd2_temp_output = ""
+  let g:Cmd2_output = ""
+  let g:Cmd2_leftover_key = ""
+  let g:Cmd2_blink_state = -1
 endfunction
 
 function! cmd2#main#PostRun()
@@ -69,8 +69,8 @@ function! cmd2#main#PostRun()
 endfunction
 
 function! cmd2#main#FeedCmdLine()
-  let cmd = g:cmd2_pending_cmd
-  call feedkeys(g:cmd2_cmd_type . "\<C-U>". cmd[0] . g:cmd2_output, 'n')
+  let cmd = g:Cmd2_pending_cmd
+  call feedkeys(g:Cmd2_cmd_type . "\<C-U>". cmd[0] . g:Cmd2_output, 'n')
   let len = strlen(substitute(cmd[1], ".", "x", "g"))
   let i = 0
   while i < len
@@ -84,15 +84,15 @@ function! cmd2#main#FeedCmdLine()
 endfunction
 
 function! cmd2#main#Reenter()
-  if g:cmd2_reenter
+  if g:Cmd2_reenter
     call feedkeys("\<Plug>Cmd2", 'm')
-    call feedkeys(g:cmd2_reenter_key, 'm')
+    call feedkeys(g:Cmd2_reenter_key, 'm')
   endif
 endfunction
 
 function! cmd2#main#LeftoverKey()
-  if len(g:cmd2_leftover_key)
-    call feedkeys(g:cmd2_leftover_key, 'm')
+  if len(g:Cmd2_leftover_key)
+    call feedkeys(g:Cmd2_leftover_key, 'm')
   endif
 endfunction
 

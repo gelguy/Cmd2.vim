@@ -27,7 +27,7 @@ function! cmd2#commands#DoMapping(input)
 endfunction
 
 function! cmd2#commands#VisualPre(flags)
-  if a:flags =~# 'v' && g:cmd2_visual_select
+  if a:flags =~# 'v' && g:Cmd2_visual_select
     let [vstart, vend, vpos, vmode] = cmd2#util#SaveVisual()
     return [vstart, vend, vpos, vmode]
   else
@@ -36,7 +36,7 @@ function! cmd2#commands#VisualPre(flags)
 endfunction
 
 function! cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
-  if a:flags =~# 'v' && g:cmd2_visual_select
+  if a:flags =~# 'v' && g:Cmd2_visual_select
     let cursor_pos = getpos('.')
     call cmd2#util#RestoreVisual(a:vstart, a:vend, a:vpos, a:vmode)
     call setpos(".", cursor_pos)
@@ -51,15 +51,15 @@ endfunction
 
 function! cmd2#commands#Rflag(mapping, flags)
   if a:flags =~# 'r'
-    let g:cmd2_reenter = 1
-    let g:cmd2_reenter_key = get(a:mapping, 'reenter', '')
+    let g:Cmd2_reenter = 1
+    let g:Cmd2_reenter_key = get(a:mapping, 'reenter', '')
   endif
 endfunction
 
 function! cmd2#commands#HandleType(cmd, type, ccount)
   if empty(a:cmd) || empty(a:type)
     " skip
-    let g:cmd2_output = ""
+    let g:Cmd2_output = ""
   elseif a:type == 'literal'
     call cmd2#commands#HandleLiteral(a:cmd, a:ccount)
   elseif a:type == 'text'
@@ -81,9 +81,9 @@ endfunction
 
 function! cmd2#commands#HandleLiteral(cmd, ccount)
   if !len(a:ccount)
-    let g:cmd2_output = a:cmd
+    let g:Cmd2_output = a:cmd
   else
-    let g:cmd2_output = repeat(a:cmd, a:ccount)
+    let g:Cmd2_output = repeat(a:cmd, a:ccount)
   endif
 endfunction
 
@@ -108,10 +108,10 @@ function! cmd2#commands#HandleFunction(cmd, ccount)
 endfunction
 
 function! cmd2#commands#HandleSnippet(cmd, ccount)
-  let snippet = substitute(a:cmd, g:cmd2_snippet_cursor_replace, g:cmd2_snippet_cursor, "g")
-  let offset = match(snippet, g:cmd2_snippet_cursor)
+  let snippet = substitute(a:cmd, g:Cmd2_snippet_cursor_replace, g:Cmd2_snippet_cursor, "g")
+  let offset = match(snippet, g:Cmd2_snippet_cursor)
   if offset == -1
-    let g:cmd2_output = snippet
+    let g:Cmd2_output = snippet
     return
   endif
   if offset == 0
@@ -119,9 +119,9 @@ function! cmd2#commands#HandleSnippet(cmd, ccount)
   else
     let before = snippet[0 : offset - 1]
   endif
-  let after = snippet[offset + strlen(g:cmd2_snippet_cursor) : -1]
-  let g:cmd2_pending_cmd[0] .= before
-  let g:cmd2_pending_cmd[1] = after . g:cmd2_pending_cmd[1]
+  let after = snippet[offset + strlen(g:Cmd2_snippet_cursor) : -1]
+  let g:Cmd2_pending_cmd[0] .= before
+  let g:Cmd2_pending_cmd[1] = after . g:Cmd2_pending_cmd[1]
 endfunction
 
 function! cmd2#commands#HandleNormal(cmd, ccount, bang)
@@ -129,14 +129,14 @@ function! cmd2#commands#HandleNormal(cmd, ccount, bang)
   execute "normal" . bang . " " . a:ccount . a:cmd
 endfunction
 
-let g:cmd2_remap_depth = 0
+let g:Cmd2_remap_depth = 0
 
 function! cmd2#commands#HandleRemap(cmd, ccount)
-  let g:cmd2_remap_depth += 1
-  if g:cmd2_remap_depth > g:cmd2_max_remap_depth
+  let g:Cmd2_remap_depth += 1
+  if g:Cmd2_remap_depth > g:Cmd2_max_remap_depth
     return
   endif
-  let node = cmd2#util#FindNode(a:cmd, g:cmd2_mapping_tree)
+  let node = cmd2#util#FindNode(a:cmd, g:Cmd2_mapping_tree)
   if !empty(node)
     call cmd2#commands#DoMapping({'node': node, 'ccount': a:ccount})
   endif

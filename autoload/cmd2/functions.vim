@@ -14,7 +14,7 @@ function! cmd2#functions#GetContents(type)
   else
     silent exe "normal! `[v`]y"
   endif
-  let g:cmd2_output = @@
+  let g:Cmd2_output = @@
   let &selection = sel_save
   let @@ = old_reg
 endfunction
@@ -25,9 +25,9 @@ function! cmd2#functions#GetLines(type)
   silent exe "normal! ']"
   let end_line = getpos('.')[1]
   if start_line != end_line
-    let g:cmd2_output = start_line . "," . end_line
+    let g:Cmd2_output = start_line . "," . end_line
   else
-    let g:cmd2_output = start_line
+    let g:Cmd2_output = start_line
   endif
 endfunction
 
@@ -49,13 +49,13 @@ function! cmd2#functions#TabCount(direction, count_list)
 endfunction
 
 function! cmd2#functions#Tab(direction, ...)
-  let cmd = g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]
-  let current_pos = strlen(g:cmd2_pending_cmd[0])
+  let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
+  let current_pos = strlen(g:Cmd2_pending_cmd[0])
   if a:direction == 'backwards'
     let new_pos = -1
     let old_pos = -1
     while 1
-      let new_pos = match(cmd, g:cmd2_snippet_cursor, old_pos + 1)
+      let new_pos = match(cmd, g:Cmd2_snippet_cursor, old_pos + 1)
       if new_pos < 0 || new_pos > current_pos - 1
         " - 1 so we stop before we reach current position
         let new_pos = old_pos
@@ -64,22 +64,22 @@ function! cmd2#functions#Tab(direction, ...)
       let old_pos = new_pos
     endwhile
   elseif a:direction == 'forwards'
-    let new_pos = match(cmd, g:cmd2_snippet_cursor, current_pos)
+    let new_pos = match(cmd, g:Cmd2_snippet_cursor, current_pos)
   endif
   if new_pos >= 0
-    let cursor_width = strlen(g:cmd2_snippet_cursor)
-    let g:cmd2_pending_cmd = [cmd[0 : (new_pos-1)], cmd[(new_pos + cursor_width) : -1]]
+    let cursor_width = strlen(g:Cmd2_snippet_cursor)
+    let g:Cmd2_pending_cmd = [cmd[0 : (new_pos-1)], cmd[(new_pos + cursor_width) : -1]]
   endif
 endfunction
 
-let s:cmd2_cword_pos = [-1,-1]
+let s:Cmd2_cword_pos = [-1,-1]
 
 function! cmd2#functions#Cword(...)
   let ccount = get(a:000, 0, 1)
   let current_pos = getpos('.')
-  if current_pos[1] == s:cmd2_cword_pos[0] &&
+  if current_pos[1] == s:Cmd2_cword_pos[0] &&
         \ current_pos[2] == col('$') - 1 &&
-        \ current_pos[2] == s:cmd2_cword_pos[1]
+        \ current_pos[2] == s:Cmd2_cword_pos[1]
     return
   endif
   let reg_save = @@
@@ -93,18 +93,18 @@ function! cmd2#functions#Cword(...)
   endwhile
   normal! y
   execute "normal! gv\<Esc>"
-  let g:cmd2_output = substitute(@@, "\n", " ", "")
+  let g:Cmd2_output = substitute(@@, "\n", " ", "")
   let @@ = reg_save
   let &selection = selection_save
   " -1 since selection is exclusive
-  let s:cmd2_cword_pos = [getpos('.')[1], (getpos("'>")[2] - 1)]
+  let s:Cmd2_cword_pos = [getpos('.')[1], (getpos("'>")[2] - 1)]
 endfunction
 
 function! cmd2#functions#CopySearch(...)
-  let cmd = g:cmd2_pending_cmd[0] . g:cmd2_pending_cmd[1]
+  let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
   let matchstr = matchlist(cmd, '\vs/(.{-})/')
   if !empty(matchstr[1])
-    let g:cmd2_output = matchstr[1]
+    let g:Cmd2_output = matchstr[1]
   endif
 endfunction
 
@@ -112,7 +112,7 @@ function! cmd2#functions#Back(...)
   let ccount = get(a:000, 0, 1)
   let j = 0
   while j < ccount
-    let head = g:cmd2_pending_cmd[0]
+    let head = g:Cmd2_pending_cmd[0]
     let current_pos = 0
     let next_pos = 0
     while 1
@@ -124,13 +124,13 @@ function! cmd2#functions#Back(...)
         break
       endif
     endwhile
-    let head = g:cmd2_pending_cmd[0]
+    let head = g:Cmd2_pending_cmd[0]
     if current_pos == 0
-      let g:cmd2_pending_cmd[0] = ""
+      let g:Cmd2_pending_cmd[0] = ""
     else
-      let g:cmd2_pending_cmd[0] = head[0 : current_pos - 1]
+      let g:Cmd2_pending_cmd[0] = head[0 : current_pos - 1]
     endif
-    let g:cmd2_pending_cmd[1] = head[current_pos : -1] . g:cmd2_pending_cmd[1]
+    let g:Cmd2_pending_cmd[1] = head[current_pos : -1] . g:Cmd2_pending_cmd[1]
     let j += 1
   endwhile
 endfunction
@@ -139,14 +139,14 @@ function! cmd2#functions#End(...)
   let ccount = get(a:000, 0, 1)
   let j = 0
   while j < ccount
-    let tail = g:cmd2_pending_cmd[1]
+    let tail = g:Cmd2_pending_cmd[1]
     let matchend = matchend(tail, '\v\k+')
     if matchend <= 0
-      let g:cmd2_pending_cmd[0] .= tail
-      let g:cmd2_pending_cmd[1] = ""
+      let g:Cmd2_pending_cmd[0] .= tail
+      let g:Cmd2_pending_cmd[1] = ""
     else
-      let g:cmd2_pending_cmd[0] .= tail[0 : matchend - 1]
-      let g:cmd2_pending_cmd[1] = tail[matchend : -1]
+      let g:Cmd2_pending_cmd[0] .= tail[0 : matchend - 1]
+      let g:Cmd2_pending_cmd[1] = tail[matchend : -1]
     endif
     let j += 1
   endwhile

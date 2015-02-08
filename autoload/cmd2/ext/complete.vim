@@ -7,21 +7,19 @@ endfunction
 
 function! cmd2#ext#complete#Main()
   try
-    let old_menu = g:cmd2_menu
-    let s:old_cmd_0 = g:cmd2_pending_cmd[0]
-    let candidates = call(g:cmd2__complete_generate, [s:old_cmd_0])
+    let old_menu = g:Cmd2_menu
+    let s:old_cmd_0 = g:Cmd2_pending_cmd[0]
+    let candidates = call(g:Cmd2__complete_generate, [s:old_cmd_0])
     if len(candidates)
-      let candidates = cmd2#ext#complete#Uniq(candidates)
-      call cmd2#ext#complete#Sort(candidates, g:cmd2__complete_ignorecase)
       let idx = index(candidates, cmd2#ext#complete#StringToMatch())
       if idx >= 0
         call remove(candidates, idx)
       endif
       " insert original string at the front
       call insert(candidates, cmd2#ext#complete#StringToMatch())
-      let g:cmd2_menu = cmd2#menu#CreateMenu(candidates, [0,0], &columns)
-      call cmd2#menu#Next(g:cmd2_menu)
-      let g:cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
+      let g:Cmd2_menu = cmd2#menu#CreateMenu(candidates, [0,0], &columns)
+      call cmd2#menu#Next(g:Cmd2_menu)
+      let g:Cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
       let state = {}
       let state.start_time = reltime()
       let state.current_time = state.start_time
@@ -35,30 +33,30 @@ function! cmd2#ext#complete#Main()
       call cmd2#loop#Init(args)
     endif
   finally
-    let g:cmd2_menu = old_menu
+    let g:Cmd2_menu = old_menu
   endtry
 endfunction
 
 function! cmd2#ext#complete#Handle(input, state)
-  if a:input == "\<Tab>"
-    call cmd2#menu#Next(g:cmd2_menu)
-    let g:cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
+  if a:input == g:Cmd2__complete_next
+    call cmd2#menu#Next(g:Cmd2_menu)
+    let g:Cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
-  elseif a:input == "\<S-Tab>"
-    call cmd2#menu#Previous(g:cmd2_menu)
-    let g:cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
+  elseif a:input == g:Cmd2__complete_previous
+    call cmd2#menu#Previous(g:Cmd2_menu)
+    let g:Cmd2_temp_output = cmd2#ext#complete#GetTempOutput()
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
   elseif a:input == "\<Esc>"
-    let g:cmd2_output = ""
-    let g:cmd2_output = s:old_cmd_0
+    let g:Cmd2_output = ""
+    let g:Cmd2_output = s:old_cmd_0
     let a:state.stopped = 1
   else
-    let g:cmd2_output = cmd2#ext#complete#GetOutput()
-    let g:cmd2_leftover_key = a:input
+    let g:Cmd2_output = cmd2#ext#complete#GetOutput()
+    let g:Cmd2_leftover_key = a:input
     let a:state.stopped = 1
   endif
 endfunction
@@ -73,6 +71,8 @@ function! cmd2#ext#complete#GenerateCandidates(cmd)
     return []
   endif
   let result = cmd2#ext#complete#ScanBuffer(string)
+  let result = cmd2#ext#complete#Uniq(result)
+  call cmd2#ext#complete#Sort(result, g:Cmd2__complete_ignorecase)
   return result
 endfunction
 
@@ -80,9 +80,9 @@ function! cmd2#ext#complete#ScanBuffer(string)
   let old_view = winsaveview()
   let matches = []
   call cursor(1,1)
-  let ignore_case = g:cmd2__complete_ignorecase ? '\c' : ''
-  let pattern = '\V' . ignore_case . g:cmd2__complete_start_pattern
-  if g:cmd2__complete_fuzzy
+  let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
+  let pattern = '\V' . ignore_case . g:Cmd2__complete_start_pattern
+  if g:Cmd2__complete_fuzzy
     let pattern .= cmd2#ext#complete#CreateFuzzyPattern(a:string, g:cmd2__complete_pattern . '\*')
   else
     let pattern .= a:string
@@ -132,13 +132,13 @@ function! cmd2#ext#complete#StringToMatch()
 endfunction
 
 function! cmd2#ext#complete#GetTempOutput()
-  let g:cmd2_pending_cmd[0] = s:old_cmd_0[0 : -len(cmd2#ext#complete#StringToMatch()) - 1]
-  return cmd2#menu#Current(g:cmd2_menu)
+  let g:Cmd2_pending_cmd[0] = s:old_cmd_0[0 : -len(cmd2#ext#complete#StringToMatch()) - 1]
+  return cmd2#menu#Current(g:Cmd2_menu)
 endfunction
 
 function! cmd2#ext#complete#GetOutput()
-  let g:cmd2_pending_cmd[0] = s:old_cmd_0[0 : -len(cmd2#ext#complete#StringToMatch()) - 1]
-  let string = cmd2#menu#Current(g:cmd2_menu)
+  let g:Cmd2_pending_cmd[0] = s:old_cmd_0[0 : -len(cmd2#ext#complete#StringToMatch()) - 1]
+  let string = cmd2#menu#Current(g:Cmd2_menu)
   return string
 endfunction
 
@@ -156,7 +156,7 @@ endfunction
 function! cmd2#ext#complete#Uniq(list)
   let dict = {}
   for item in a:list
-    if g:cmd2__complete_uniq_ignorecase
+    if g:Cmd2__complete_uniq_ignorecase
       let item = tolower(item)
     endif
     if !has_key(dict, item)

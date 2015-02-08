@@ -6,23 +6,23 @@ function! cmd2#init#Autoload()
 endfunction
 
 function! cmd2#init#Options(default_options)
-  let cmd2_options = extend(copy(a:default_options), g:cmd2_options, 'force')
-  for key in keys(cmd2_options)
-    call cmd2#init#Option(key, cmd2_options[key])
+  let Cmd2_options = extend(copy(a:default_options), g:Cmd2_options, 'force')
+  for key in keys(Cmd2_options)
+    call cmd2#init#Option(key, Cmd2_options[key])
   endfor
 endfunction
 
 " Helper function for init#Options()
 function! cmd2#init#Option(key, value)
-  let g:cmd2_{a:key} = a:value
+  let g:Cmd2_{a:key} = a:value
 endfunction
 
 function! cmd2#init#CmdMappings(default_cmd_mappings)
-  let g:cmd2_mapping_tree = cmd2#tree#New({'value': {'command': ''}})
-  let cmd2_cmd_mappings = extend(copy(a:default_cmd_mappings), g:cmd2_cmd_mappings, 'force')
-  for key in keys(cmd2_cmd_mappings)
-    let mapping = cmd2_cmd_mappings[key]
-    call cmd2#init#CmdMapping(key, mapping, g:cmd2_mapping_tree)
+  let g:Cmd2_mapping_tree = cmd2#tree#New({'value': {'command': ''}})
+  let Cmd2_cmd_mappings = extend(copy(a:default_cmd_mappings), g:Cmd2_cmd_mappings, 'force')
+  for key in keys(Cmd2_cmd_mappings)
+    let mapping = Cmd2_cmd_mappings[key]
+    call cmd2#init#CmdMapping(key, mapping, g:Cmd2_mapping_tree)
   endfor
 endfunction
 
@@ -51,9 +51,9 @@ function! cmd2#init#CmdMapping(key, value, root)
 endfunction
 
 function! cmd2#init#Mappings()
-  let cmd2_mappings = extend(cmd2#cmd2_default_mappings, g:cmd2_mappings, 'force')
-  for key in keys(cmd2_mappings)
-    call cmd2#init#Mapping(key, cmd2_mappings[key])
+  let Cmd2_mappings = extend(cmd2#Cmd2_default_mappings, g:Cmd2_mappings, 'force')
+  for key in keys(Cmd2_mappings)
+    call cmd2#init#Mapping(key, Cmd2_mappings[key])
   endfor
 endfunction
 
