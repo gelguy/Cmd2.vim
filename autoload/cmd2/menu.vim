@@ -107,7 +107,7 @@ function! cmd2#menu#PrepareMenuLine(pages, pos, columns)
     if len(text) + strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 2 > a:columns
       " + 3 to include extra space after item
       let space_left = &columns - (strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 3)
-      let space_left -= len(strdisplaywidth(g:Cmd2_menu_more))
+      let space_left -= strdisplaywidth(g:Cmd2_menu_more)
       let len = strlen(substitute(text, ".", "x", "g"))
       let j = 0
       let result = ""
