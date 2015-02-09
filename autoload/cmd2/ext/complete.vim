@@ -66,7 +66,7 @@ function! Cmd2#ext#complete#Finish(input)
 endfunction
 
 function! Cmd2#ext#complete#GenerateCandidates(cmd)
-  let string = Cmd2#ext#complete#StringToMatch()
+  let string = escape(Cmd2#ext#complete#StringToMatch(), '\')
   if !len(string)
     return []
   endif
