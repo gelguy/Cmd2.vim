@@ -80,14 +80,7 @@ function! Cmd2#ext#complete#ScanBuffer(string)
   let old_view = winsaveview()
   let matches = []
   call cursor(1,1)
-  let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
-  let pattern = '\V' . ignore_case . g:Cmd2__complete_start_pattern
-  if g:Cmd2__complete_fuzzy
-    let pattern .= Cmd2#ext#complete#CreateFuzzyPattern(a:string, g:Cmd2__complete_middle_pattern)
-  else
-    let pattern .= a:string
-  endif
-  let pattern .= g:Cmd2__complete_end_pattern
+  let pattern = call(g:Cmd2__complete_pattern_func, [a:string])
   let match = search(pattern, 'W')
   while match
     let matches += Cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
@@ -100,6 +93,19 @@ function! Cmd2#ext#complete#ScanBuffer(string)
   endwhile
   call winrestview(old_view)
   return matches
+endfunction
+
+function! Cmd2#ext#complete#CreatePattern(string)
+  let pattern = ""
+  let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
+  let pattern = '\V' . ignore_case . g:Cmd2__complete_start_pattern
+  if g:Cmd2__complete_fuzzy
+    let pattern .= Cmd2#ext#complete#CreateFuzzyPattern(a:string, g:Cmd2__complete_middle_pattern)
+  else
+    let pattern .= a:string
+  endif
+  let pattern .= g:Cmd2__complete_end_pattern
+  return pattern
 endfunction
 
 function! Cmd2#ext#complete#GetMatchesOnLine(line_num, pattern, string)

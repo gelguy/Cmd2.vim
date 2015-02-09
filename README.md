@@ -231,6 +231,10 @@ Below are the possible options, their default setting and description.
 
   Boolean to toggle whether to ignore case when removing repeat matches. This is different from ignoring case while searching as we might want to keep the different casings of the same word as options. This value does not matter if `_complete_ignorecase` is not set.
 
+* `_complete_pattern_func`: `'Cmd2#ext#complete#CreatePattern'`,
+
+  A string or a funcref. If a string, needs to be the name of a function. The function to call to create the pattern. To be used to when a static regex is not enough to create the pattern. The function is passed 1 argument, the search string that is to be matched. The function can use the set start, middle and end pattern to create the final pattern. See Customising fuzzy search.
+
 * `_complete_start_pattern`: `'\<'`
 
   A pattern to use while searching. Note: `\V` or "very nomagic" is on so the characters have to be escaped accordingly. The pattern is prepended at the start of the search string.
@@ -273,7 +277,35 @@ To match substrings with first match at the start or after a delimiter, we can s
 
 To do a stricter match such that each character in the search either follows a previous match or begins after a delimiter, we can set `_complete_middle_pattern` to `'\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?'`. This will match `'Cmd2#functions#TabForwards'` with `CTab` but not `CTb`.
 
-Different behaviours can be achieved by changing the varaibles to suit your needs.
+In some cases, a static regex based on the start, middle and end patterns may not be sufficient. One example is CamelCase delimiters. We want a stricter match as in the previous example, but also to treat each CamelCase-d character as a delimiter. This is trivial when ignorecase is off. However, with ignorecase `\c`, the entire regex is treated as case-insensitive. This means we cannot use the default `g:Cmd2__complete_pattern_func`. We have to create one which provides the possible CamelCase-d characters case-sensitivity. This is done as follows:
+
+``` vim
+function! s:CustomFuzzySearch(string)
+  let pattern = ""
+  let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
+  let char = matchstr(a:string, ".", byteidx(a:string, 0))
+  let pattern = '\V' . ignore_case
+  let pattern .= '\<\%(\[agls]\:\)\?'
+  let pattern .= '\%(\%(\k\*\[_\-#]\)\?' . char . '\|\k\*\%(' . char . '\&\L\)\)'
+  if g:Cmd2__complete_fuzzy
+    let result = ''
+    let i = 1
+    while i < len(a:string)
+      let char = matchstr(a:string, ".", byteidx(a:string, i))
+      let result .= '\%(' . '\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?' . char . '\|'
+      let result .= '\k\*\%(' . char . '\&\L\)' . '\)'
+      let i += len(char)
+    endwhile
+    let pattern .= result
+  else
+    let pattern .= a:string
+  endif
+  let pattern .= g:Cmd2__complete_end_pattern
+  return pattern
+endfunction
+```
+
+Note the use of `\({char}\&\L\)`. `\L` is a character class, and hence not affected by the `\c` flag. This will match `s:CustomFuzzySearch` with `cfs`.
 
 ## FAQ
 
