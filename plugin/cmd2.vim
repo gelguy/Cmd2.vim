@@ -16,6 +16,7 @@ let s:Cmd2_default_options = {
       \ 'cursor_text': '_',
       \ 'max_remap_depth': 20,
       \ 'loop_sleep': 20,
+      \ 'loop_func': 'Cmd2#loop#Init',
       \ 'preload': 0,
       \ 'snippet_cursor': '≡',
       \ 'snippet_cursor_hl': 'Title',

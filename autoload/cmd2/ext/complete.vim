@@ -5,7 +5,7 @@ function! Cmd2#ext#complete#Autoload()
   " do nothing
 endfunction
 
-function! Cmd2#ext#complete#Main()
+function! Cmd2#ext#complete#Main(...)
   try
     let old_menu = g:Cmd2_menu
     let s:old_cmd_0 = g:Cmd2_pending_cmd[0]

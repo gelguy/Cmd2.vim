@@ -30,7 +30,7 @@ function! Cmd2#main#Run()
           \ 'finish': function('Cmd2#commands#DoMapping'),
           \ 'state': {},
           \ }
-    call Cmd2#loop#Init(args)
+    call call(g:Cmd2_loop_func, [args])
   catch /^Vim:Interrupt$/
     let g:Cmd2_output = ""
   finally

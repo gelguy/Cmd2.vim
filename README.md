@@ -174,6 +174,10 @@ Below are the possible options, their default setting and description.
 
   The time to sleep in between each input/render loop. The time is in msec. A lower time will result in more responsiveness. 0 is accepted. Changing the sleep time can also affect the flickering of the cmdline (may be better or worse, the effect is uncertain).
 
+* `loop_func`: `'Cmd2#loop#Init'`
+
+  A string or a funcref. If a string, needs to be the name of a function. Used in writing extensions.
+
 * `preload`: `0`
 
   Whether to preload the plugin instead of waiting for autoloading. Preloading will take up more time during startup but autoloading will result in a delay when using Cmd2 for the first time.
