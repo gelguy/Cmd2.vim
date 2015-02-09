@@ -275,7 +275,7 @@ To match substrings with the first match is not necessarily the start of the str
 
 To match substrings with first match at the start or after a delimiter, we can set `_complete_start_pattern` to `'\<\(\k\*\[_\-#]\)\?'`. This will match `'Cmd2#functions#Back'` with `Back`, and not with `ack`.
 
-To do a stricter match such that each character in the search either follows a previous match or begins after a delimiter, we can set `_complete_middle_pattern` to `'\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?'`. This will match `'Cmd2#functions#TabForwards'` with `CTab` but not `CTb`.
+To do a stricter match such that each character in the search either follows a previous match or begins after a delimiter, we can set `_complete_middle_pattern` to `'\%(\k\*\[_\-#]\)\?'`. This will match `'Cmd2#functions#TabForwards'` with `CTab` but not `CTb`.
 
 In some cases, a static regex based on the start, middle and end patterns may not be sufficient. One example is CamelCase delimiters. We want a stricter match as in the previous example, but also to treat each CamelCase-d character as a delimiter. This is trivial when ignorecase is off. However, with ignorecase `\c`, the entire regex is treated as case-insensitive. This means we cannot use the default `g:Cmd2__complete_pattern_func`. We have to create one which provides the possible CamelCase-d characters case-sensitivity. This is done as follows:
 
@@ -292,7 +292,7 @@ function! s:CustomFuzzySearch(string)
     let i = 1
     while i < len(a:string)
       let char = matchstr(a:string, ".", byteidx(a:string, i))
-      let result .= '\%(' . '\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?' . char . '\|'
+      let result .= '\%(' . '\%(\k\*\[_\-#]\)\?' . char . '\|'
       let result .= '\k\*\%(' . char . '\&\L\)' . '\)'
       let i += len(char)
     endwhile
