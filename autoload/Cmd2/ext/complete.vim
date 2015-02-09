@@ -94,17 +94,16 @@ function! Cmd2#ext#complete#ScanBuffer(string)
   let matches = []
   call cursor(1,1)
   let pattern = call(g:Cmd2__complete_pattern_func, [a:string])
-  let @a = ""
-  exe "keepj let g:Cmd2__complete_current_line = search('" . pattern . "', 'W')"
+  let g:Cmd2__complete_temp_pattern = pattern
+  exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'W')"
   let match = g:Cmd2__complete_current_line
   while match
-    let @a .= match . " "
     let matches += Cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
     if match == line('$')
       break
     else
       call cursor((getpos('.')[1] + 1), 1)
-      exe "keepj let g:Cmd2__complete_current_line = search('" . pattern . "', 'W')"
+      exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'W')"
       let match = g:Cmd2__complete_current_line
     endif
   endwhile
