@@ -119,7 +119,7 @@ function! Cmd2#functions#Cword(...)
 
 If the function is defined locally i.e. in a script, it can be passed to mapping dictionary using a funcref.
 
-The contents of the cmdline and the position of the cursor can be manipulated using the following exposed global variables. `g:Cmd2_pending_cmd` is a length-2 list, with the first element containing the cmdling substring before the cursor, and the second after the cursor. `g:Cmd2_output` is the string which will be placed after the cursor.
+The contents of the cmdline and the position of the cursor can be manipulated using the following exposed global variables. `g:Cmd2_pending_cmd` is a length-2 list, with the first element containing the cmdline substring before the cursor, and the second after the cursor. `g:Cmd2_output` is the string which will be placed after the cursor.
 
 For example, if the `g:Cmd2_pending_cmd` is `['foo', 'bar']` and `g:Cmd2_output` is `baz`, then the final state of the cmdline will be `foobazbar` with the cursor after `z`.
 
@@ -261,7 +261,7 @@ Below are the possible options, their default setting and description.
 
 * `_complete_exit`: `"\<Esc>"`
 
-  Key to enter to cancel the matching and exit to the cmdline. This returns the cmdline to its original state. Any key that is not next, previous or exit will accept the match and enter the corresponding key. Therefore if this is set to `"\<Esc>"` then `<Esc>` has to be entered twice to exit into normal mode.
+  Key to enter to cancel the matching and exit to the cmdline. This returns the cmdline to its original state. Any key that is not next, previous or exit will accept the match and enter the corresponding key. Therefore if this is set to `"\<Esc>"` then `<Esc>` has to be entered twice to exit into normal mode. One <Esc> will return to the cmdline.
 
 * `_complete_loading_text`: `""`
 
@@ -269,7 +269,7 @@ Below are the possible options, their default setting and description.
 
 * `_complete_loading_hl': `""`
 
-  The hlgroup to use to highlight the loading text when `g:Cmd2_complete_loadnig_text` is set.
+  The hlgroup to use to highlight the loading text when `g:Cmd2_complete_loading_text` is set.
 
 * `_complete_generate`: `'Cmd2#ext#complete#GenerateCandidates'`
 
@@ -298,7 +298,8 @@ function! s:CustomFuzzySearch(string)
   let char = matchstr(a:string, ".", byteidx(a:string, 0))
   let pattern = '\V' . ignore_case
   let pattern .= '\<\%(\[agls]\:\)\?'
-  let pattern .= '\%(\%(\k\*\[_\-#]\)\?' . char . '\|\k\*\%(' . char . '\&\L\)\)'
+  let pattern .= '\%(\%(\k\*\[_\-#]\)\?' . char
+  let pattern .= '\|\k\*\%(' . char . '\&\L\)\)'
   if g:Cmd2__complete_fuzzy
     let result = ''
     let i = 1
