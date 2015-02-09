@@ -37,6 +37,7 @@ let s:Cmd2_default_options = {
       \ '_complete_generate': 'Cmd2#ext#complete#GenerateCandidates',
       \ '_complete_next': "\<Tab>",
       \ '_complete_previous': "\<S-Tab>",
+      \ '_complete_exit': "\<Esc>",
       \ '_complete_loading_text': "",
       \ '_complete_loading_hl': "",
       \ '_quicksearch_ignorecase': 0,

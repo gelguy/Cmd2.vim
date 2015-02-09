@@ -259,6 +259,10 @@ Below are the possible options, their default setting and description.
 
   Key to enter to go to the previous item in the menu.
 
+* `_complete_exit`: `"\<Esc>"`
+
+  Key to enter to cancel the matching and exit to the cmdline. This returns the cmdline to its original state. Any key that is not next, previous or exit will accept the match and enter the corresponding key. Therefore if this is set to `"\<Esc>"` then `<Esc>` has to be entered twice to exit into normal mode.
+
 * `_complete_loading_text`: `""`
 
   String which will replace the cursor when Cmd2Complete is generating the candidates. As the generation of candidates may take a while for large files, this can be used to show that Cmd2 is busy. Setting to an empty string will toggle this feature off.

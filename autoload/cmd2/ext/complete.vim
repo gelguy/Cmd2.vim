@@ -63,7 +63,7 @@ function! Cmd2#ext#complete#Handle(input, state)
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
-  elseif a:input == "\<Esc>"
+  elseif a:input == g:Cmd2__complete_exit
     let g:Cmd2_output = ""
     let g:Cmd2_output = s:old_cmd_0
     let a:state.stopped = 1
