@@ -259,6 +259,14 @@ Below are the possible options, their default setting and description.
 
   Key to enter to go to the previous item in the menu.
 
+* `_complete_loading_text`: `""`
+
+  String which will replace the cursor when Cmd2Complete is generating the candidates. As the generation of candidates may take a while for large files, this can be used to show that Cmd2 is busy. Setting to an empty string will toggle this feature off.
+
+* `_complete_loading_hl': `""`
+
+  The hlgroup to use to highlight the loading text when `g:Cmd2_complete_loadnig_text` is set.
+
 * `_complete_generate`: `'Cmd2#ext#complete#GenerateCandidates'`
 
   A string or a funcref. If a string, needs to be the name of a function. The function is called to generate the list of candidates. The function is passed 1 argument, which is the substring of the cmdline before the cursor. The function will have access to the global variables such as `g:cmd2_pending_cmd` if the argument is not enough. The list should be a list of strings, in the order they would appear in the menu. This means searching, sorting, uniq-ng and ranking should be done.

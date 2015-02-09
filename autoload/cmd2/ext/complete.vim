@@ -9,6 +9,19 @@ function! Cmd2#ext#complete#Main(...)
   try
     let old_menu = g:Cmd2_menu
     let s:old_cmd_0 = g:Cmd2_pending_cmd[0]
+    if len(g:Cmd2__complete_loading_text)
+      " first redraw to clear cmdline, second to do echo
+      redraw
+      let cmdline = [{'text': g:Cmd2_cmd_type}, {'text': g:Cmd2_pending_cmd[0]}]
+      if len(g:Cmd2__complete_loading_hl)
+        call add(cmdline, {'text' : g:Cmd2__complete_loading_text, 'hl': g:Cmd2__complete_loading_hl})
+      else
+        call add(cmdline, {'text' : g:Cmd2__complete_loading_text})
+      endif
+      call add(cmdline, {'text': g:Cmd2_pending_cmd[1]})
+      call Cmd2#render#Render(cmdline)
+      redraw
+    endif
     let candidates = call(g:Cmd2__complete_generate, [s:old_cmd_0])
     if len(candidates)
       let idx = index(candidates, Cmd2#ext#complete#StringToMatch())
