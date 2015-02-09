@@ -3,7 +3,7 @@ Power up your Vim's cmdline mode
 
 * Fuzzy completion for search
 
-  ![Cmd2complete](http://imgur.com/MOhrapg.gif)
+  ![Cmd2complete](http://imgur.com/aNpemS9.gif)
 
 * Get line numbers
 
