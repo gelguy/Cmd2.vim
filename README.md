@@ -263,7 +263,9 @@ The default options will match strings of keywords which contain a subsequence m
 
 To match strings beginning with `g:`, `s:`, etc., we can set `_complete_start_pattern` to `'\<\%(\[agls]\:\)\?\k\*'`.
 
-To match substrings which are delimited (meaning the first match is not necessarily the start of the string), we can set `_complete_start_pattern` to `'\<\(\k\+\(_\|\#\)\)\?'`. This will match `'Cmd2#functions#Cword'` with `Cword`.
+To match substrings with the first match is not necessarily the start of the string, we can set `_complete_start_pattern` to `'\<\(\k\|[_\-#]\)\*'`. This will match `'Cmd2#functions#Back'` with `Back`, and also with `ack`.
+
+To match substrings with first match at the start or after a delimiter, we can set `_complete_start_pattern` to `'\<\(\k\*\[_\-#]\)\?'`. This will match `'Cmd2#functions#Back'` with `Back`, and not with `ack`.
 
 To do a stricter match such that each character in the search either follows a previous match or begins after a delimiter, we can set `_complete_middle_pattern` to `'\%(\k\*\[_\-#]\@=\[_\-#]\*\)\?'`. This will match `'Cmd2#functions#TabForwards'` with `CTab` but not `CTb`.
 
@@ -278,6 +280,10 @@ Different behaviours can be achieved by changing the varaibles to suit your need
 #### Flickering
 
   As Cmd2 renders the cmdline and menu using `echo`, there might be flickering. Changing the `g:Cmd2_loop_sleep` variable will have different effects depending on the terminal used. In general, a lower value should result in less flickering. Otherwise, setting `g:Cmd2_cursor_blink` to `0` will turn off the cursor blink, which will result in no re-rendering and hence no flickering.
+
+#### Slow fuzzy matching
+
+  The default fuzzy matcher uses Vim's inbuilt search() and match() functions to generate the list of candidates. The candidates are then sorted and uniq-ed with an unoptimised algorithm. This might result in a noticeable delay when dealing with large files. A way to fix this is to use set `g:Cmd2_complete_generate` to a custom function which is faster. Some possible ways to do this is to use Python or Lua, or use existing sources such as from neocomplete.
 
 #### Putty mouse flickering
 
