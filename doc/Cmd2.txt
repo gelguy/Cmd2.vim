@@ -1,4 +1,4 @@
-*Cmd2* For Vim version 7.4
+*Cmd2* 0.8.0 For Vim version 7.4
 
         ,ad8888ba,                              88  ad888888b,
        d8"'    `"8b                             88 d8"     "88
