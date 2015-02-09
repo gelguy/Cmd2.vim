@@ -18,6 +18,7 @@ function! Cmd2#loop#Loop(render, handle, state)
     let input = Cmd2#loop#Getchar(0)
     if type(input) != type(0)
       call call(a:handle, [input, state])
+      let state.skip_sleep = 1
       if state.start_timeout
         let state.timeout_started = 1
         let state.timeout_start_time = reltime()
@@ -28,8 +29,11 @@ function! Cmd2#loop#Loop(render, handle, state)
           \ Cmd2#util#GetRelTimeMs(state.timeout_start_time, state.current_time) >= g:Cmd2_timeoutlen
       break
     endif
-    if g:Cmd2_loop_sleep
+    if g:Cmd2_loop_sleep && !state.skip_sleep
       execute "sleep " . g:Cmd2_loop_sleep . "m"
+    endif
+    if state.skip_sleep == 1
+      let state.skip_sleep = 0
     endif
   endwhile
   return state.result
@@ -45,6 +49,7 @@ function! Cmd2#loop#PrepareState(state)
         \ 'start_timeout' : 0,
         \ 'stopped' : 0,
         \ 'timeout_started' : 0,
+        \ 'skip_sleep' : 0,
         \ }
   call extend(a:state, default, 'keep')
 endfunction
