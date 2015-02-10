@@ -81,6 +81,34 @@ different sets of control keys.
     cmap <expr> <S-Tab> Cmd2#ext#complete#InContext() ? "
         \ \<Plug>Cmd2CB" : "\<S-Tab>"
 <
+Let's assume <Plug>Cmd2 is mapped to <C-S>. Now suppose we enter the
+cmdline with :. Pressing <C-S> will trigger Cmd2. Notice that the cursor
+has changed to _ (default). This indicates that Cmd2 is active. We can
+then refer to the mappings to see what functions we can perform. Try moving
+to a function or paragraph, enter Cmd2 and press ap. This is a line
+type, with command ap. In other words, this gets us the start and end
+lines of the surrounding paragraph (see :h ap). The cursor is now back to
+normal, indicating that Cmd2 is exited. To exit Cmd2 normally, just press
+any unmapped key other than <Esc>.
+
+Now move over a word and enter Cmd2 again, and press s. This enters
+'s//≡/g', with the cursor after the first /. We are out of Cmd2, so press
+<C-S> and then w. This inserts the current word under the cursor. Notice
+the cursor is still _ meaning we are still in Cmd2. This is because the
+r flag is set. Press w two more times. The next word is inserted (two
+times as there is space plus the next word). The ≡ is the snippet jump
+target. To jump to the next target, in Cmd2, press <Tab>. <S-Tab> goes
+to the opposite direction.
+
+Finally, try searching for a string e.g. /f. Press <Tab>, and the fuzzy
+search completion is triggered. It is in wildmenu style, <Tab> and
+<S-Tab> select the next and previous item respectively. Notice that we did
+not need to press <C-S> to enter Cmd2. This is as our mapping includes
+<Plug>Cmd2 and then follows up with the CF mapping that activates the
+complete function. Try again with mutliple characters.
+
+Read the docs to understand how the types, flags and commands work. For more
+advanced users, write your own custom functions to suit your needs.
 
 ===========================================================================
 Section 4: Mappings                                           *Cmd2Mappings*
