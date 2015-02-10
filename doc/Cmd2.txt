@@ -543,7 +543,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   default takes the last sequence of keywords before the cursor. To include
   characters behind the cursor, see |g:Cmd2__complete_get_string|.
 
-  _complete_get_string~
+  EXPERIMENTAL: _complete_get_string~
   *g:Cmd2__complete_get_string*
   default: 'Cmd2#ext#complete#GetString'
 

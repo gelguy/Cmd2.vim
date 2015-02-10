@@ -288,7 +288,7 @@ Below are the possible options, their default setting and description.
 
   A pattern. The regex pattern used to get the substring of the cmdline to match with. Unlike the other patterns, the magic setting is not set. The default takes the last sequence of keywords before the cursor. To include characters behind the cursor, see g:Cmd2__complete_get_string.
 
-* `_complete_get_string`: `'Cmd2#ext#complete#GetString'`
+* EXPERIMENTAL: `_complete_get_string`: `'Cmd2#ext#complete#GetString'`
 
   A string or a Funcref. If a string, needs to be the name of a function. The function is called to generate the string to match from the cmdline. It is passed no arguments. It has access to s:old_cmd, which is a copy of the g:Cmd2_pending_cmd when Cmd2Complete is started. This needs to be a copy as g:Cmd2_pending_cmd will be changed. This should be used to create match strings such as those which include substrings behind the current cursor position. See Customising Fuzzy Search.
 
