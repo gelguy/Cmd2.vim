@@ -267,13 +267,21 @@ Below are the possible options, their default setting and description.
 
   String which will replace the cursor when Cmd2Complete is generating the candidates. As the generation of candidates may take a while for large files, this can be used to show that Cmd2 is busy. Setting to an empty string will toggle this feature off.
 
-* `_complete_loading_hl': `""`
+* `_complete_loading_hl`: `""`
 
   The hlgroup to use to highlight the loading text when `g:Cmd2_complete_loading_text` is set.
 
 * `_complete_generate`: `'Cmd2#ext#complete#GenerateCandidates'`
 
   A string or a funcref. If a string, needs to be the name of a function. The function is called to generate the list of candidates. The function is passed 1 argument, which is the substring of the cmdline before the cursor. The function will have access to the global variables such as `g:cmd2_pending_cmd` if the argument is not enough. The list should be a list of strings, in the order they would appear in the menu. This means searching, sorting, uniq-ng and ranking should be done.
+
+* `_complete_string_pattern`: `'\v\k*$'`
+
+  A pattern. The regex pattern used to get the substring of the cmdline to match with. Unlike the other patterns, the magic setting is not set. The default takes the last sequence of keywords before the cursor. To include characters behind the cursor, see g:Cmd2__complete_get_string.
+
+* `_complete_get_string`: `'Cmd2#ext#complete#GetString'`
+
+  A string or a Funcref. If a string, needs to be the name of a function. The function is called to generate the string to match from the cmdline. It is passed no arguments. It has access to s:old_cmd, which is a copy of the g:Cmd2_pending_cmd when Cmd2Complete is started. This needs to be a copy as g:Cmd2_pending_cmd will be changed. This should be used to create match strings such as those which include substrings behind the current cursor position. See Customising Fuzzy Search.
 
 ## Customising fuzzy search
 
@@ -319,6 +327,10 @@ endfunction
 ```
 
 Note the use of `\({char}\&\L\)`. `\L` is a character class, and hence not affected by the `\c` flag. This will match `s:CustomFuzzySearch` with `cfs`.
+
+To customise the substring of the cmdline to match, use g:Cmd2__complete_string_pattern. The default takes the last sequence of keywords before the cursor. However, we might want to include '.' as a keyword to match so we can do 'obj.value'. To do this, we change string_pattern to `'\v(\.|\k)*$'`. This way we can type 's.' to match 'state.*'.
+
+g:Cmd2__complete_string_pattern only matches from before the cursor. To get matches that include patterns from after the cursor, use g:Cmd2__complete_get_string.
 
 ## FAQ
 

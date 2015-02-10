@@ -35,6 +35,8 @@ let s:Cmd2_default_options = {
       \ '_complete_end_pattern': '\k\*',
       \ '_complete_fuzzy': 1,
       \ '_complete_generate': 'Cmd2#ext#complete#GenerateCandidates',
+      \ '_complete_get_string': 'Cmd2#ext#complete#GetString',
+      \ '_complete_string_pattern': '\v\k*$',
       \ '_complete_next': "\<Tab>",
       \ '_complete_previous': "\<S-Tab>",
       \ '_complete_exit': "\<Esc>",
