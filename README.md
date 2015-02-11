@@ -22,6 +22,63 @@ Power up your Vim's cmdline mode
 At a higher level, Cmd2 provides a framework to create extensions which require cmdline input. One such extension is Cmd2Complete which provides fuzzy completion for search in wildmenu style. The rendering of the UI and handling of the input is handled by the framework, but can be further customised - for example to create a CtrlP/Unite style menu instead.
 
 ## Basic Usage
+
+### Fuzzy search completion only
+If you only want fuzzy search completion, add this to your .vimrc.
+
+``` vim
+function! s:CustomFuzzySearch(string)
+  let pattern = ""
+  let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
+  let char = matchstr(a:string, ".", byteidx(a:string, 0))
+  let pattern = '\V' . ignore_case
+  let pattern .= '\<\%(\[agls]\:\)\?'
+  let pattern .= '\%(\%(\k\*\[._\-#]\)\?' . char . '\|\k\*\%(' . char . '\&\L\)\)'
+  if g:Cmd2__complete_fuzzy
+    let result = ''
+    let i = 1
+    while i < len(a:string)
+      let char = matchstr(a:string, ".", byteidx(a:string, i))
+      let result .= '\%(' . '\%(\k\*\[._\-#]\)\?' . char . '\|'
+      let result .= '\k\*\%(' . char . '\&\L\)' . '\)'
+      let i += len(char)
+    endwhile
+    let pattern .= result
+  else
+    let pattern .= a:string
+  endif
+  let pattern .= g:Cmd2__complete_end_pattern
+  return pattern
+endfunction
+
+let g:Cmd2_options = {
+      \ '_complete_ignorecase': 1,
+      \ '_complete_uniq_ignorecase': 0,
+      \ '_complete_pattern_func': function('s:CustomFuzzySearch'),
+      \ '_complete_start_pattern': '\<\(\[agls]\:\)\?\(\k\*\[_\-#]\)\?',
+      \ '_complete_fuzzy': 1,
+      \ '_complete_string_pattern': '\v\k(\k|\.)*',
+      \ '_complete_loading_text': '...',
+      \ }
+
+let g:Cmd2_cmd_mappings = {
+      \ "CF": {'command': function('Cmd2#ext#complete#Main'), 'type': 'function'},
+      \ "CB": {'command': function('Cmd2#ext#complete#Main'), 'type': 'function'},
+      \ }
+
+cmap <C-S> <Plug>Cmd2  " Change this to your preferred mapping
+cmap <expr> <Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CF" : "\<Tab>"
+cmap <expr> <S-Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CB" : "\<S-Tab>"
+
+set wildcharm=<Tab>
+```
+
+To use, press `/`, enter a partial search and press `<Tab>`. This opens a wildmenu-style line with the current matches. `<Tab>` and `<S-Tab>` to move forward and backward through the list. Press any other key to continue typing, or `<Esc>` to return to the original string.
+
+This configuration is a stricter fuzzy search which only matches subsequences which start with a delimiter `#_-.` and CamelCase. For example, `'fb'` will match with `'FooBar'`, `'foo_bar'`, etc. This configuration also accepts `.`, meaning u can use `'o.'` to look for `'object.*'`.
+
+See Customising Fuzzy Search.
+
 ### Sample .vimrc settings
 For a quick start, copy and paste these into your .vimrc. The following section will describe how to write a mapping and describe its components. Note: the mapping of `<C-S>` is not universal as different terminals have different sets of control keys.
 ``` vim
@@ -40,7 +97,6 @@ let g:Cmd2_cmd_mappings = {
       \ "\<Plug>Cmd2STab": {'command': "Cmd2#functions#TabBackward", 'type': 'function', 'flags': 'C'},
       \ "\<Tab>": {'command': "\<Plug>Cmd2Tab", 'type': 'remap', 'flags': 'C'},
       \ "\<S-Tab>": {'command': "\<Plug>Cmd2STab", 'type': 'remap', 'flags': 'C'},
-
       \ }
 
 let g:Cmd2_options = {
