@@ -65,7 +65,7 @@ function! Cmd2#ext#complete#Handle(input, state)
     let a:state.force_render = 1
   elseif a:input == g:Cmd2__complete_exit
     let g:Cmd2_output = ""
-    let g:Cmd2_output = s:old_cmd[0]
+    let g:Cmd2_pending_cmd = s:old_cmd
     let a:state.stopped = 1
   else
     let g:Cmd2_output = Cmd2#ext#complete#GetOutput()
