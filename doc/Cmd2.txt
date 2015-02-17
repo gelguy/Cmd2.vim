@@ -84,7 +84,7 @@ If you only want fuzzy search completion, add this to your .vimrc.
           \ '_complete_start_pattern':
                 \ '\<\(\[agls]\:\)\?\(\k\*\[_\-#]\)\?',
           \ '_complete_fuzzy': 1,
-          \ '_complete_string_pattern': '\v\k(\k|\.)*',
+          \ '_complete_string_pattern': '\v\k(\k|\.)*$',
           \ '_complete_loading_text': '...',
           \ }
 

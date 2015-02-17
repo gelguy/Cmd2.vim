@@ -57,7 +57,7 @@ let g:Cmd2_options = {
       \ '_complete_pattern_func': function('s:CustomFuzzySearch'),
       \ '_complete_start_pattern': '\<\(\[agls]\:\)\?\(\k\*\[_\-#]\)\?',
       \ '_complete_fuzzy': 1,
-      \ '_complete_string_pattern': '\v\k(\k|\.)*',
+      \ '_complete_string_pattern': '\v\k(\k|\.)*$',
       \ '_complete_loading_text': '...',
       \ }
 
