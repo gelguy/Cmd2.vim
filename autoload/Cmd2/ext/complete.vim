@@ -95,7 +95,7 @@ function! Cmd2#ext#complete#ScanBuffer(string)
   call cursor(1,1)
   let pattern = call(g:Cmd2__complete_pattern_func, [a:string])
   let g:Cmd2__complete_temp_pattern = pattern
-  exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'W')"
+  exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'cW')"
   let match = g:Cmd2__complete_current_line
   while match
     let matches += Cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
@@ -103,7 +103,7 @@ function! Cmd2#ext#complete#ScanBuffer(string)
       break
     else
       call cursor((getpos('.')[1] + 1), 1)
-      exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'W')"
+      exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'cW')"
       let match = g:Cmd2__complete_current_line
     endif
   endwhile
