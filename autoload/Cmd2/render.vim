@@ -14,7 +14,9 @@ function! Cmd2#render#Main(cmd, state)
   if Cmd2#render#CheckBlink(a:state) || a:state.force_render
     call Cmd2#util#SetCmdHeight()
     call Cmd2#util#SetLastStatus()
-    redraw
+    if &cmdheight > g:Cmd2_old_cmdheight
+      redraw
+    endif
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
     let result = call(a:cmd, [a:state])
