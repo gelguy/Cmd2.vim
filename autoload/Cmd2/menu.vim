@@ -29,13 +29,13 @@ function! Cmd2#menu#CreatePages(list, columns, offset)
       let text = item
     endif
     " + 1 to include space after text
-    if cur_length + a:offset + strdisplaywidth(text) + 1 > a:columns
+    if cur_length + a:offset + strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator) > a:columns
       call add(pages, [])
       let cur_page += 1
       let cur_length = 0
     endif
     call add(pages[cur_page], item)
-    let cur_length += strdisplaywidth(text) + 1
+    let cur_length += strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator)
   endfor
   return pages
 endfunction
@@ -104,9 +104,11 @@ function! Cmd2#menu#PrepareMenuLine(pages, pos, columns)
       let text = page[i]
     endif
     let hl = a:pos[1] == i ? g:Cmd2_menu_selected_hl : g:Cmd2_menu_hl
-    if len(text) + strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 2 > a:columns
-      " + 3 to include extra space after item
-      let space_left = &columns - (strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) + 3)
+    " 2 to include space after < and before >
+    if len(text) + strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) +
+          \ 2 * strdisplaywidth(g:Cmd2_menu_separator) > a:columns
+      let space_left = &columns - (strdisplaywidth(g:Cmd2_menu_previous)
+            \ + strdisplaywidth(g:Cmd2_menu_next) + 2 + strdisplaywidth(g:Cmd2_menu_separator))
       let space_left -= strdisplaywidth(g:Cmd2_menu_more)
       let len = strlen(substitute(text, ".", "x", "g"))
       let j = 0
@@ -127,8 +129,8 @@ function! Cmd2#menu#PrepareMenuLine(pages, pos, columns)
       let text .= g:Cmd2_menu_more
     endif
     call add(line, {'text': text, 'hl': hl})
-    call add(line, {'text': ' ', 'hl': g:Cmd2_menu_hl})
-    let cur_length += strdisplaywidth(text) + 1
+    call add(line, {'text': g:Cmd2_menu_separator, 'hl': g:Cmd2_menu_separator_hl})
+    let cur_length += strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator)
     let i += 1
   endwhile
   let padding_length = a:columns - cur_length

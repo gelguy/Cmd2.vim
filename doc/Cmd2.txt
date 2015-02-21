@@ -226,7 +226,7 @@ composed of entries which are described as follows:
     For example, "^" will move the cursor to the start of the sentence the
     cursor is currently at.
 
-    * snippe~
+    * snippet~
     A snippet - text with jump targets which the users can jump to. The jump
     targets are defaulted to be |g:Cmd2_snippet_cursor_replace|. The default
     is ###. The jump targets are rendered as |g:Cmd2_snippet_cursor|. The
@@ -478,6 +478,18 @@ Below are the possible options, their default setting and description.
 
   The string used to append to a menu item if it is truncated because it is
   too long. Can be |multibyte|.
+
+  menu_separator~
+  *g:Cmd2_menu_separator*
+  default: ' '
+
+  The string used to appended between each menu item. Can be |multibyte|.
+
+  menu_separator_hl~
+  *g:Cmd2_menu_separator_hl*
+  default: 'StatusLine'
+
+  The hlgroup to use to highlight the separators.
 
 ===========================================================================
 Section 7: Cmd2Complete                                       *Cmd2Complete*

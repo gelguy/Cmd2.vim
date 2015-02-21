@@ -283,6 +283,14 @@ Below are the possible options, their default setting and description.
 
   The string used to append to a menu item if it is truncated because it is too long. Can be multibyte.
 
+* `menu_separator`: `' '`
+
+  The string used to appended between each menu item. Can be multibyte.
+
+* `menu_separator_hl`: `'StatusLine'`
+
+  The hlgroup to use to highlight the separators.
+
 ## Cmd2Complete extension
   **Cmd2Complete** is an extension built on Cmd2. It provides fuzzy completion for search in wildmenu style. Refer to the gif for an example. It can be mapped as a function using `Cmd2#ext#complete#Main`. Once activated, the next and previous keys will cycle through the candidates, listed in wildmenu style.
 
