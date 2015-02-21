@@ -348,6 +348,14 @@ Below are the possible options, their default setting and description.
 
   A string or a Funcref. If a string, needs to be the name of a function. The function is called to generate the string to match from the cmdline. It is passed no arguments. It has access to s:old_cmd, which is a copy of the g:Cmd2_pending_cmd when Cmd2Complete is started. This needs to be a copy as g:Cmd2_pending_cmd will be changed. This should be used to create match strings such as those which include substrings behind the current cursor position. See Customising Fuzzy Search.
 
+* `_complete_conceal_patterns`: `{}`
+
+  A dictionary with regexes as keys. Conceals the regexes matched with the replacement when shown in the menu. Although it looks different in the menu, the text entered will still be the unconcealed text. For example, `{'function': 'f'}` will conceal `'function'` with `'f'`.
+
+* `_complete_conceal_func`: `'Cmd2#ext#complete#Conceal'`
+
+  A string or a Funcref. If a string, needs to be the name of a function. The function to be called to create the concealed text of the candidates. It is passed the list of strings which are the candidates. The function is expected to return a list of dictionaries in the form `{'text': ..., 'value:' ...}` where text is the concealed text to show and value is the true value to insert.
+
 ## Customising fuzzy search
 
 To customise the fuzzy search, `_complete_start_pattern`, `_complete_middle_pattern` and `_complete_end_pattern` have to be set accordingly.

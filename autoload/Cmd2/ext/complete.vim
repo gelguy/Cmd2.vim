@@ -30,6 +30,7 @@ function! Cmd2#ext#complete#Main(...)
       endif
       " insert original string at the front
       call insert(candidates, Cmd2#ext#complete#StringToMatch())
+      let candidates = call(g:Cmd2__complete_conceal_func, [candidates])
       let g:Cmd2_menu = Cmd2#menu#CreateMenu(candidates, [0,0], &columns)
       call Cmd2#menu#Next(g:Cmd2_menu)
       let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
@@ -57,12 +58,14 @@ function! Cmd2#ext#complete#Handle(input, state)
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
+    call Cmd2#render#Prepare(a:state)
   elseif a:input == g:Cmd2__complete_previous
     call Cmd2#menu#Previous(g:Cmd2_menu)
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
+    call Cmd2#render#Prepare(a:state)
   elseif a:input == g:Cmd2__complete_exit
     let g:Cmd2_output = ""
     let g:Cmd2_pending_cmd = s:old_cmd
@@ -94,17 +97,14 @@ function! Cmd2#ext#complete#ScanBuffer(string)
   let matches = []
   call cursor(1,1)
   let pattern = call(g:Cmd2__complete_pattern_func, [a:string])
-  let g:Cmd2__complete_temp_pattern = pattern
-  exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'cW')"
-  let match = g:Cmd2__complete_current_line
+  let match = search(pattern, 'cW')
   while match
     let matches += Cmd2#ext#complete#GetMatchesOnLine(match, pattern, a:string)
     if match == line('$')
       break
     else
       call cursor((getpos('.')[1] + 1), 1)
-      exe "keepj let g:Cmd2__complete_current_line = search(g:Cmd2__complete_temp_pattern, 'cW')"
-      let match = g:Cmd2__complete_current_line
+      let match = search(pattern, 'cW')
     endif
   endwhile
   call winrestview(old_view)
@@ -159,18 +159,39 @@ endfunction
 
 function! Cmd2#ext#complete#GetTempOutput()
   let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
-  return Cmd2#menu#Current(g:Cmd2_menu)
+  let current = Cmd2#menu#Current(g:Cmd2_menu)
+  if type(current) == 4
+    return current.value
+  else
+    return current
+  endif
 endfunction
 
 function! Cmd2#ext#complete#GetOutput()
   let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
   let string = Cmd2#menu#Current(g:Cmd2_menu)
-  return string
+  if type(string) == 4
+    return string.value
+  else
+    return string
+  endif
 endfunction
 
 function! Cmd2#ext#complete#GetCmdSubstring(str)
   let string = Cmd2#ext#complete#StringToMatch()
   return a:str[len(string) : -1]
+endfunction
+
+function! Cmd2#ext#complete#Conceal(candidates)
+  let result = []
+  for candidate in a:candidates
+    let concealed = candidate
+    for key in keys(g:Cmd2__complete_conceal_patterns)
+      let concealed = substitute(concealed, key, g:Cmd2__complete_conceal_patterns[key], 'g')
+    endfor
+    call add(result, {'text': concealed, 'value': candidate})
+  endfor
+  return result
 endfunction
 
 function! Cmd2#ext#complete#InContext()
