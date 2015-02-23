@@ -71,7 +71,8 @@ function! Cmd2#ext#complete#Handle(input, state)
     let g:Cmd2_pending_cmd = s:old_cmd
     let a:state.stopped = 1
   else
-    let g:Cmd2_output = Cmd2#ext#complete#GetOutput()
+    let output = Cmd2#ext#complete#GetOutput()
+    let g:Cmd2_output = escape(output, '.\/~')
     let g:Cmd2_leftover_key = a:input
     let a:state.stopped = 1
   endif
