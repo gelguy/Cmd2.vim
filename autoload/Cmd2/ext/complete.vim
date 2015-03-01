@@ -34,6 +34,7 @@ function! Cmd2#ext#complete#Main(...)
       let g:Cmd2_menu = Cmd2#menu#CreateMenu(candidates, [0,0], &columns)
       call Cmd2#menu#Next(g:Cmd2_menu)
       let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
+      call Cmd2#ext#complete#Incsearch()
       let state = {}
       let state.start_time = reltime()
       let state.current_time = state.start_time
@@ -55,6 +56,7 @@ function! Cmd2#ext#complete#Handle(input, state)
   if a:input == g:Cmd2__complete_next
     call Cmd2#menu#Next(g:Cmd2_menu)
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
+    call Cmd2#ext#complete#Incsearch()
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
@@ -62,6 +64,7 @@ function! Cmd2#ext#complete#Handle(input, state)
   elseif a:input == g:Cmd2__complete_previous
     call Cmd2#menu#Previous(g:Cmd2_menu)
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
+    call Cmd2#ext#complete#Incsearch()
     let a:state.start_time = reltime()
     let a:state.current_time = a:state.start_time
     let a:state.force_render = 1
@@ -193,6 +196,12 @@ function! Cmd2#ext#complete#Conceal(candidates)
     call add(result, {'text': concealed, 'value': candidate})
   endfor
   return result
+endfunction
+
+function! Cmd2#ext#complete#Incsearch()
+  if g:Cmd2__complete_incsearch
+    call search(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output . g:Cmd2_pending_cmd[1])
+  endif
 endfunction
 
 function! Cmd2#ext#complete#InContext()

@@ -46,6 +46,7 @@ let s:Cmd2_default_options = {
       \ '_complete_get_string': 'Cmd2#ext#complete#GetString',
       \ '_complete_conceal_patterns': {},
       \ '_complete_conceal_func': 'Cmd2#ext#complete#Conceal',
+      \ '_complete_incsearch': 0,
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',

@@ -652,6 +652,14 @@ extension, the options are prepended with `_`. The options are lsited below.
   'value:' ...} where text is the concealed text to show and value is the
   true value to insert.
 
+  _complete_incsearch~
+  *g:Cmd2__complete_incsearch*
+  default: 0
+
+  Boolean to set if incsearch is on. The cursor will move to the position of
+  the current menu candidate, like |incsearch|. Best used with `set incsearch`
+  to highlight the current candidate.
+
 ===========================================================================
 Section 8: Customising fuzzy search             *Cmd2CustomisingFuzzySearch*
 
