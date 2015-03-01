@@ -49,6 +49,7 @@ function! Cmd2#ext#complete#Main(...)
     endif
   finally
     let g:Cmd2_menu = old_menu
+    call Cmd2#ext#complete#ClearIncsearchHl()
   endtry
 endfunction
 
@@ -200,8 +201,21 @@ endfunction
 
 function! Cmd2#ext#complete#Incsearch()
   if g:Cmd2__complete_incsearch
+    call Cmd2#ext#complete#ClearIncsearchHl()
     call search(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output . g:Cmd2_pending_cmd[1])
+    call Cmd2#ext#complete#AddInsearchHl(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output . g:Cmd2_pending_cmd[1])
   endif
+endfunction
+
+function! Cmd2#ext#complete#ClearIncsearchHl()
+  if exists('s:Cmd2_incsearch_hl')
+    call matchdelete(s:Cmd2_incsearch_hl)
+    unlet s:Cmd2_incsearch_hl
+  endif
+endfunction
+
+function! Cmd2#ext#complete#AddInsearchHl(string)
+  let s:Cmd2_incsearch_hl = matchadd('IncSearch', a:string)
 endfunction
 
 function! Cmd2#ext#complete#InContext()
