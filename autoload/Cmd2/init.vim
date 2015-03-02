@@ -18,7 +18,7 @@ function! Cmd2#init#Option(key, value)
 endfunction
 
 function! Cmd2#init#CmdMappings(default_cmd_mappings)
-  let g:Cmd2_mapping_tree = Cmd2#tree#New({'value': {'command': ''}})
+  let g:Cmd2_mapping_tree = Cmd2#tree#New({'value': {}})
   let Cmd2_cmd_mappings = extend(copy(a:default_cmd_mappings), g:Cmd2_cmd_mappings, 'force')
   for key in keys(Cmd2_cmd_mappings)
     let mapping = Cmd2_cmd_mappings[key]

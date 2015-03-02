@@ -50,6 +50,7 @@ function! Cmd2#loop#PrepareState(state)
         \ 'stopped' : 0,
         \ 'timeout_started' : 0,
         \ 'skip_sleep' : 0,
+        \ 'input_string': '',
         \ }
   call extend(a:state, default, 'keep')
 endfunction

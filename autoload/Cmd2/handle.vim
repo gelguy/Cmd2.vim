@@ -7,6 +7,7 @@ endfunction
 
 function! Cmd2#handle#Handle(input, state)
   call Cmd2#handle#PrepareState(a:state)
+  let a:state.input_string .= a:input
   if a:input =~ '\v^\d$' && !a:state.timeout_started
     let a:state.ccount = Cmd2#handle#HandleInputNum(a:input, a:state.ccount)
   else
@@ -15,6 +16,9 @@ function! Cmd2#handle#Handle(input, state)
     let a:state.start_timeout = 1
   endif
   let a:state.result = {'node': a:state.current_node, 'ccount': a:state.ccount}
+  if len(a:state.current_node.value) == 0 && stopped
+    let g:Cmd2_leftover_key = a:state.input_string
+  endif
 endfunction
 
 function! Cmd2#handle#PrepareState(state)
@@ -28,9 +32,6 @@ function! Cmd2#handle#HandleInputChar(input, node)
   if has_key(a:node, a:input)
     return [a:node[a:input], 0]
   else
-    if a:input != "\<Esc>"
-      let g:Cmd2_leftover_key = a:input
-    endif
     return [a:node, 1]
   endif
 endfunction

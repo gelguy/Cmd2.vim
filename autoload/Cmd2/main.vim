@@ -37,10 +37,14 @@ function! Cmd2#main#Run()
     call Cmd2#main#PostRun()
   endtry
   redraw
+  " since feedkeys appends to end of typeahead
+  " we get the remaining keys first then feed the cmdline again
+  call Cmd2#main#GetRemainderKeys()
   call Cmd2#main#FeedCmdLine()
   call Cmd2#util#ReselectVisual()
   call Cmd2#main#Reenter()
   call Cmd2#main#LeftoverKey()
+  call Cmd2#main#RemainderKeys()
 endfunction
 
 function! Cmd2#main#PreRun()
@@ -55,6 +59,7 @@ function! Cmd2#main#PreRun()
   let g:Cmd2_output = ""
   let g:Cmd2_leftover_key = ""
   let g:Cmd2_blink_state = -1
+  let g:Cmd2_remainder_keys = ""
 endfunction
 
 function! Cmd2#main#PostRun()
@@ -66,6 +71,20 @@ function! Cmd2#main#PostRun()
   call Cmd2#util#ResetCmdHeight()
   call Cmd2#util#ResetMore()
   call Cmd2#util#ResetLaststatus()
+endfunction
+
+function! Cmd2#main#GetRemainderKeys()
+  let remainder = ""
+  while 1
+    let char = getchar(0)
+    if type(char) == 0 && string(char) == '0'
+      break
+    else
+      let char = type(char) == type(0) ? nr2char(char) : char
+      let remainder .= char
+    endif
+  endwhile
+  let g:Cmd2_remainder_keys = remainder
 endfunction
 
 function! Cmd2#main#FeedCmdLine()
@@ -92,10 +111,13 @@ endfunction
 
 function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
-    if g:Cmd2_leftover_key == ""
-      let g:Cmd2_leftover_key = "\<C-C>"
-    endif
     call feedkeys(g:Cmd2_leftover_key, 'm')
+  endif
+endfunction
+
+function! Cmd2#main#RemainderKeys()
+  if len(g:Cmd2_remainder_keys)
+    call feedkeys(g:Cmd2_remainder_keys, 'm')
   endif
 endfunction
 
