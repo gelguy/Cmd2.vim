@@ -7,18 +7,19 @@ endfunction
 
 function! Cmd2#handle#Handle(input, state)
   call Cmd2#handle#PrepareState(a:state)
-  let a:state.input_string .= a:input
   if a:input =~ '\v^\d$' && !a:state.timeout_started
     let a:state.ccount = Cmd2#handle#HandleInputNum(a:input, a:state.ccount)
   else
     let [a:state.current_node, stopped] = Cmd2#handle#HandleInputChar(a:input, a:state.current_node)
     let a:state.stopped = stopped || len(keys(a:state.current_node)) == 1
     let a:state.start_timeout = 1
+    if len(a:state.current_node.value) == 0 || stopped
+      let g:Cmd2_leftover_key .= a:input
+    else
+      let g:Cmd2_leftover_key = ''
+    endif
   endif
   let a:state.result = {'node': a:state.current_node, 'ccount': a:state.ccount}
-  if len(a:state.current_node.value) == 0 && stopped
-    let g:Cmd2_leftover_key = a:state.input_string
-  endif
 endfunction
 
 function! Cmd2#handle#PrepareState(state)
