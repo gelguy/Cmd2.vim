@@ -30,7 +30,7 @@ let s:Cmd2_default_options = {
       \ 'menu_separator': ' ',
       \ 'menu_separator_hl': 'StatusLine',
       \ '_complete_ignorecase': 0,
-      \ '_complete_uniq_ignorecase': 1,
+      \ '_complete_uniq_ignorecase': 0,
       \ '_complete_pattern_func': 'Cmd2#ext#complete#CreatePattern',
       \ '_complete_start_pattern': '\<',
       \ '_complete_middle_pattern': '\k\*',
