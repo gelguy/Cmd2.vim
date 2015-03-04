@@ -31,8 +31,8 @@ function! Cmd2#ext#complete#Main(...)
       " insert original string at the front
       call insert(candidates, Cmd2#ext#complete#StringToMatch())
       let candidates = call(g:Cmd2__complete_conceal_func, [candidates])
-      let g:Cmd2_menu = Cmd2#menu#CreateMenu(candidates, [0,0], &columns)
-      call Cmd2#menu#Next(g:Cmd2_menu)
+      let g:Cmd2_menu = Cmd2#menu#New(candidates)
+      call g:Cmd2_menu.Next()
       let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
       call Cmd2#ext#complete#Incsearch()
       let state = {}
@@ -55,7 +55,7 @@ endfunction
 
 function! Cmd2#ext#complete#Handle(input, state)
   if a:input == g:Cmd2__complete_next
-    call Cmd2#menu#Next(g:Cmd2_menu)
+    call g:Cmd2_menu.Next()
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
     call Cmd2#ext#complete#Incsearch()
     let a:state.start_time = reltime()
@@ -63,7 +63,7 @@ function! Cmd2#ext#complete#Handle(input, state)
     let a:state.force_render = 1
     call Cmd2#render#Prepare(a:state)
   elseif a:input == g:Cmd2__complete_previous
-    call Cmd2#menu#Previous(g:Cmd2_menu)
+    call g:Cmd2_menu.Previous()
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
     call Cmd2#ext#complete#Incsearch()
     let a:state.start_time = reltime()
@@ -164,7 +164,7 @@ endfunction
 
 function! Cmd2#ext#complete#GetTempOutput()
   let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
-  let current = Cmd2#menu#Current(g:Cmd2_menu)
+  let current = g:Cmd2_menu.Current()
   if type(current) == 4
     return current.value
   else
@@ -174,7 +174,7 @@ endfunction
 
 function! Cmd2#ext#complete#GetOutput()
   let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
-  let string = Cmd2#menu#Current(g:Cmd2_menu)
+  let string = g:Cmd2_menu.Current()
   if type(string) == 4
     return string.value
   else

@@ -44,7 +44,7 @@ endfunction
 function! Cmd2#render#PrepareCmdLineWithMenu(state)
   let result = []
   if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
-    let menu = Cmd2#menu#PrepareMenuLineFromMenu(g:Cmd2_menu)
+    let menu = g:Cmd2_menu.MenuLine()
     let result += menu
   endif
   let result += Cmd2#render#PrepareCmdLine(a:state)
