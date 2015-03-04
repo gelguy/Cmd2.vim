@@ -87,7 +87,7 @@ function! Cmd2#ext#complete#Finish(input)
 endfunction
 
 function! Cmd2#ext#complete#GenerateCandidates(cmd)
-  let string = escape(Cmd2#ext#complete#StringToMatch(), '\')
+  let string = Cmd2#ext#complete#StringToMatch()
   if !len(string)
     return []
   endif
@@ -145,11 +145,21 @@ endfunction
 function! Cmd2#ext#complete#CreateFuzzyPattern(string, pattern)
   let result = ''
   let i = 0
-  while i < len(a:string)
+  while i < len(substitute(a:string, '.', 'x', 'g'))
     let char = matchstr(a:string, ".", byteidx(a:string, i))
+    if char == '\'
+      if i == len(substitute(a:string, '.', 'x', 'g'))
+        let char .= '\'
+      else
+        let char .= matchstr(a:string, ".", byteidx(a:string, i+1))
+      endif
+      let offset = 1
+    else
+      let offset = 0
+    endif
     let result .= char
     let result .= a:pattern
-    let i += len(char)
+    let i += 1 + offset
   endwhile
   return result
 endfunction
