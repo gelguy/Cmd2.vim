@@ -111,6 +111,9 @@ endfunction
 
 function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
+    if g:Cmd2_leftover_key == "\<Esc>"
+      let g:Cmd2_leftover_key = ''
+    endif
     call feedkeys(g:Cmd2_leftover_key, 'm')
   endif
 endfunction
