@@ -5,7 +5,31 @@ function! Cmd2#ext#complete#Autoload()
   " do nothing
 endfunction
 
+let s:Complete = {}
+
 function! Cmd2#ext#complete#Main(...)
+  call Cmd2#ext#complete#New().Run()
+endfunction
+
+function! Cmd2#ext#complete#New()
+  let complete = copy(s:Complete)
+  let state = {}
+  let state.start_time = reltime()
+  let state.current_time = state.start_time
+  let state.force_render = 1
+  let args = {
+        \ 'render': Cmd2#render#New().WithMenu(),
+        \ 'handle': Cmd2#ext#complete#Handle(),
+        \ 'finish': Cmd2#commands#New(),
+        \ 'loop': Cmd2#loop#New(),
+        \ 'state': state,
+        \ }
+  let module = Cmd2#module#New(args)
+  let complete.module = module
+  return complete
+endfunction
+
+function! s:Complete.Run()
   try
     let old_menu = g:Cmd2_menu
     let s:old_cmd = copy(g:Cmd2_pending_cmd)
@@ -35,17 +59,9 @@ function! Cmd2#ext#complete#Main(...)
       call g:Cmd2_menu.Next()
       let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
       call Cmd2#ext#complete#Incsearch()
-      let state = {}
-      let state.start_time = reltime()
-      let state.current_time = state.start_time
-      let state.force_render = 1
-      let args = {
-            \ 'render': function('Cmd2#render#Prepare'),
-            \ 'handle': function('Cmd2#ext#complete#Handle'),
-            \ 'finish': function('Cmd2#ext#complete#Finish'),
-            \ 'state': state,
-            \ }
-      call Cmd2#loop#Init(args)
+      call feedkeys(g:Cmd2_leftover_key)
+      let g:Cmd2_leftover_key = ""
+      call self.module.Run()
     endif
   finally
     let g:Cmd2_menu = old_menu
@@ -53,37 +69,59 @@ function! Cmd2#ext#complete#Main(...)
   endtry
 endfunction
 
-function! Cmd2#ext#complete#Handle(input, state)
+let s:Handle = {}
+
+function! Cmd2#ext#complete#Handle()
+  return copy(s:Handle)
+endfunction
+
+function! s:Handle.Module(module)
+  let self.module = a:module
+  return self
+endfunction
+
+function! s:Handle.Run(input)
   if a:input == g:Cmd2__complete_next
     call g:Cmd2_menu.Next()
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
     call Cmd2#ext#complete#Incsearch()
-    let a:state.start_time = reltime()
-    let a:state.current_time = a:state.start_time
-    let a:state.force_render = 1
-    call Cmd2#render#Prepare(a:state)
+    let self.module.state.start_time = reltime()
+    let self.module.state.current_time = self.module.state.start_time
+    let self.module.state.force_render = 1
+    call self.module.Render()
   elseif a:input == g:Cmd2__complete_previous
     call g:Cmd2_menu.Previous()
     let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
     call Cmd2#ext#complete#Incsearch()
-    let a:state.start_time = reltime()
-    let a:state.current_time = a:state.start_time
-    let a:state.force_render = 1
-    call Cmd2#render#Prepare(a:state)
+    let self.module.state.start_time = reltime()
+    let self.module.state.current_time = self.module.state.start_time
+    let self.module.state.force_render = 1
+    call self.module.Render()
   elseif a:input == g:Cmd2__complete_exit
     let g:Cmd2_output = ""
     let g:Cmd2_pending_cmd = s:old_cmd
-    let a:state.stopped = 1
+    let self.module.state.stopped = 1
   else
     let output = Cmd2#ext#complete#GetOutput()
     let g:Cmd2_output = escape(output, '.\/~')
     let g:Cmd2_leftover_key = a:input
-    let a:state.stopped = 1
+    let self.module.state.stopped = 1
   endif
 endfunction
 
-function! Cmd2#ext#complete#Finish(input)
-  " do nothing
+let s:Finish = {}
+
+function! Cmd2#ext#complete#Finish()
+  return copy(s:Finish)
+endfunction
+
+function! s:Finish.Module(module)
+  let self.module = a:module
+  return module
+endfunction
+
+function! s:Finish.Run()
+  return
 endfunction
 
 function! Cmd2#ext#complete#GenerateCandidates(cmd)

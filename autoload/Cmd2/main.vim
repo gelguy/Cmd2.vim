@@ -21,16 +21,22 @@ function! Cmd2#main#Init()
   silent! call Cmd2#util#HideCursor()
 endfunction
 
+function! Cmd2#main#New()
+  let args = {
+        \ 'render': Cmd2#render#New(),
+        \ 'handle': Cmd2#handle#New(),
+        \ 'finish': Cmd2#commands#New(),
+        \ 'loop': Cmd2#loop#New(),
+        \ 'state': {},
+        \ }
+  return Cmd2#module#New(args)
+endfunction
+
 function! Cmd2#main#Run()
   try
     call Cmd2#main#PreRun()
-    let args = {
-          \ 'render': function('Cmd2#render#Prepare'),
-          \ 'handle': function('Cmd2#handle#Handle'),
-          \ 'finish': function('Cmd2#commands#DoMapping'),
-          \ 'state': {},
-          \ }
-    call call(g:Cmd2_loop_func, [args])
+    let module = Cmd2#main#New()
+    call module.Run()
   catch /^Vim:Interrupt$/
     let g:Cmd2_output = ""
   finally
@@ -111,6 +117,9 @@ endfunction
 
 function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
+    if g:Cmd2_leftover_key == "\<Esc>"
+      let g:Cmd2_leftover_key = ''
+    endif
     call feedkeys(g:Cmd2_leftover_key, 'm')
   endif
 endfunction

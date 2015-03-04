@@ -5,13 +5,27 @@ function! Cmd2#render#Autoload()
   " do nothing
 endfunction
 
-function! Cmd2#render#Prepare(state)
-  let CmdLine = function('Cmd2#render#PrepareCmdLineWithMenu')
-  call Cmd2#render#Main(CmdLine, a:state)
+let s:Render = {}
+
+function! Cmd2#render#New()
+  let render = copy(s:Render)
+  let render.renderer = render.CmdLine()
+  return render
 endfunction
 
-function! Cmd2#render#Main(cmd, state)
-  if Cmd2#render#CheckBlink(a:state) || a:state.force_render
+function! s:Render.Module(module)
+  let self.module = a:module
+  return self
+endfunction
+
+function! s:Render.WithMenu()
+  let self.renderer = self.CmdLineWithMenu()
+  return self
+endfunction
+
+function! s:Render.Run()
+  let state = self.module.state
+  if self.CheckBlink() || state.force_render
     call Cmd2#util#SetCmdHeight()
     call Cmd2#util#SetLastStatus()
     if &cmdheight > g:Cmd2_old_cmdheight
@@ -19,36 +33,50 @@ function! Cmd2#render#Main(cmd, state)
     endif
     " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
     execute "normal! :"
-    let result = call(a:cmd, [a:state])
-    call Cmd2#render#Render(result)
+    let echo_contents = self.renderer.Run()
+    call self.Render(echo_contents)
   endif
-  if a:state.force_render == 1
-    let a:state.force_render = 0
+  if state.force_render == 1
+    let state.force_render = 0
   endif
 endfunction
 
-function! Cmd2#render#PrepareCmdLine(state)
-  let result = []
-  let result += [{'text': g:Cmd2_cmd_type}]
-  let result += Cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
-  let result += [{'text': g:Cmd2_temp_output}]
-  if g:Cmd2_blink_state
-    call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
-  else
-    call add(result, {'text': g:Cmd2_cursor_text})
-  endif
-  let result += Cmd2#render#SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
-  return result
+function! s:Render.CmdLine()
+  let renderer = {}
+  let renderer.render = self
+  function! renderer.Run()
+    let result = []
+    let result += [{'text': g:Cmd2_cmd_type}]
+    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
+    let result += [{'text': g:Cmd2_temp_output}]
+    if g:Cmd2_blink_state
+      call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
+    else
+      call add(result, {'text': g:Cmd2_cursor_text})
+    endif
+    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
+    return result
+  endfunction
+  return renderer
 endfunction
 
-function! Cmd2#render#PrepareCmdLineWithMenu(state)
-  let result = []
-  if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
-    let menu = g:Cmd2_menu.MenuLine()
-    let result += menu
-  endif
-  let result += Cmd2#render#PrepareCmdLine(a:state)
-  return result
+function! s:Render.CmdLineWithMenu()
+  let renderer = {}
+  let renderer.render = self
+  function! renderer.Run()
+    let result = []
+    if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
+      let menu = g:Cmd2_menu.MenuLine()
+      let result += menu
+    endif
+    let result += self.render.CmdLine().Run()
+    return result
+  endfunction
+  return renderer
+endfunction
+
+function! s:Render.Render(list)
+  call Cmd2#render#Render(a:list)
 endfunction
 
 function! Cmd2#render#Render(list)
@@ -64,9 +92,9 @@ function! Cmd2#render#Render(list)
 endfunction
 
 " renders the cmdline through echo
-function! Cmd2#render#CheckBlink(state)
+function! s:Render.CheckBlink()
   let blink = g:Cmd2_cursor_blink ?
-        \ Cmd2#render#GetCursorBlink(a:state.start_time, a:state.current_time)
+        \ self.GetCursorBlink(self.module.state.start_time, self.module.state.current_time)
         \ : 1
   if g:Cmd2_blink_state == blink
     return 0
@@ -76,7 +104,7 @@ function! Cmd2#render#CheckBlink(state)
   endif
 endfunction
 
-function! Cmd2#render#SplitSnippet(cmd, split)
+function! s:Render.SplitSnippet(cmd, split)
   let result = []
   let splitcmd = split(a:cmd, a:split, 1)
   call add(result, {'text': splitcmd[0]})
@@ -89,7 +117,7 @@ function! Cmd2#render#SplitSnippet(cmd, split)
   return result
 endfunction
 
-function! Cmd2#render#GetCursorBlink(start, current)
+function! s:Render.GetCursorBlink(start, current)
   let ms = Cmd2#util#GetRelTimeMs(a:start, a:current)
   if ms < g:Cmd2_cursor_blinkwait
     return 1
