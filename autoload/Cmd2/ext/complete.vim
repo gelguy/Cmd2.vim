@@ -5,14 +5,22 @@ function! Cmd2#ext#complete#Autoload()
   " do nothing
 endfunction
 
-let s:Complete = {}
+let s:Module = {}
+
+function! Cmd2#ext#complete#Module()
+  return s:Module
+endfunction
 
 function! Cmd2#ext#complete#Main(...)
   call Cmd2#ext#complete#New().Run()
 endfunction
 
 function! Cmd2#ext#complete#New()
-  let complete = copy(s:Complete)
+  return Cmd2#ext#complete#Module().New()
+endfunction
+
+function! s:Module.New()
+  let complete = copy(self)
   let state = {}
   let state.start_time = reltime()
   let state.current_time = state.start_time
@@ -20,7 +28,7 @@ function! Cmd2#ext#complete#New()
   let args = {
         \ 'render': Cmd2#render#New().WithMenu(),
         \ 'handle': Cmd2#ext#complete#Handle(),
-        \ 'finish': Cmd2#commands#New(),
+        \ 'finish': Cmd2#ext#complete#Finish(),
         \ 'loop': Cmd2#loop#New(),
         \ 'state': state,
         \ }
@@ -29,7 +37,7 @@ function! Cmd2#ext#complete#New()
   return complete
 endfunction
 
-function! s:Complete.Run()
+function! s:Module.Run()
   try
     let old_menu = g:Cmd2_menu
     let s:old_cmd = copy(g:Cmd2_pending_cmd)
@@ -117,7 +125,7 @@ endfunction
 
 function! s:Finish.Module(module)
   let self.module = a:module
-  return module
+  return self
 endfunction
 
 function! s:Finish.Run()

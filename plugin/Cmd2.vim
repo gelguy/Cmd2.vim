@@ -81,7 +81,13 @@ if g:Cmd2_preload
   call Cmd2#Autoload()
 endif
 
-cnoremap <silent> <expr> <Plug>Cmd2 getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() . "<C-E><C-U><C-C>:call Cmd2#main#Run()<CR>" : ""
+call Cmd2#module#Register('cmd2', Cmd2#main#Module())
+call Cmd2#module#Register('complete', Cmd2#ext#complete#Module())
+
+cmap <Plug>Cmd2 <Plug>(Cmd2)
+cnoremap <silent> <expr> <Plug>(Cmd2) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() . "<C-E><C-U><C-C>:call Cmd2#main#Run()<CR>" : ""
+cnoremap <silent> <expr> <Plug>(Cmd2Complete) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
+      \ "<C-E><C-U><C-C>:call Cmd2#main#Run('complete')<CR>" : ""
 
 let g:Cmd2_loaded = 1
 

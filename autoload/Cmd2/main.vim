@@ -21,7 +21,10 @@ function! Cmd2#main#Init()
   silent! call Cmd2#util#HideCursor()
 endfunction
 
-function! Cmd2#main#New()
+let s:Module = {}
+
+function! s:Module.New()
+  let cmd2 = copy(self)
   let args = {
         \ 'render': Cmd2#render#New(),
         \ 'handle': Cmd2#handle#New(),
@@ -29,13 +32,34 @@ function! Cmd2#main#New()
         \ 'loop': Cmd2#loop#New(),
         \ 'state': {},
         \ }
-  return Cmd2#module#New(args)
+  let module = Cmd2#module#New(args)
+  let cmd2.module = module
+  return cmd2
 endfunction
 
-function! Cmd2#main#Run()
+function! s:Module.Run()
+  call feedkeys(g:Cmd2_leftover_key)
+  let g:Cmd2_leftover_key = ""
+  call self.module.Run()
+endfunction
+
+function! Cmd2#main#Module()
+  return s:Module
+endfunction
+
+function! Cmd2#main#New()
+  return Cmd2#main#Module().New()
+endfunction
+
+function! Cmd2#main#Run(...)
   try
     call Cmd2#main#PreRun()
-    let module = Cmd2#main#New()
+    if a:0
+      let name = a:1
+    else
+      let name = 'cmd2'
+    endif
+    let module = g:Cmd2_modules[name].New()
     call module.Run()
   catch /^Vim:Interrupt$/
     let g:Cmd2_output = ""
