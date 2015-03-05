@@ -45,6 +45,8 @@ function! Cmd2#ext#complete#Main(...)
             \ 'finish': function('Cmd2#ext#complete#Finish'),
             \ 'state': state,
             \ }
+      call feedkeys(g:Cmd2_leftover_key)
+      let g:Cmd2_leftover_key = ""
       call Cmd2#loop#Init(args)
     endif
   finally
