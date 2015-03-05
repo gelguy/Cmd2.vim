@@ -5,40 +5,59 @@ function! Cmd2#handle#Autoload()
   " do nothing
 endfunction
 
-function! Cmd2#handle#Handle(input, state)
-  call Cmd2#handle#PrepareState(a:state)
-  if a:input =~ '\v^\d$' && !a:state.timeout_started
-    let a:state.ccount = Cmd2#handle#HandleInputNum(a:input, a:state.ccount)
+let s:Handle = {}
+
+function! Cmd2#handle#New()
+  let handle = copy(s:Handle)
+  return handle
+endfunction
+
+function! s:Handle.Module(module)
+  let self.module = a:module
+  return self
+endfunction
+
+function! s:Handle.Run(input)
+  let state = self.module.state
+  call self.PrepareState()
+  if a:input =~ '\v^\d$' && !state.timeout_started
+    let state.ccount = self.InputNum(a:input)
   else
-    let [a:state.current_node, stopped] = Cmd2#handle#HandleInputChar(a:input, a:state.current_node)
-    let a:state.stopped = stopped || len(keys(a:state.current_node)) == 1
-    let a:state.start_timeout = 1
-    if len(a:state.current_node.value) == 0 || stopped
+    let [state.current_node, stopped] = self.InputChar(a:input)
+    let state.stopped = stopped || len(keys(state.current_node)) == 1
+    let state.start_timeout = 1
+    if len(state.current_node.value) == 0 || stopped
       let g:Cmd2_leftover_key .= a:input
     else
       let g:Cmd2_leftover_key = ''
     endif
   endif
-  let a:state.result = {'node': a:state.current_node, 'ccount': a:state.ccount}
+  let state.result = {'node': state.current_node, 'ccount': state.ccount}
 endfunction
 
-function! Cmd2#handle#PrepareState(state)
-  let a:state.current_node = get(a:state, 'current_node', g:Cmd2_mapping_tree)
-  let a:state.ccount = get(a:state, 'ccount', 0)
-  let a:state.stopped = get(a:state, 'stopped', 0)
-  let a:state.start_timeout = get(a:state, 'start_timeout', 0)
+function! s:Handle.PrepareState()
+  let state = self.module.state
+  let default = {
+        \ 'current_node': g:Cmd2_mapping_tree,
+        \ 'ccount': 0,
+        \ 'start_timeout': 0,
+        \ 'stopped': 0,
+        \ }
+  call extend(state, default, 'keep')
 endfunction
 
-function! Cmd2#handle#HandleInputChar(input, node)
-  if has_key(a:node, a:input)
-    return [a:node[a:input], 0]
+function! s:Handle.InputChar(input)
+  let node = self.module.state.current_node
+  if has_key(node, a:input)
+    return [node[a:input], 0]
   else
-    return [a:node, 1]
+    return [node, 1]
   endif
 endfunction
 
-function! Cmd2#handle#HandleInputNum(input, count)
-  return a:count * 10 + a:input
+function! s:Handle.InputNum(input)
+  let ccount = self.module.state.ccount
+  return ccount * 10 + a:input
 endfunction
 
 let &cpo = s:save_cpo

@@ -5,29 +5,46 @@ function! Cmd2#commands#Autoload()
   " do nothing
 endfunction
 
-function! Cmd2#commands#DoMapping(input)
-  if !type(a:input) && !a:input
-    return
-  endif
-  let mapping = a:input.node['value']
-  let flags = get(mapping, 'flags', '')
-  " capital since there might be a funcref
-  let Cmd = get(mapping, 'command', '')
-  let type = get(mapping, 'type', '')
-  let ccount = flags =~# 'C' ? (a:input.ccount == 0 ? 1 : a:input.ccount)
-        \ : flags =~# 'c' ? a:input.ccount
-        \ : ""
-  let old_view = winsaveview()
-  let [vstart, vend, vpos, vmode] = Cmd2#commands#VisualPre(flags)
-  call winrestview(old_view)
-  call Cmd2#commands#HandleType(Cmd, type, ccount)
-  call Cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
-  call Cmd2#commands#Pflag(old_view, flags)
-  call Cmd2#commands#Rflag(mapping, flags)
+let s:Commands = {}
+
+function! Cmd2#commands#New()
+  let commands = copy(s:Commands)
+  return commands
 endfunction
 
-function! Cmd2#commands#VisualPre(flags)
-  if a:flags =~# 'v' && g:Cmd2_visual_select
+function! s:Commands.Module(module)
+  let self.module = a:module
+  return self
+endfunction
+
+function! s:Commands.Run(...)
+  if a:0
+    let result = a:1
+  else
+    let result = self.module.state.result
+  endif
+  if !len(result)
+    return
+  endif
+  let self.mapping = result.node.value
+  let self.flags = get(self.mapping, 'flags', '')
+  " capital since there might be a funcref
+  let self.cmd = get(self.mapping, 'command', '')
+  let self.type = get(self.mapping, 'type', '')
+  let self.ccount = self.flags =~# 'C' ? (result.ccount == 0 ? 1 : result.ccount)
+        \ : self.flags =~# 'c' ? result.ccount
+        \ : ''
+  let self.old_view = winsaveview()
+  let [self.vstart, self.vend, self.vpos, self.vmode] = self.VisualPre()
+  call winrestview(self.old_view)
+  call self.HandleType()
+  call self.Vflag()
+  call self.Pflag()
+  call self.Rflag()
+endfunction
+
+function! s:Commands.VisualPre()
+  if self.flags =~# 'v' && g:Cmd2_visual_select
     let [vstart, vend, vpos, vmode] = Cmd2#util#SaveVisual()
     return [vstart, vend, vpos, vmode]
   else
@@ -35,80 +52,80 @@ function! Cmd2#commands#VisualPre(flags)
   endif
 endfunction
 
-function! Cmd2#commands#Vflag(vstart, vend, vpos, vmode, flags)
-  if a:flags =~# 'v' && g:Cmd2_visual_select
+function! s:Commands.Vflag()
+  if self.flags =~# 'v' && g:Cmd2_visual_select
     let cursor_pos = getpos('.')
-    call Cmd2#util#RestoreVisual(a:vstart, a:vend, a:vpos, a:vmode)
+    call Cmd2#util#RestoreVisual(self.vstart, self.vend, self.vpos, self.vmode)
     call setpos(".", cursor_pos)
   endif
 endfunction
 
-function! Cmd2#commands#Pflag(old_view, flags)
-  if a:flags =~# 'p'
-    call winrestview(a:old_view)
+function! s:Commands.Pflag()
+  if self.flags =~# 'p'
+    call winrestview(self.old_view)
   endif
 endfunction
 
-function! Cmd2#commands#Rflag(mapping, flags)
-  if a:flags =~# 'r'
+function! s:Commands.Rflag()
+  if self.flags =~# 'r'
     let g:Cmd2_reenter = 1
-    let g:Cmd2_reenter_key = get(a:mapping, 'reenter', '')
+    let g:Cmd2_reenter_key = get(self.mapping, 'reenter', '')
   endif
 endfunction
 
-function! Cmd2#commands#HandleType(cmd, type, ccount)
-  if empty(a:cmd) || empty(a:type)
+function! s:Commands.HandleType()
+  if empty(self.cmd) || empty(self.type)
     " skip
     let g:Cmd2_output = ""
-  elseif a:type == 'literal'
-    call Cmd2#commands#HandleLiteral(a:cmd, a:ccount)
-  elseif a:type == 'text'
-    call Cmd2#commands#HandleText(a:cmd, a:ccount)
-  elseif a:type == 'line'
-    call Cmd2#commands#HandleLine(a:cmd, a:ccount)
-  elseif a:type == 'function'
-    call Cmd2#commands#HandleFunction(a:cmd, a:ccount)
-  elseif a:type == 'snippet'
-    call Cmd2#commands#HandleSnippet(a:cmd, a:ccount)
-  elseif a:type == 'normal'
-    call Cmd2#commands#HandleNormal(a:cmd, a:ccount, 0)
-  elseif a:type == 'normal!'
-    call Cmd2#commands#HandleNormal(a:cmd, a:ccount, 1)
-  elseif a:type == 'remap'
-    call Cmd2#commands#HandleRemap(a:cmd, a:ccount)
+  elseif self.type == 'literal'
+    call self.HandleLiteral()
+  elseif self.type == 'text'
+    call self.HandleText()
+  elseif self.type == 'line'
+    call self.HandleLine()
+  elseif self.type == 'function'
+    call self.HandleFunction()
+  elseif self.type == 'snippet'
+    call self.HandleSnippet()
+  elseif self.type == 'normal'
+    call self.HandleNormal()
+  elseif self.type == 'normal!'
+    call self.HandleNormal()
+  elseif self.type == 'remap'
+    call self.HandleRemap()
   endif
 endfunction
 
-function! Cmd2#commands#HandleLiteral(cmd, ccount)
-  if !len(a:ccount)
-    let g:Cmd2_output = a:cmd
+function! s:Commands.HandleLiteral()
+  if !len(self.ccount)
+    let g:Cmd2_output = self.cmd
   else
-    let g:Cmd2_output = repeat(a:cmd, a:ccount)
+    let g:Cmd2_output = repeat(self.cmd, self.ccount)
   endif
 endfunction
 
-function! Cmd2#commands#HandleText(cmd, ccount)
+function! s:Commands.HandleText()
   execute "set opfunc=Cmd2#functions#GetContents"
   " normal (no !) to allow custom text obj remaps
-  execute "normal g@" . a:ccount . a:cmd
+  execute "normal g@" . self.ccount . self.cmd
 endfunction
 
-function! Cmd2#commands#HandleLine(cmd, ccount)
+function! s:Commands.HandleLine()
   execute "set opfunc=Cmd2#functions#GetLines"
   " normal (no !) to allow custom text obj remaps
-  execute "normal g@" . a:ccount . a:cmd
+  execute "normal g@" . self.ccount . self.cmd
 endfunction
 
-function! Cmd2#commands#HandleFunction(cmd, ccount)
-  if len(a:ccount)
-    call call(a:cmd, [a:ccount])
+function! s:Commands.HandleFunction()
+  if len(self.ccount)
+    call call(self.cmd, [self.ccount])
   else
-    call call(a:cmd, [])
+    call call(self.cmd, [])
   endif
 endfunction
 
-function! Cmd2#commands#HandleSnippet(cmd, ccount)
-  let snippet = substitute(a:cmd, g:Cmd2_snippet_cursor_replace, g:Cmd2_snippet_cursor, "g")
+function! s:Commands.HandleSnippet()
+  let snippet = substitute(self.cmd, g:Cmd2_snippet_cursor_replace, g:Cmd2_snippet_cursor, "g")
   let offset = match(snippet, g:Cmd2_snippet_cursor)
   if offset == -1
     let g:Cmd2_output = snippet
@@ -124,21 +141,21 @@ function! Cmd2#commands#HandleSnippet(cmd, ccount)
   let g:Cmd2_pending_cmd[1] = after . g:Cmd2_pending_cmd[1]
 endfunction
 
-function! Cmd2#commands#HandleNormal(cmd, ccount, bang)
-  let bang = a:bang ? '!' : ''
-  execute "normal" . bang . " " . a:ccount . a:cmd
+function! s:Commands.HandleNormal()
+  let bang = self.bang ? '!' : ''
+  execute "normal" . bang . " " . self.ccount . self.cmd
 endfunction
 
 let g:Cmd2_remap_depth = 0
 
-function! Cmd2#commands#HandleRemap(cmd, ccount)
+function! s:Commands.HandleRemap()
   let g:Cmd2_remap_depth += 1
   if g:Cmd2_remap_depth > g:Cmd2_max_remap_depth
     return
   endif
-  let node = Cmd2#util#FindNode(a:cmd, g:Cmd2_mapping_tree)
+  let node = Cmd2#util#FindNode(self.cmd, g:Cmd2_mapping_tree)
   if !empty(node)
-    call Cmd2#commands#DoMapping({'node': node, 'ccount': a:ccount})
+    call self.Run({'node': node, 'ccount': self.ccount})
   endif
 endfunction
 
