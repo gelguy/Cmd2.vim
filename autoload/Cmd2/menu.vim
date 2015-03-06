@@ -13,9 +13,10 @@ endfunction
 let s:Menu = {}
 
 function! s:Menu.New(list)
-  let menu = copy(self)
+  let menu = deepcopy(self)
   let menu.pos = [0,0]
   let menu.pages = menu.CreatePages(a:list)
+  let menu.empty_render = 0
   return menu
 endfunction
 
@@ -90,6 +91,14 @@ function! s:Menu.Current()
 endfunction
 
 function! s:Menu.MenuLine()
+  if len(self) == 0 || len(self.pages) == 0
+    if self.empty_render
+      let empty = repeat(' ', &columns)
+      return [{'text': empty, 'hl': g:Cmd2_menu_hl}]
+    else
+      return [{'text': ''}]
+    endif
+  endif
   let line = []
   let cur_length = 0
   let page = self.pages[self.pos[0]]

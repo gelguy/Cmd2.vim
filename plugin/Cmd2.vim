@@ -47,6 +47,11 @@ let s:Cmd2_default_options = {
       \ '_complete_conceal_patterns': {},
       \ '_complete_conceal_func': 'Cmd2#ext#complete#Conceal',
       \ '_complete_incsearch': 0,
+      \ '_suggest_hl': 'Cursor',
+      \ '_suggest_complete_hl': 'Statement',
+      \ '_suggest_show_suggest': 1,
+      \ '_suggest_min_length': 0,
+      \ '_suggest_space_trigger': 1,
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',
@@ -83,11 +88,14 @@ endif
 
 call Cmd2#module#Register('cmd2', Cmd2#main#Module())
 call Cmd2#module#Register('complete', Cmd2#ext#complete#Module())
+call Cmd2#module#Register('cmdline', Cmd2#ext#suggest#Module())
 
 cmap <Plug>Cmd2 <Plug>(Cmd2)
 cnoremap <silent> <expr> <Plug>(Cmd2) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() . "<C-E><C-U><C-C>:call Cmd2#main#Run()<CR>" : ""
 cnoremap <silent> <expr> <Plug>(Cmd2Complete) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
       \ "<C-E><C-U><C-C>:call Cmd2#main#Run('complete')<CR>" : ""
+cnoremap <silent> <expr> <Plug>(Cmd2Cmdline) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
+      \ "<C-E><C-U><C-C>:call Cmd2#main#Run('cmdline')<CR>" : ""
 
 let g:Cmd2_loaded = 1
 

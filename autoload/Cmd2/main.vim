@@ -84,8 +84,9 @@ function! Cmd2#main#PreRun()
   call Cmd2#util#SaveCmdHeight()
   call Cmd2#util#SetMore()
   call Cmd2#util#SaveLaststatus()
-  let g:Cmd2_menu = {}
+  let g:Cmd2_menu = Cmd2#menu#New([])
   let g:Cmd2_temp_output = ""
+  let g:Cmd2_post_temp_output = ""
   let g:Cmd2_output = ""
   let g:Cmd2_leftover_key = ""
   let g:Cmd2_blink_state = -1
@@ -143,6 +144,8 @@ function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
     if g:Cmd2_leftover_key == "\<Esc>"
       let g:Cmd2_leftover_key = ''
+    elseif g:Cmd2_leftover_key =~ "\<CR>"
+      call histadd(g:Cmd2_cmd_type, g:Cmd2_pending_cmd[0] . g:Cmd2_output . g:Cmd2_pending_cmd[1])
     endif
     call feedkeys(g:Cmd2_leftover_key, 'm')
   endif

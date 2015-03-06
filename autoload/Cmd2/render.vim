@@ -10,11 +10,19 @@ let s:Render = {}
 function! Cmd2#render#New()
   let render = copy(s:Render)
   let render.renderer = render.CmdLine()
+  let render.temp_hl = 'None'
+  let render.post_temp_hl = 'None'
+  let render.show_cursor = 1
   return render
 endfunction
 
 function! s:Render.Module(module)
   let self.module = a:module
+  return self
+endfunction
+
+function! s:Render.WithInsertCursor()
+  let self.renderer = self.CmdLineWithInsertCursor()
   return self
 endfunction
 
@@ -48,7 +56,7 @@ function! s:Render.CmdLine()
     let result = []
     let result += [{'text': g:Cmd2_cmd_type}]
     let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
-    let result += [{'text': g:Cmd2_temp_output}]
+    let result += [{'text': g:Cmd2_temp_output, 'hl': self.render.temp_hl}]
     if g:Cmd2_blink_state
       call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
     else
@@ -60,16 +68,47 @@ function! s:Render.CmdLine()
   return renderer
 endfunction
 
-function! s:Render.CmdLineWithMenu()
+function! s:Render.CmdLineWithInsertCursor()
   let renderer = {}
   let renderer.render = self
   function! renderer.Run()
     let result = []
-    if has_key(g:Cmd2_menu, 'pages') && len(g:Cmd2_menu.pages) > 0
+    let result += [{'text': g:Cmd2_cmd_type}]
+    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
+    let result += [{'text': g:Cmd2_temp_output, 'hl': self.render.temp_hl}]
+    if len(g:Cmd2_post_temp_output) && g:Cmd2__suggest_show_suggest
+      let after_cursor = [{'text': g:Cmd2_post_temp_output, 'hl' :self.render.post_temp_hl}]
+    else
+      let after_cursor = []
+    endif
+    let after_cursor += self.render.SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
+    if g:Cmd2_blink_state
+      let first = after_cursor[0]
+      if len(after_cursor[0].text)
+        let char = matchstr(after_cursor[0].text, ".", byteidx(after_cursor[0].text, 0))
+        let result += [{'text': char, 'hl': g:Cmd2_cursor_hl}]
+        let after_cursor[0].text = after_cursor[0].text[1:]
+      else
+        let result += [{'text': ' ', 'hl': g:Cmd2_cursor_hl}]
+      endif
+    endif
+    let result += after_cursor
+    return result
+  endfunction
+  return renderer
+endfunction
+
+function! s:Render.CmdLineWithMenu()
+  let renderer = {}
+  let renderer.render = self
+  let renderer.cmdline_renderer = self.renderer
+  function! renderer.Run()
+    let result = []
+    if has_key(g:Cmd2_menu, 'pages')
       let menu = g:Cmd2_menu.MenuLine()
       let result += menu
     endif
-    let result += self.render.CmdLine().Run()
+    let result += self.cmdline_renderer.Run()
     return result
   endfunction
   return renderer
