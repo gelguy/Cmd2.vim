@@ -90,6 +90,26 @@ function! s:Menu.Current()
   return item
 endfunction
 
+function! s:Menu.Find(item)
+  if !len(self.pages) || !len(self.pages[0])
+    return [-1, -1]
+  endif
+  let page = 0
+  while page < len(self.pages)
+    let pos = 0
+    while pos < len(self.pages[page])
+      let item = self.pages[page][pos]
+      let value = type(item) == 4 ? item.value : item
+      if value ==# a:item
+        return [page, pos]
+      endif
+      let pos += 1
+    endwhile
+    let page += 1
+  endwhile
+  return [-1,-1]
+endfunction
+
 function! s:Menu.MenuLine()
   if len(self) == 0 || len(self.pages) == 0
     if self.empty_render
