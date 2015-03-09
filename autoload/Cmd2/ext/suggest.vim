@@ -309,8 +309,11 @@ function! s:Handle.Run(input)
     let results = Cmd2#ext#suggest#GetCandidates(force_menu)
     let split = Cmd2#ext#suggest#SplitWithDir(g:Cmd2_pending_cmd[0])
     let last_term = len(split) ? split[-1] : ''
-    if last_term == '.\' || last_term == './'
+    if last_term == '.\' || last_term == './' || last_term == '.'
       let conceal = 0
+    elseif len(split) && split[-1][0 : 1] == 'no'
+          \  && len(results) && exists('+' . results[0][2 :]) && g:Cmd2__suggest_conceal_no
+      let conceal = 2
     else
       let conceal = Cmd2#ext#suggest#IsDir(last_term) ? len(last_term) : 0
     endif
@@ -416,7 +419,7 @@ function! Cmd2#ext#suggest#GetCandidates(force_menu)
   if len(g:Cmd2_pending_cmd[1]) && !g:Cmd2__suggest_middle_trigger
     return []
   endif
-  if g:Cmd2_pending_cmd[0][-1 :] =~ '\\\@<![[\]()~''".,]'
+  if g:Cmd2_pending_cmd[0][-1 :] =~ '\\\@<![[\]()~''",]'
     return []
   elseif !a:force_menu
     for no_trigger in g:Cmd2__suggest_no_trigger
@@ -445,6 +448,9 @@ function! Cmd2#ext#suggest#GetCandidates(force_menu)
   if has_key(g:Cmd2_cmdline_temp, 'cmdline') && g:Cmd2_cmdline_temp['cmdline'] != g:Cmd2_pending_cmd[0] . ''
     let completions = Cmd2#ext#suggest#SplitWithDir(g:Cmd2_cmdline_temp.cmdline)
     let terms = Cmd2#ext#suggest#SplitWithDir(g:Cmd2_pending_cmd[0])
+    if terms[-1][0 : 1] == 'no'
+      let g:c = completions[len(terms) - 1][2:]
+    endif
     if terms[-1] == './' || terms[-1] == '.\'
       let result = []
       for completion in completions
@@ -453,6 +459,12 @@ function! Cmd2#ext#suggest#GetCandidates(force_menu)
         else
           call add(result, completion)
         endif
+      endfor
+      let completions = result
+    elseif terms[-1][0 : 1] == 'no' && exists('+' . completions[len(terms) - 1][2:])
+      let result = completions[0 : len(terms) - 1]
+      for completion in completions[len(terms) :]
+        call add(result, 'no' . completion)
       endfor
       let completions = result
     endif
