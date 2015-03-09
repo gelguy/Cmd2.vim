@@ -29,7 +29,7 @@ function! s:Cmdline.New()
         \ }
   let module = Cmd2#module#New(args)
   let module.render.temp_hl = g:Cmd2__suggest_complete_hl
-  let module.render.post_temp_hl = g:Cmd2__suggest_hl
+  let module.render.post_temp_hl = g:Cmd2__suggest_suggest_hl
   let module.cmdline = cmdline
   let module.previous_item = ''
   let module.original_cmd0 = ''
@@ -413,11 +413,14 @@ function! s:Finish.Run()
 endfunction
 
 function! Cmd2#ext#suggest#GetCandidates(force_menu)
+  if len(g:Cmd2_pending_cmd[1]) && !g:Cmd2__suggest_middle_trigger
+    return []
+  endif
   if g:Cmd2_pending_cmd[0][-1 :] =~ '\\\@<![[\]()~''".,]'
     return []
-  else
-    for no_complete in g:Cmd2__suggest_no_complete
-      if g:Cmd2_pending_cmd[0] =~ no_complete
+  elseif !a:force_menu
+    for no_trigger in g:Cmd2__suggest_no_trigger
+      if g:Cmd2_pending_cmd[0] =~ no_trigger
         return []
       endif
     endfor
@@ -503,7 +506,8 @@ let s:special_keys = [
       \ 'RightMouse', 'C-RightMouse', 'S-RightMouse', 'A-RightMouse',
       \ 'LeftDrag', 'LeftRelease', 'MiddleMouse', 'MiddleDrag', 'MiddleRelease', 'RightDrag', 'RightRelease',
       \ 'X1Mouse', 'X1Drag', 'X1Release', 'X2Mouse', 'X2Drag', 'X2Release',
-      \ 'Plug'
+      \ 'Plug',
+      \ 'S-BS', 'C-BS', 'A-BS',
       \ ]
 
 let s:special_key_map = {}
