@@ -111,7 +111,7 @@ function! s:Handle.Run(input)
     let self.module.state.stopped = 1
   else
     let output = Cmd2#ext#complete#GetOutput()
-    let g:Cmd2_output = escape(output, '.\/~')
+    let g:Cmd2_output = escape(output, '.\/~^$')
     let g:Cmd2_leftover_key = a:input
     let self.module.state.stopped = 1
   endif
