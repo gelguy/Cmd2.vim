@@ -120,12 +120,12 @@ endfunction
 
 function! Cmd2#main#FeedCmdLine()
   let cmd = g:Cmd2_pending_cmd
-  call feedkeys(g:Cmd2_cmd_type . "\<C-U>". cmd[0] . g:Cmd2_output, 'n')
+  call feedkeys(g:Cmd2_cmd_type . "\<C-U>". Cmd2#util#EscapeFeed(cmd[0] . g:Cmd2_output), 'n')
   let len = strlen(substitute(cmd[1], ".", "x", "g"))
   let i = 0
   while i < len
     let char = matchstr(cmd[1], ".", byteidx(cmd[1], i))
-    call feedkeys(char, 'n')
+    call feedkeys(Cmd2#util#EscapeFeed(char), 'n')
     let i += 1
   endwhile
   call feedkeys("\<C-E>", 'n')

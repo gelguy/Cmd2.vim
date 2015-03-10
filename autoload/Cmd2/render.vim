@@ -36,11 +36,6 @@ function! s:Render.Run()
   if self.CheckBlink() || state.force_render
     call Cmd2#util#SetCmdHeight()
     call Cmd2#util#SetLastStatus()
-    if &cmdheight > g:Cmd2_old_cmdheight
-      redraw
-    endif
-    " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
-    execute "normal! :"
     let echo_contents = self.renderer.Run()
     call self.Render(echo_contents)
   endif
@@ -87,7 +82,7 @@ function! s:Render.CmdLineWithInsertCursor()
       if len(after_cursor[0].text)
         let char = matchstr(after_cursor[0].text, ".", byteidx(after_cursor[0].text, 0))
         let result += [{'text': char, 'hl': g:Cmd2_cursor_hl}]
-        let after_cursor[0].text = after_cursor[0].text[1:]
+        let after_cursor[0].text = after_cursor[0].text[len(char) :]
       else
         let result += [{'text': ' ', 'hl': g:Cmd2_cursor_hl}]
       endif
@@ -119,12 +114,21 @@ function! s:Render.Render(list)
 endfunction
 
 function! Cmd2#render#Render(list)
-  try
-    for block in a:list
+  let cmd = ''
+  for block in a:list
+    if len(block.text)
       let hl = get(block, 'hl', 'None')
-      execute "echohl" hl
-      echon block.text
-    endfor
+      let cmd .= 'echohl ' . hl . ' | '
+      let cmd .= 'echon ''' . substitute(Cmd2#util#EscapeEcho(block.text), "'", "''", 'g') . ''' | '
+    endif
+  endfor
+  if &cmdheight > g:Cmd2_old_cmdheight
+    redraw
+  endif
+  " https://github.com/haya14busa/incsearch.vim/blob/master/autoload/vital/_incsearch/Over/Commandline/Modules/Redraw.vim#L38
+  execute "normal! :"
+  try
+    execute cmd
   finally
     echohl None
   endtry

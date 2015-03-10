@@ -202,5 +202,57 @@ function! Cmd2#util#ResetMore()
   let &more = g:Cmd2_old_more
 endfunction
 
+let s:unfeedable = {
+      \ "\<C-M>": "\<C-V>\<C-M>",
+      \ "\<C-A>": "\<C-V>\<C-A>",
+      \ "\<C-[>": "\<C-V>\<C-[>",
+      \ "\<C-C>": "\<C-V>\<C-C>",
+      \ "\<NL>": "\<C-V>\<NL>",
+      \ "\<C-V>": "\<C-V>\<C-V>",
+      \ }
+
+function! Cmd2#util#EscapeFeed(keys)
+  let result = a:keys
+  for key in keys(s:unfeedable)
+    let result = substitute(result, key, s:unfeedable[key], 'g')
+  endfor
+  return result
+endfunction
+
+let s:unechoable = {
+      \ "\<C-M>": '^M',
+      \ "\<NL>": '^@',
+      \ "\<C-I>": '^I',
+      \ "\<C-V>": '^V',
+      \ }
+
+function! Cmd2#util#EscapeEcho(text)
+  let result = a:text
+  for key in keys(s:unechoable)
+    let result = substitute(result, key, s:unechoable[key], 'g')
+  endfor
+  return result
+endfunction
+
+function! Cmd2#util#IsMenu(string)
+  let echo = ''
+  if a:string =~ '\m\.'
+    let cmd = join(split(a:string, '\m\.', 1)[0 : -2], '.')
+  else
+    let cmd = a:string
+  endif
+  redir => echo
+  try
+    execute 'silent menu ' . cmd
+  catch
+    let echo = ''
+  endtry
+  redir END
+  if len(echo)
+    return 1
+  endif
+  return 0
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
