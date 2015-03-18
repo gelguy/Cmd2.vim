@@ -235,6 +235,9 @@ function! Cmd2#util#EscapeEcho(text)
 endfunction
 
 function! Cmd2#util#IsMenu(string)
+  if a:string[0] == '.'
+    return 0
+  endif
   let echo = ''
   if a:string =~ '\m\.'
     let cmd = join(split(a:string, '\m\.', 1)[0 : -2], '.')

@@ -58,6 +58,7 @@ let s:Cmd2_default_options = {
       \ '_suggest_esc_menu': 0,
       \ '_suggest_conceal_no': 1,
       \ '_suggest_enter_suggest': 1,
+      \ '_suggest_bs_suggest': 0,
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',

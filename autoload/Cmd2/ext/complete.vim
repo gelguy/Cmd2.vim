@@ -40,7 +40,7 @@ endfunction
 function! s:Module.Run()
   try
     let old_menu = g:Cmd2_menu
-    let s:old_cmd = copy(g:Cmd2_pending_cmd)
+    let g:Cmd2_old_pending_cmd = copy(g:Cmd2_pending_cmd)
     if len(g:Cmd2__complete_loading_text)
       " first redraw to clear cmdline, second to do echo
       redraw
@@ -107,7 +107,7 @@ function! s:Handle.Run(input)
     call self.module.Render()
   elseif a:input == g:Cmd2__complete_exit
     let g:Cmd2_output = ""
-    let g:Cmd2_pending_cmd = s:old_cmd
+    let g:Cmd2_pending_cmd = g:Cmd2_old_pending_cmd
     let self.module.state.stopped = 1
   else
     let output = Cmd2#ext#complete#GetOutput()
@@ -215,11 +215,11 @@ function! Cmd2#ext#complete#StringToMatch()
 endfunction
 
 function! Cmd2#ext#complete#GetString()
-  return matchstr(s:old_cmd[0], g:Cmd2__complete_string_pattern)
+  return matchstr(g:Cmd2_old_pending_cmd[0], g:Cmd2__complete_string_pattern)
 endfunction
 
 function! Cmd2#ext#complete#GetTempOutput()
-  let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
+  let g:Cmd2_pending_cmd[0] = g:Cmd2_old_pending_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
   let current = g:Cmd2_menu.Current()
   if type(current) == 4
     return current.value
@@ -229,7 +229,7 @@ function! Cmd2#ext#complete#GetTempOutput()
 endfunction
 
 function! Cmd2#ext#complete#GetOutput()
-  let g:Cmd2_pending_cmd[0] = s:old_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
+  let g:Cmd2_pending_cmd[0] = g:Cmd2_old_pending_cmd[0][0 : -len(Cmd2#ext#complete#StringToMatch()) - 1]
   let string = g:Cmd2_menu.Current()
   if type(string) == 4
     return string.value

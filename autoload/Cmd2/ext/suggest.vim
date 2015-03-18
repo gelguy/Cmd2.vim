@@ -34,7 +34,6 @@ function! s:Cmdline.New()
   let module.previous_item = ''
   let module.original_cmd0 = ''
   let module.menu_type = ''
-  let module.menu = Cmd2#menu#New([])
   let cmdline.module = module
   return cmdline
 endfunction
@@ -46,6 +45,9 @@ function! s:Cmdline.Run()
     let self.module.active_menu = 0
     call feedkeys(g:Cmd2_leftover_key)
     let g:Cmd2_leftover_key = ""
+    let self.module.menu = Cmd2#menu#New([])
+    let self.module.menu.empty_render = 1
+    let g:Cmd2_menu = self.module.menu
     call self.module.Run()
   finally
     let g:Cmd2_menu = old_menu
@@ -160,7 +162,7 @@ function! s:Handle.Run(input)
       let g:Cmd2_pending_cmd[1] = tail
     endif
   elseif a:input == "\<BS>"
-    if len(g:Cmd2_post_temp_output)
+    if len(g:Cmd2_post_temp_output) && g:Cmd2__suggest_bs_suggest
       let g:Cmd2_post_temp_output = ''
     elseif len(g:Cmd2_pending_cmd[0])
       let [initial, last] = Cmd2#ext#suggest#InitialAndLast(g:Cmd2_pending_cmd[0])
@@ -467,7 +469,7 @@ function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
     " call Cmd2#ext#complete#Sort(result, g:Cmd2__complete_ignorecase)
     " return result
   " endif
-  if g:Cmd2_pending_cmd[0][-1 :] =~ '\m\\\@<![(''",]'
+  if g:Cmd2_pending_cmd[0][-1 :] =~ '\m\\\@<![(''",[]' || g:Cmd2_pending_cmd[0] !~ '\a'
     return []
   elseif !a:force_menu
     for no_trigger in g:Cmd2__suggest_no_trigger
@@ -495,15 +497,17 @@ function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
     let &shellslash = old_shellslash
   endtry
   if has_key(g:Cmd2_cmdline_temp, 'cmdline') && g:Cmd2_cmdline_temp['cmdline'] != g:Cmd2_pending_cmd[0] . ''
-    let completions = Cmd2#ext#suggest#SplitTokens(g:Cmd2_cmdline_temp.cmdline)
+    let complete_tokens = Cmd2#ext#suggest#SplitTokens(g:Cmd2_cmdline_temp.cmdline)
     let terms = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
-    if terms[-1][0 : 1] == 'no'
-      let g:c = completions[len(terms) - 1][2:]
+    if g:Cmd2_pending_cmd[0][-1 :] == ' ' || !len(g:Cmd2_pending_cmd[0])
+      call add(terms, ' ')
     endif
-    if has_key(s:abbrev, terms[-1])
+    let completions = complete_tokens[len(terms) - 1 :]
+    if has_key(s:abbrev, terms[-1]) && len(terms) == 1
       let index = index(completions, terms[-1])
       call remove(completions, index)
       call insert(completions, s:abbrev[terms[-1]])
+      let results = completions
     elseif terms[-1] == './' || terms[-1] == '.\'
       let a:module.menu_type = 'dir_current'
       let result = []
@@ -514,30 +518,26 @@ function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
           call add(result, completion)
         endif
       endfor
-      let completions = result
+      let results = result
     elseif terms[-1][0 : 1] == 'no' && exists('+' . completions[len(terms) - 1][2:])
       let a:module.menu_type = 'option_no'
       let result = completions[0 : len(terms) - 1]
       for completion in completions[len(terms) :]
         call add(result, 'no' . completion)
       endfor
-      let completions = result
-    elseif g:Cmd2_pending_cmd[0][-1 :] != ' ' && len(g:Cmd2_pending_cmd[0]) && Cmd2#util#IsMenu(terms[-1])
+      let results = result
+    elseif len(g:Cmd2_pending_cmd[0]) && g:Cmd2_pending_cmd[0][-1 :] != ' '  && Cmd2#util#IsMenu(terms[-1])
       let a:module.menu_type = 'menu'
-      let result = completions[0 : len(terms) - 1]
+      let result = completions
       let menu = join(split(terms[-1], '\m\.', 1)[0 : -2], '.')
       for completion in completions[len(terms) :]
         call add(result, menu . '.' . completion)
       endfor
-      let completions = result
+      let results = result
     else
       let a:module.menu_type = 'default'
+      let results = completions
     endif
-    if g:Cmd2_pending_cmd[0][-1 :] == ' ' || !len(g:Cmd2_pending_cmd[0])
-      call add(terms, '')
-    endif
-    let complete_terms = len(terms)
-    let results = completions[complete_terms - 1 :]
   else
     let results = []
   endif
