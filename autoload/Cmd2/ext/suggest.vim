@@ -33,6 +33,7 @@ function! s:Cmdline.New()
   let module.cmdline = cmdline
   let module.previous_item = ''
   let module.original_cmd0 = ''
+  let module.menu_type = ''
   let module.menu = Cmd2#menu#New([])
   let cmdline.module = module
   return cmdline
@@ -82,7 +83,7 @@ let s:no_event = [
 
 function! s:Handle.Run(input)
   let force_menu = 0
-  let had_menu = 0
+  let had_active_menu = 0
   if !g:Cmd2__suggest_show_suggest
     let g:Cmd2_post_temp_output = ''
   endif
@@ -94,7 +95,7 @@ function! s:Handle.Run(input)
   if index(s:keep_menu, a:input) == -1
     if self.module.active_menu
       let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
-      let had_menu = 1
+      let had_active_menu = 1
       let self.module.active_menu = 0
     endif
     let g:Cmd2_temp_output = ''
@@ -106,6 +107,9 @@ function! s:Handle.Run(input)
     let self.module.state.start_time = reltime()
     let result = Cmd2#ext#suggest#GetNormalKeys(self.module.state.mapped_input)
     if len(maps) == 1 && result ==# maps[0]
+      if self.module.state.mapped_input[-1] == "\<CR>" && g:Cmd2__suggest_enter_suggest
+        let g:Cmd2_pending_cmd[0] .= g:Cmd2_post_temp_output
+      endif
       let g:Cmd2_leftover_key = join(self.module.state.mapped_input, '')
       let self.module.state.stopped = 1
       let self.module.state.mapped_input = []
@@ -126,11 +130,14 @@ function! s:Handle.Run(input)
   let g:Cmd2_cursor_text = self.module.old_cursor_text
   let self.module.state.mapped_input = []
   if a:input == "\<CR>"
+    if g:Cmd2__suggest_enter_suggest
+      let g:Cmd2_pending_cmd[0] .= g:Cmd2_post_temp_output
+    endif
     let self.module.state.stopped = 1
     let g:Cmd2_cmdline_history_new = 1
     let g:Cmd2_leftover_key = a:input
   elseif a:input == "\<Esc>"
-    if had_menu && g:Cmd2__suggest_esc_menu
+    if had_active_menu && g:Cmd2__suggest_esc_menu
       let g:Cmd2_pending_cmd[0] = self.module.original_cmd0
     else
       let self.module.state.stopped = 1
@@ -201,7 +208,7 @@ function! s:Handle.Run(input)
         endif
         let escape_fname .= escape_fname[-1 :] == '/' ? '' : '/'
         let self.module.previous_item = escape_fname
-        let had_menu = 1
+        let had_active_menu = 1
         let g:Cmd2_temp_output = ''
         let force_menu = 1
       elseif len(glob(last_term))
@@ -214,7 +221,7 @@ function! s:Handle.Run(input)
         let escape_fname = substitute(fname, '\m ', '\\ ', 'g')
         let escape_fname .= escape_fname[-1 :] == '/' ? '' : '/'
         let self.module.previous_item = escape_fname
-        let had_menu = 1
+        let had_active_menu = 1
         let g:Cmd2_temp_output = ''
         let force_menu = 1
       endif
@@ -236,7 +243,7 @@ function! s:Handle.Run(input)
       let last_term = len(split) ? split[-1] : ''
       if Cmd2#ext#suggest#IsDir(last_term)
         let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
-        let had_menu = 1
+        let had_active_menu = 1
         let g:Cmd2_temp_output = ''
         let force_menu = 1
       endif
@@ -268,7 +275,7 @@ function! s:Handle.Run(input)
       " else
         " let leftover = split_terms[-1]
       " endif
-      let had_menu = 1
+      let had_active_menu = 1
       let g:Cmd2_temp_output = ''
       let force_menu = 1
       let self.module.active_menu = 1
@@ -308,7 +315,7 @@ function! s:Handle.Run(input)
     let g:Cmd2_pending_cmd[0] .= a:input
   endif
   if index(s:keep_menu, a:input) == -1 || force_menu
-    let results = Cmd2#ext#suggest#GetCandidates(force_menu)
+    let results = Cmd2#ext#suggest#GetCandidates(self.module, force_menu)
     let split = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
     let last_term = len(split) ? split[-1] : ''
     if last_term == '.\' || last_term == './' || last_term == '.'
@@ -417,7 +424,36 @@ function! s:Finish.Run()
   endif
 endfunction
 
-function! Cmd2#ext#suggest#GetCandidates(force_menu)
+let s:abbrev = {
+      \ 'a': 'append',
+      \ 'b': 'buffer',
+      \ 'c': 'change',
+      \ 'd': 'delete',
+      \ 'e': 'edit',
+      \ 'f': 'file',
+      \ 'g': 'global',
+      \ 'h': 'help',
+      \ 'i': 'insert',
+      \ 'j': 'join',
+      \ 'k': 'k',
+      \ 'l': 'list',
+      \ 'm': 'move',
+      \ 'n': 'next',
+      \ 'o': 'open',
+      \ 'p': 'print',
+      \ 'q': 'quit',
+      \ 'r': 'read',
+      \ 's': 'substitute',
+      \ 't': 't',
+      \ 'u': 'undo',
+      \ 'v': 'vglobal',
+      \ 'w': 'write',
+      \ 'x': 'xit',
+      \ 'y': 'yank',
+      \ 'z': 'z',
+      \ }
+
+function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
   if len(g:Cmd2_pending_cmd[1]) && !g:Cmd2__suggest_middle_trigger
     return []
   endif
@@ -464,7 +500,12 @@ function! Cmd2#ext#suggest#GetCandidates(force_menu)
     if terms[-1][0 : 1] == 'no'
       let g:c = completions[len(terms) - 1][2:]
     endif
-    if terms[-1] == './' || terms[-1] == '.\'
+    if has_key(s:abbrev, terms[-1])
+      let index = index(completions, terms[-1])
+      call remove(completions, index)
+      call insert(completions, s:abbrev[terms[-1]])
+    elseif terms[-1] == './' || terms[-1] == '.\'
+      let a:module.menu_type = 'dir_current'
       let result = []
       for completion in completions
         if completion[0 : len(terms[-1]) - 1] ==# terms[-1]
@@ -475,11 +516,22 @@ function! Cmd2#ext#suggest#GetCandidates(force_menu)
       endfor
       let completions = result
     elseif terms[-1][0 : 1] == 'no' && exists('+' . completions[len(terms) - 1][2:])
+      let a:module.menu_type = 'option_no'
       let result = completions[0 : len(terms) - 1]
       for completion in completions[len(terms) :]
         call add(result, 'no' . completion)
       endfor
       let completions = result
+    elseif g:Cmd2_pending_cmd[0][-1 :] != ' ' && len(g:Cmd2_pending_cmd[0]) && Cmd2#util#IsMenu(terms[-1])
+      let a:module.menu_type = 'menu'
+      let result = completions[0 : len(terms) - 1]
+      let menu = join(split(terms[-1], '\m\.', 1)[0 : -2], '.')
+      for completion in completions[len(terms) :]
+        call add(result, menu . '.' . completion)
+      endfor
+      let completions = result
+    else
+      let a:module.menu_type = 'default'
     endif
     if g:Cmd2_pending_cmd[0][-1 :] == ' ' || !len(g:Cmd2_pending_cmd[0])
       call add(terms, '')
