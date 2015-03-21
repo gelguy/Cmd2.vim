@@ -21,7 +21,11 @@ function! Cmd2#util#HideCursor()
   " https://github.com/junegunn/vim-pseudocl/blob/4417db3eb095350594cd6a3e91ec8b78312ef06b/autoload/pseudocl/render.vim#L205
   if exists('&t_ve')
     let s:old_t_ve = &t_ve
-    set t_ve=
+    if !empty($CONEMUBUILD)
+      set t_ve=[25l
+    else
+      set t_ve=
+    endif
   endif
   if exists('&guicursor')
     let s:Cmd2_old_guicursor = &guicursor
