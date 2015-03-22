@@ -153,8 +153,10 @@ function! s:Render.SplitSnippet(cmd, split)
   call add(result, {'text': splitcmd[0]})
   let i = 1
   while i < len(splitcmd)
-    call add(result, {'text': g:Cmd2_snippet_cursor, 'hl': g:Cmd2_snippet_cursor_hl})
-    call add(result, {'text': splitcmd[i]})
+    if len(splitcmd[i])
+      call add(result, {'text': g:Cmd2_snippet_cursor, 'hl': g:Cmd2_snippet_cursor_hl})
+      call add(result, {'text': splitcmd[i]})
+    endif
     let i += 1
   endwhile
   return result

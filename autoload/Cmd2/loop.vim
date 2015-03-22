@@ -17,13 +17,9 @@ function! s:Loop.Module(module)
   return self
 endfunction
 
-" let g:d = []
 function! s:Loop.Run()
   let state = self.module.state
-  " let s:start = reltime()
   while 1
-    " let g:d += [Cmd2#util#GetRelTimeMs(s:start, reltime())]
-    " let s:start = reltime()
     call self.module.Render()
     let input = self.Getchar(0)
     if type(input) != type(0)

@@ -239,7 +239,7 @@ function! Cmd2#util#EscapeEcho(text)
 endfunction
 
 function! Cmd2#util#IsMenu(string)
-  if a:string[0] == '.'
+  if a:string[0] == '.' || a:string =~ '\m\|'
     return 0
   endif
   let echo = ''

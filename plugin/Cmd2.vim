@@ -52,7 +52,11 @@ let s:Cmd2_default_options = {
       \ '_suggest_show_suggest': 1,
       \ '_suggest_min_length': 0,
       \ '_suggest_space_trigger': 0,
-      \ '_suggest_no_trigger': [],
+      \ '_suggest_no_trigger': [
+          \ '\m^ec\%[ho] ',
+          \ '\m^let .*=',
+          \ '\m\*\*',
+          \ ],
       \ '_suggest_middle_trigger': 0,
       \ '_suggest_jump_complete': 0,
       \ '_suggest_esc_menu': 0,
@@ -96,14 +100,14 @@ endif
 
 call Cmd2#module#Register('cmd2', Cmd2#main#Module())
 call Cmd2#module#Register('complete', Cmd2#ext#complete#Module())
-call Cmd2#module#Register('cmdline', Cmd2#ext#suggest#Module())
+call Cmd2#module#Register('suggest', Cmd2#ext#suggest#Module())
 
 cmap <Plug>Cmd2 <Plug>(Cmd2)
 cnoremap <silent> <expr> <Plug>(Cmd2) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() . "<C-E><C-U><C-C>:call Cmd2#main#Run()<CR>" : ""
 cnoremap <silent> <expr> <Plug>(Cmd2Complete) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
       \ "<C-E><C-U><C-C>:call Cmd2#main#Run('complete')<CR>" : ""
-cnoremap <silent> <expr> <Plug>(Cmd2Cmdline) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
-      \ "<C-E><C-U><C-C>:call Cmd2#main#Run('cmdline')<CR>" : ""
+cnoremap <silent> <expr> <Plug>(Cmd2Suggest) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
+      \ "<C-E><C-U><C-C>:call Cmd2#main#Run('suggest')<CR>" : ""
 
 let g:Cmd2_loaded = 1
 
