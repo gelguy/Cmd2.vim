@@ -294,25 +294,70 @@ endfunction
 
 function! Cmd2#ext#complete#Sort(candidates, ignorecase)
   if a:ignorecase
-    call sort(a:candidates, 'Cmd2#ext#complete#Compare')
+    call sort(a:candidates, 'Cmd2#ext#complete#CompareIgnoreCase')
   else
-    call sort(a:candidates)
+    call sort(a:candidates, 'Cmd2#ext#complete#Compare')
+  endif
+endfunction
+
+function! Cmd2#ext#complete#MRUIndex()
+  return g:Cmd2_search_mru_hash
+endfunction
+
+function! Cmd2#ext#complete#CompareIgnoreCase(a1, a2)
+  let MRUIndex = Cmd2#ext#complete#MRUIndex()
+  let index_a1 = get(MRUIndex, a:a1, len(g:Cmd2_search_mru))
+  let index_a2 = get(MRUIndex, a:a2, len(g:Cmd2_search_mru))
+  if index_a2 < 0
+    let index_a2 = len(g:Cmd2_search_mru)
+  endif
+  if index_a1 < index_a2
+    return -1
+  elseif index_a1 > index_a2
+    return 1
+  else
+    let a1 = tolower(a:a1)
+    let a2 = tolower(a:a2)
+    return a1 == a2 ? 0 : (a1 < a2 ? -1 : 1)
   endif
 endfunction
 
 function! Cmd2#ext#complete#Compare(a1, a2)
-  let a1 = tolower(a:a1)
-  let a2 = tolower(a:a2)
+  let MRUIndex = Cmd2#ext#complete#MRUIndex()
+  let index_a1 = get(MRUIndex, a:a1, len(g:Cmd2_search_mru))
+  let index_a2 = get(MRUIndex, a:a2, len(g:Cmd2_search_mru))
+  if index_a2 < 0
+    let index_a2 = len(g:Cmd2_search_mru)
+  endif
+  if index_a1 < index_a2
+    return -1
+  elseif index_a1 > index_a2
+    return 1
+  else
+    return a1 == a2 ? 0 : (a1 < a2 ? -1 : 1)
+  endif
+endfunction
+
+function! Cmd2#ext#complete#AddToMRU(string)
+  if g:Cmd2__complete_mru_length <= 0 || len(a:string) == 0
+    return
+  endif
+  if len(g:Cmd2_search_mru) > g:Cmd2__complete_mru_length
+    call remove(g:Cmd2_search_mru, -1)
+  endif
+  let index = index(g:Cmd2_search_mru, a:string)
+  if index >= 0
+    call remove(g:Cmd2_search_mru, index)
+  endif
+  call insert(g:Cmd2_search_mru, a:string)
+
+  let result = {}
   let i = 0
-  let len = min([len(a1), len(a2)])
-  while i < len
-    let comp = a1[i] == a2[i] ? 0 : a1[i] > a2[i] ? 1 : -1
-    if comp
-      return comp
-    endif
+  while i < len(g:Cmd2_search_mru)
+    let result[g:Cmd2_search_mru[i]] = i
     let i += 1
   endwhile
-  return len(a1) == len(a2) ? 0 : len(a1) > len(a2) ? 1 : -1
+  let g:Cmd2_search_mru_hash = result
 endfunction
 
 let &cpo = s:save_cpo

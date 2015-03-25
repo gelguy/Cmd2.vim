@@ -71,7 +71,7 @@ let g:Cmd2_cmdline_history_cmd = ['', '']
 let g:Cmd2_cmdline_history_new = 1
 
 let s:ignore_history = ["\<Up>", "\<Down>", "\<Left>", "\<Right>"]
-let s:keep_menu = ["\<Tab>", "\<S-Tab>", "\<Up>", "\<Down>", "\<C-N>", "\<C-P>", ]
+let s:keep_menu = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>"]
 let s:reject_complete = ["\<BS>", "\<Del>"]
 let s:hide_suggest = ["\<BS>", "\<Del>", "\<Left>", "\<Right>", "\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Esc>", "\<Up>", "\<Down>"]
 let s:no_reenter = ["\<C-R>", "\<C-\>", "\<C-C>", "\<C-Q>", "\<C-V>", "\<C-K>", "\<S-CR>", "\<C-A>", "\<C-D>", "\<C-F>"]
@@ -117,7 +117,7 @@ function! s:Handle.Run(input)
   else
     let g:Cmd2_pending_cmd[0] .= a:input
   endif
-  if index(s:keep_menu, a:input) == -1 || self.module.force_menu
+  if (index(s:keep_menu, a:input) == -1 || self.module.force_menu)
     call self.Menu(a:input)
   endif
 
@@ -202,6 +202,11 @@ function! s:Handle.CR(input)
         \ || (g:Cmd2__suggest_enter_suggest == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1))
     let g:Cmd2_pending_cmd[0] .= g:Cmd2_post_temp_output
   endif
+
+  if self.module.menu_type == 'search'
+    call Cmd2#ext#complete#AddToMRU(g:Cmd2_pending_cmd[0])
+  endif
+
   let self.module.state.stopped = 1
   let g:Cmd2_leftover_key = a:input
 endfunction
@@ -268,6 +273,8 @@ function! s:Handle.Up(input)
     if Cmd2#ext#suggest#IsDir(last_term)
 
       " find parent dir
+      " e.g. a/b/c/
+      " use :h:h:h to find a, :h:h to find b and set b as last term
       let last_term = substitute(last_term, '\m\\ ', ' ', 'g')
       let fname = fnamemodify(last_term, ':h:h:h')
       let escape_fname = substitute(fname, '\m ', '\\ ', 'g')
@@ -292,6 +299,8 @@ function! s:Handle.Up(input)
     elseif len(glob(last_term))
 
       " same thing but with file
+      " e.g. a/b/c
+      " use :h:h to find a, :h to find b
       let last_term = substitute(last_term, '\m\\ ', ' ', 'g')
       let fname = fnamemodify(last_term, ':h:h')
       let escape_fname = substitute(fname, '\m ', '\\ ', 'g')
@@ -306,11 +315,11 @@ function! s:Handle.Up(input)
       let self.module.force_menu = 1
     endif
   else
-    " to see if we can't go <Up> - <Up> cancels the whole cmdline if it fails so _temp does not get the key
+    " feed history_cmd and press Up * history count
     try
       let g:Cmd2_cmdline_temp = {}
       execute "silent normal! " . g:Cmd2_cmd_type . g:Cmd2_cmdline_history_cmd[0] . g:Cmd2_cmdline_history_cmd[1]
-            \ . repeat("\<Up>", g:Cmd2_cmdline_history + 1) . "\<C-\>eextend(g:Cmd2_cmdline_temp,{'cmdline': getcmdline()}).cmdline\n"
+            \ . repeat("\<Up>", g:Cmd2_cmdline_history + 1) . "\<C-\>eextend(g:Cmd2_cmdline_temp,{'cmdline': getcmdline()}).cmdline\n\<C-U>"
     catch
       let g:Cmd2_cmdline_temp = {}
     endtry
@@ -324,6 +333,7 @@ endfunction
 
 function! s:Handle.Down(input)
 
+  " set current completion as pending_cmd and force_menu
   if self.module.active_menu && self.module.menu_type != 'search'
     let split = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output)
     let last_term = len(split) ? split[-1] : ''
@@ -338,10 +348,12 @@ function! s:Handle.Down(input)
       let g:Cmd2_pending_cmd = deepcopy(g:Cmd2_cmdline_history_cmd)
     else
       let g:Cmd2_cmdline_history -= 1
+
+      " feed history_cmd and press Up * history count
       try
         let g:Cmd2_cmdline_temp = {}
         execute "silent normal! " . g:Cmd2_cmd_type . g:Cmd2_cmdline_history_cmd[0] . g:Cmd2_cmdline_history_cmd[1]
-              \ . repeat("\<Up>", g:Cmd2_cmdline_history) . "\<C-\>eextend(g:Cmd2_cmdline_temp,{'cmdline': getcmdline()}).cmdline\n"
+              \ . repeat("\<Up>", g:Cmd2_cmdline_history) . "\<C-\>eextend(g:Cmd2_cmdline_temp,{'cmdline': getcmdline()}).cmdline\n\<C-U>"
       catch
         let g:Cmd2_cmdline_temp = {'cmdline': ''}
       endtry
@@ -358,31 +370,28 @@ function! s:Handle.Tab(input)
     let self.module.original_cmd0 = g:Cmd2_pending_cmd[0]
   endif
 
+  " if no menu, force_menu
+  " if after force_menu, there is still no menu nothing will happen
   if !len(self.module.menu.pages) || !len(self.module.menu.pages[0])
     let self.module.force_menu = 1
+
+  " if only one item, check for jump_complete
   elseif len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1 && !self.module.active_menu
+        \ && self.module.menu_type != 'search'
     let menu_current = self.module.menu.Current()
     let current = type(menu_current) == 4 ? menu_current.value : menu_current
-    if self.module.menu_type == 'search'
-      let g:Cmd2_pending_cmd[0] = current
-      let self.module.had_active_menu = 1
-      let g:Cmd2_temp_output = ''
-      let self.module.force_menu = 1
-      let self.module.active_menu = 1
+    let split_terms = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
+    " for tab to complete and go to next menu
+    if g:Cmd2__suggest_jump_complete
+      let g:Cmd2_pending_cmd[0] = join(split_terms[0 : -2], ' ') . (len(split_terms) > 1 ? ' ' : '')
+      let g:Cmd2_pending_cmd[0] .= current
     else
-      let split_terms = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
-      " for tab to complete and go to next menu
-      if g:Cmd2__suggest_jump_complete
-        let g:Cmd2_pending_cmd[0] = join(split_terms[0 : -2], ' ') . (len(split_terms) > 1 ? ' ' : '')
-        let g:Cmd2_pending_cmd[0] .= current
-      else
-        let self.module.previous_item = current
-      endif
-      let self.module.had_active_menu = 1
-      let g:Cmd2_temp_output = ''
-      let self.module.force_menu = 1
-      let self.module.active_menu = 1
+      let self.module.previous_item = current
     endif
+    let self.module.had_active_menu = 1
+    let g:Cmd2_temp_output = ''
+    let self.module.force_menu = 1
+    let self.module.active_menu = 1
   else
 
     " check for suggest_tab_longest
@@ -405,6 +414,8 @@ function! s:Handle.Tab(input)
         let stop = 1
       endif
     endif
+
+
     if !stop
 
       " normal menu movements
@@ -457,9 +468,25 @@ function! s:Handle.PostRun(input)
 endfunction
 
 function! s:Handle.Menu(input)
-  let candidates = Cmd2#ext#suggest#GetCandidates(self.module, self.module.force_menu)
+  let start = reltime()
+
+  " get candidates
+  try
+    let candidates = Cmd2#ext#suggest#GetCandidates(self.module, self.module.force_menu)
+  catch
+    let candidates = []
+  endtry
+
+  if g:Cmd2__suggest_search_profile && self.module.menu_type == 'search' && len(g:Cmd2_pending_cmd[0])
+    let g:Cmd2_profile = get(g:, 'Cmd2_profile', [])
+    let time = Cmd2#util#GetRelTimeMs(start, reltime())
+    call add(g:Cmd2_profile, {g:Cmd2_pending_cmd[0] : time})
+  endif
+
   let split = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
   let last_term = len(split) ? split[-1] : ''
+
+  " conceal
   if self.module.menu_type == 'search'
     let result = Cmd2#ext#complete#Conceal(candidates)
   else
@@ -485,6 +512,8 @@ function! s:Suggest.CreateMenu(results, input)
   let current = type(menu_current) == 4 ? menu_current.value : menu_current
   let self.module.menu.pos = [0, -1]
   let self.module.menu.empty_render = 1
+
+  " in active_menu, select previous item or first item
   if self.module.active_menu
     if len(self.module.previous_item)
       let self.module.menu.pos = self.module.menu.Find(self.module.previous_item)
@@ -512,6 +541,8 @@ function! s:Suggest.CreateMenu(results, input)
     let g:Cmd2_post_temp_output = ''
   elseif index(s:hide_suggest, a:input) != -1
     " do nothing
+
+  " check to for post_temp_output
   elseif self.module.menu_type == 'search'
     if current[0 : len(g:Cmd2_pending_cmd[0]) - 1] ==# g:Cmd2_pending_cmd[0]
       let g:Cmd2_post_temp_output = current[len(g:Cmd2_pending_cmd[0]) :]
@@ -532,6 +563,7 @@ function! s:Suggest.CreateMenu(results, input)
       let g:Cmd2_post_temp_output = current
     endif
   endif
+
   let g:Cmd2_menu = self.module.menu
 endfunction
 
@@ -666,11 +698,15 @@ endfunction
 
 function! Cmd2#ext#suggest#ParseCompletions(terms, completions, module)
   let completions = a:completions
+
+  " check for abbreviations
   if has_key(s:abbrev, a:terms[-1]) && len(a:terms) == 1
     let index = index(completions, a:terms[-1])
     call remove(completions, index)
     call insert(completions, s:abbrev[a:terms[-1]])
     return completions
+
+  " if ./ or .\ results will start with ./dir
   elseif a:terms[-1] == './' || a:terms[-1] == '.\'
     let a:module.menu_type = 'dir_current'
     let result = []
@@ -682,14 +718,18 @@ function! Cmd2#ext#suggest#ParseCompletions(terms, completions, module)
       endif
     endfor
     return result
+
+  " if &option, results will start with &
   elseif a:terms[-1][0] == '&' && exists('&' . completions[0][1:])
-    let a:module.menu_type = 'variable_&'
+    let a:module.menu_type = 'option_&'
     let i = 1
     while i < len(completions)
       let completions[i] = '&' . completions[i]
       let i += 1
     endwhile
     return completions
+
+  " if nooption, results will start with no
   elseif a:terms[-1][0 : 1] == 'no' && exists('+' . completions[0][2:])
     let a:module.menu_type = 'option_no'
     let i = 1
@@ -698,6 +738,8 @@ function! Cmd2#ext#suggest#ParseCompletions(terms, completions, module)
       let i += 1
     endwhile
     return completions
+
+  " if menu, results will start with Parent.menu
   elseif len(g:Cmd2_pending_cmd[0]) && g:Cmd2_pending_cmd[0][-1 :] != ' '  && Cmd2#util#IsMenu(a:terms[-1])
     let a:module.menu_type = 'menu'
     let result = []
@@ -706,6 +748,7 @@ function! Cmd2#ext#suggest#ParseCompletions(terms, completions, module)
       call add(result, menu . '.' . completion)
     endfor
     return result
+
   else
     let a:module.menu_type = 'default'
     return completions

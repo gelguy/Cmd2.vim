@@ -5,7 +5,7 @@ if exists('g:Cmd2_loaded') && g:Cmd2_loaded
   finish
 endif
 
-let s:Cmd2_default_options = {
+let g:Cmd2_default_options = {
       \ 'buffer_cursor_hl': Cmd2#init#BufferCursorHl(),
       \ 'buffer_cursor_show': 1,
       \ 'cursor_blink': 1,
@@ -47,6 +47,7 @@ let s:Cmd2_default_options = {
       \ '_complete_conceal_patterns': {},
       \ '_complete_conceal_func': 'Cmd2#ext#complete#Conceal',
       \ '_complete_incsearch': 0,
+      \ '_complete_mru_length': 0,
       \ '_suggest_suggest_hl': Cmd2#init#CursorHl(),
       \ '_suggest_complete_hl': 'Statement',
       \ '_suggest_show_suggest': 1,
@@ -64,6 +65,7 @@ let s:Cmd2_default_options = {
       \ '_suggest_bs_suggest': 0,
       \ '_suggest_enter_search_complete': 0,
       \ '_suggest_tab_longest': 0,
+      \ '_suggest_search_profile': 0,
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',
@@ -75,7 +77,7 @@ if !exists('g:Cmd2_options')
 endif
 
 " mapping cannot start with number as it will be treated as count
-let s:Cmd2_default_cmd_mappings = {
+let g:Cmd2_default_cmd_mappings = {
       \ }
 
 if !exists('g:Cmd2_cmd_mappings')
@@ -83,7 +85,7 @@ if !exists('g:Cmd2_cmd_mappings')
         \ }
 endif
 
-let s:Cmd2_default_mappings = {
+let g:Cmd2_default_mappings = {
       \ }
 
 if !exists('g:Cmd2_mappings')
@@ -91,8 +93,11 @@ if !exists('g:Cmd2_mappings')
         \ }
 endif
 
-call Cmd2#init#Options(s:Cmd2_default_options)
-call Cmd2#init#CmdMappings(s:Cmd2_default_cmd_mappings)
+let g:Cmd2_search_mru = []
+let g:Cmd2_search_mru_hash = {}
+
+call Cmd2#init#Options(g:Cmd2_default_options)
+call Cmd2#init#CmdMappings(g:Cmd2_default_cmd_mappings)
 
 if g:Cmd2_preload
   call Cmd2#Autoload()
