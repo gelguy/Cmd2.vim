@@ -471,11 +471,16 @@ function! s:Handle.Menu(input)
   let start = reltime()
 
   " get candidates
-  try
+  " if force_menu, don't catch errors
+  if !self.module.force_menu
+    try
+      let candidates = Cmd2#ext#suggest#GetCandidates(self.module, self.module.force_menu)
+    catch
+      let candidates = []
+    endtry
+  else
     let candidates = Cmd2#ext#suggest#GetCandidates(self.module, self.module.force_menu)
-  catch
-    let candidates = []
-  endtry
+  endif
 
   if g:Cmd2__suggest_search_profile && self.module.menu_type == 'search' && len(g:Cmd2_pending_cmd[0])
     let g:Cmd2_profile = get(g:, 'Cmd2_profile', [])
