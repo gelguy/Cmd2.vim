@@ -334,7 +334,7 @@ function! Cmd2#ext#complete#Compare(a1, a2)
   elseif index_a1 > index_a2
     return 1
   else
-    return a1 == a2 ? 0 : (a1 < a2 ? -1 : 1)
+    return a:a1 == a:a2 ? 0 : (a:a1 < a:a2 ? -1 : 1)
   endif
 endfunction
 
