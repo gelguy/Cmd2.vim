@@ -35,7 +35,9 @@ function! s:Menu.CreatePages(list)
     else
       let text = item
     endif
+    " if cur_length == 0, item is first item, don't create new page
     if cur_length + offset + strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator) > &columns
+          \ && cur_length != 0
       call add(pages, [])
       let cur_page += 1
       let cur_length = 0
@@ -159,8 +161,12 @@ function! s:Menu.MenuLine()
       let text .= g:Cmd2_menu_more
     endif
     call add(line, {'text': text, 'hl': hl})
-    call add(line, {'text': g:Cmd2_menu_separator, 'hl': g:Cmd2_menu_separator_hl})
-    let cur_length += strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator)
+    if i < len(page) - 1
+      call add(line, {'text': g:Cmd2_menu_separator, 'hl': g:Cmd2_menu_separator_hl})
+      let cur_length += strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator)
+    else
+      let cur_length += strdisplaywidth(text)
+    endif
     let i += 1
   endwhile
   let padding_length = &columns - cur_length
