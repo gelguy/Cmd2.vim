@@ -5,14 +5,10 @@ function! Cmd2#ext#suggest#Autoload()
   " do nothing
 endfunction
 
-let s:Suggest = {}
+let s:Suggest = copy(Cmd2#module#Module())
 
 function! Cmd2#ext#suggest#Module()
   return s:Suggest
-endfunction
-
-function! Cmd2#ext#suggest#New(args)
-  return Cmd2#ext#suggest#Module().New(a:args)
 endfunction
 
 function! s:Suggest.New()
@@ -27,31 +23,31 @@ function! s:Suggest.New()
         \ 'loop': Cmd2#loop#New(),
         \ 'state': state,
         \ }
-  let module = Cmd2#module#New(args)
-  let module.render.temp_hl = g:Cmd2__suggest_complete_hl
-  let module.render.post_temp_hl = g:Cmd2__suggest_suggest_hl
-  let module.suggest = suggest
-  let module.previous_item = ''
-  let module.original_cmd0 = ''
-  let module.menu_type = ''
-  let suggest.module = module
+  call suggest.Init(args)
+  let suggest.render.temp_hl = g:Cmd2__suggest_complete_hl
+  let suggest.render.post_temp_hl = g:Cmd2__suggest_suggest_hl
+  let suggest.suggest = suggest
+  let suggest.previous_item = ''
+  let suggest.original_cmd0 = ''
+  let suggest.menu_type = ''
   return suggest
 endfunction
 
 function! s:Suggest.Run()
   let old_menu = g:Cmd2_menu
-  let self.module.old_cursor_text = g:Cmd2_cursor_text
+  let self.old_cursor_text = g:Cmd2_cursor_text
   try
-    let self.module.active_menu = 0
+    let self.active_menu = 0
     call feedkeys(g:Cmd2_leftover_key)
     let g:Cmd2_leftover_key = ""
-    let self.module.menu = Cmd2#menu#New([])
-    let self.module.menu.empty_render = 1
-    let g:Cmd2_menu = self.module.menu
-    call self.module.Run()
+    let self.menu = Cmd2#menu#New([])
+    let self.menu.empty_render = 1
+    let g:Cmd2_menu = self.menu
+    call self.loop.Run()
+    call self.finish.Run()
   finally
     let g:Cmd2_menu = old_menu
-    let g:Cmd2_cursor_text = self.module.old_cursor_text
+    let g:Cmd2_cursor_text = self.old_cursor_text
   endtry
 endfunction
 
@@ -512,26 +508,26 @@ function! s:Handle.Menu(input)
 endfunction
 
 function! s:Suggest.CreateMenu(results, input)
-  let self.module.menu = Cmd2#menu#New(a:results)
-  let menu_current = self.module.menu.Current()
+  let self.menu = Cmd2#menu#New(a:results)
+  let menu_current = self.menu.Current()
   let current = type(menu_current) == 4 ? menu_current.value : menu_current
-  let self.module.menu.pos = [0, -1]
-  let self.module.menu.empty_render = 1
+  let self.menu.pos = [0, -1]
+  let self.menu.empty_render = 1
 
   " in active_menu, select previous item or first item
-  if self.module.active_menu
-    if len(self.module.previous_item)
-      let self.module.menu.pos = self.module.menu.Find(self.module.previous_item)
-      if self.module.menu.pos == [-1, -1]
-        let self.module.menu.pos = [0, 0]
+  if self.active_menu
+    if len(self.previous_item)
+      let self.menu.pos = self.menu.Find(self.previous_item)
+      if self.menu.pos == [-1, -1]
+        let self.menu.pos = [0, 0]
       endif
-      let self.module.previous_item = ''
+      let self.previous_item = ''
     else
-      let self.module.menu.pos = [0, 0]
+      let self.menu.pos = [0, 0]
     endif
-    let menu_current = self.module.menu.Current()
+    let menu_current = self.menu.Current()
     let current = type(menu_current) == 4 ? menu_current.value : menu_current
-    if self.module.menu_type == 'search'
+    if self.menu_type == 'search'
       let g:Cmd2_pending_cmd[0] = ''
       let g:Cmd2_temp_output = current
     elseif len(current)
@@ -548,7 +544,7 @@ function! s:Suggest.CreateMenu(results, input)
     " do nothing
 
   " check to for post_temp_output
-  elseif self.module.menu_type == 'search'
+  elseif self.menu_type == 'search'
     if current[0 : len(g:Cmd2_pending_cmd[0]) - 1] ==# g:Cmd2_pending_cmd[0]
       let g:Cmd2_post_temp_output = current[len(g:Cmd2_pending_cmd[0]) :]
     else
@@ -569,7 +565,7 @@ function! s:Suggest.CreateMenu(results, input)
     endif
   endif
 
-  let g:Cmd2_menu = self.module.menu
+  let g:Cmd2_menu = self.menu
 endfunction
 
 let s:Finish = {}

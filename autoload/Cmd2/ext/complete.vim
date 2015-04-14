@@ -5,7 +5,7 @@ function! Cmd2#ext#complete#Autoload()
   " do nothing
 endfunction
 
-let s:Module = {}
+let s:Module = copy(Cmd2#module#Module())
 
 function! Cmd2#ext#complete#Module()
   return s:Module
@@ -32,8 +32,7 @@ function! s:Module.New()
         \ 'loop': Cmd2#loop#New(),
         \ 'state': state,
         \ }
-  let module = Cmd2#module#New(args)
-  let complete.module = module
+  call complete.Init(args)
   return complete
 endfunction
 
@@ -69,7 +68,8 @@ function! s:Module.Run()
       call Cmd2#ext#complete#Incsearch()
       call feedkeys(g:Cmd2_leftover_key)
       let g:Cmd2_leftover_key = ""
-      call self.module.Run()
+      call self.loop.Run()
+      call self.finish.Run()
     endif
   finally
     let g:Cmd2_menu = old_menu

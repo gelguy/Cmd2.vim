@@ -21,7 +21,7 @@ function! Cmd2#main#Init()
   silent! call Cmd2#util#HideCursor()
 endfunction
 
-let s:Module = {}
+let s:Module = copy(Cmd2#module#Module())
 
 function! s:Module.New()
   let cmd2 = copy(self)
@@ -32,15 +32,15 @@ function! s:Module.New()
         \ 'loop': Cmd2#loop#New(),
         \ 'state': {},
         \ }
-  let module = Cmd2#module#New(args)
-  let cmd2.module = module
+  call cmd2.Init(args)
   return cmd2
 endfunction
 
 function! s:Module.Run()
   call feedkeys(g:Cmd2_leftover_key)
   let g:Cmd2_leftover_key = ""
-  call self.module.Run()
+  call self.loop.Run()
+  call self.finish.Run()
 endfunction
 
 function! Cmd2#main#Module()

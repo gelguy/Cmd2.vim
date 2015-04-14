@@ -12,17 +12,22 @@ function! Cmd2#module#Module()
 endfunction
 
 function! Cmd2#module#New(args)
-  return Cmd2#module#Module().New(a:args)
+  let m = Cmd2#module#Module().New(a:args)
+  return m.Init(a:args)
 endfunction
 
-function! s:Module.New(args)
+function! s:Module.New()
   let m = copy(self)
-  let m.loop = a:args.loop.Module(m)
-  let m.handle = a:args.handle.Module(m)
-  let m.render = a:args.render.Module(m)
-  let m.finish = a:args.finish.Module(m)
-  let m.state = m.PrepareState(a:args.state)
   return m
+endfunction
+
+function! s:Module.Init(args)
+  let self.loop = a:args.loop.Module(self)
+  let self.handle = a:args.handle.Module(self)
+  let self.render = a:args.render.Module(self)
+  let self.finish = a:args.finish.Module(self)
+  let self.state = self.PrepareState(a:args.state)
+  return self
 endfunction
 
 function! s:Module.PrepareState(state)
