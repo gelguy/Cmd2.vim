@@ -228,6 +228,7 @@ let s:unechoable = {
       \ "\<NL>": '^@',
       \ "\<C-I>": '^I',
       \ "\<C-V>": '^V',
+      \ "\<C-R>": '^R',
       \ }
 
 function! Cmd2#util#EscapeEcho(text)
