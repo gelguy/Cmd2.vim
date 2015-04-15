@@ -55,15 +55,19 @@ function! s:Module.Run()
     endif
     let candidates = call(g:Cmd2__complete_generate, [Cmd2#ext#complete#StringToMatch()])
     if len(candidates)
-      let idx = index(candidates, Cmd2#ext#complete#StringToMatch())
-      if idx >= 0
-        call remove(candidates, idx)
+      if g:Cmd2__complete_show_original
+        let idx = index(candidates, Cmd2#ext#complete#StringToMatch())
+        if idx >= 0
+          call remove(candidates, idx)
+        endif
+        " insert original string at the front
+        call insert(candidates, Cmd2#ext#complete#StringToMatch())
       endif
-      " insert original string at the front
-      call insert(candidates, Cmd2#ext#complete#StringToMatch())
       let candidates = call(g:Cmd2__complete_conceal_func, [candidates])
       let g:Cmd2_menu = Cmd2#menu#New(candidates)
-      call g:Cmd2_menu.Next()
+      if g:Cmd2__complete_show_original
+        call g:Cmd2_menu.Next()
+      endif
       let g:Cmd2_temp_output = Cmd2#ext#complete#GetTempOutput()
       call Cmd2#ext#complete#Incsearch()
       call feedkeys(g:Cmd2_leftover_key)
