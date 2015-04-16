@@ -49,7 +49,7 @@ let g:Cmd2_default_options = {
       \ '_complete_incsearch': 0,
       \ '_complete_mru_length': 0,
       \ '_complete_show_original': 1,
-      \ '_suggest_suggest_hl': Cmd2#init#CursorHl(),
+      \ '_suggest_suggest_hl': 'Visual',
       \ '_suggest_complete_hl': 'Statement',
       \ '_suggest_show_suggest': 1,
       \ '_suggest_min_length': 0,
