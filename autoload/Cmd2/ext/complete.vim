@@ -355,11 +355,11 @@ function! Cmd2#ext#complete#AddToMRU(string)
   endif
   call insert(g:Cmd2_search_mru, a:string)
 
-  call Cmd2#ext#complete#MakeMruHash()
+  call Cmd2#ext#complete#MakeMRUHash()
 
 endfunction
 
-function! Cmd2#ext#complete#MakeMruHash()
+function! Cmd2#ext#complete#MakeMRUHash()
   let result = {}
   let i = 0
   while i < len(g:Cmd2_search_mru)

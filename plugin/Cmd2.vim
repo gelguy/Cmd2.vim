@@ -95,7 +95,7 @@ if !exists('g:Cmd2_mappings')
 endif
 
 let g:Cmd2_search_mru = get(g:, 'Cmd2_search_mru', [])
-call Cmd2#ext#complete#MakeMruHash()
+call Cmd2#ext#complete#MakeMRUHash()
 
 call Cmd2#init#Options(g:Cmd2_default_options)
 call Cmd2#init#CmdMappings(g:Cmd2_default_cmd_mappings)
