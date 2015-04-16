@@ -26,7 +26,7 @@ let g:Cmd2_default_options = {
       \ 'menu_hl': 'StatusLine',
       \ 'menu_next': '>',
       \ 'menu_previous': '<',
-      \ 'menu_more': '…',
+      \ 'menu_more': '...',
       \ 'menu_separator': ' ',
       \ 'menu_separator_hl': 'StatusLine',
       \ '_complete_ignorecase': 0,
