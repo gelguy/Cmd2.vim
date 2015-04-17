@@ -178,10 +178,10 @@ endfunction
 function! s:Handle.CR(input)
   if self.module.menu_type == 'search'
 
+    let g:a = self.module.menu
     " check if enter_search_complete is activated
-    if len(self.module.menu.pages) && len(self.module.menu.pages[0])
-          \ && ((g:Cmd2__suggest_enter_search_complete == 2)
-          \ || (g:Cmd2__suggest_enter_search_complete == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1))
+    if (g:Cmd2__suggest_enter_search_complete == 2 && len(self.module.menu.pages) && len(self.module.menu.pages[0]))
+          \ || (g:Cmd2__suggest_enter_search_complete == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1)
       if self.module.menu.pos == [0, -1]
         let menu_current = self.module.menu.pages[0][0]
       else
@@ -192,10 +192,9 @@ function! s:Handle.CR(input)
     endif
     " let g:Cmd2_pending_cmd[0] = escape(g:Cmd2_pending_cmd[0], '.\/~^$')
 
-  " check if enter_suggest is activated
-  elseif len(self.module.menu.pages) && len(self.module.menu.pages[0])
-        \ && ((g:Cmd2__suggest_enter_suggest == 2)
-        \ || (g:Cmd2__suggest_enter_suggest == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1))
+    " check if enter_suggest is activated
+  elseif (g:Cmd2__suggest_enter_suggest == 2 && len(self.module.menu.pages) && len(self.module.menu.pages[0]))
+        \ || (g:Cmd2__suggest_enter_suggest == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1)
     let g:Cmd2_pending_cmd[0] .= g:Cmd2_post_temp_output
   endif
 
