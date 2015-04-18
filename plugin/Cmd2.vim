@@ -48,6 +48,7 @@ let g:Cmd2_default_options = {
       \ '_complete_conceal_func': 'Cmd2#ext#complete#Conceal',
       \ '_complete_incsearch': 0,
       \ '_complete_mru_length': 0,
+      \ '_complete_sort_func': 'lexographic',
       \ '_complete_show_original': 1,
       \ '_suggest_suggest_hl': 'Visual',
       \ '_suggest_complete_hl': 'Statement',

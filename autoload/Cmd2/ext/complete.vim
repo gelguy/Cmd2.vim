@@ -142,7 +142,7 @@ function! Cmd2#ext#complete#GenerateCandidates(string)
   endif
   let result = Cmd2#ext#complete#ScanBuffer(a:string)
   let result = Cmd2#ext#complete#Uniq(result)
-  call Cmd2#ext#complete#Sort(result, g:Cmd2__complete_ignorecase)
+  call Cmd2#ext#complete#Sort(result)
   return result
 endfunction
 
@@ -296,50 +296,46 @@ function! Cmd2#ext#complete#Uniq(list)
   return keys(dict)
 endfunction
 
-function! Cmd2#ext#complete#Sort(candidates, ignorecase)
-  if a:ignorecase
-    call sort(a:candidates, 'Cmd2#ext#complete#CompareIgnoreCase')
+function! Cmd2#ext#complete#Sort(candidates)
+  call sort(a:candidates, 'Cmd2#ext#complete#Compare')
+endfunction
+
+let s:sort_func_map = {
+      \ 'lexographic': 'Cmd2#ext#complete#LexographicSort',
+      \ 'string_score': 'Cmd2#ext#complete#StringScore',
+      \ }
+
+function! Cmd2#ext#complete#Compare
+  let compare_mru = Cmd2#ext#complete#CompareMRU(a:a1, a:a2)
+  if compare_mru == 0
+    if g:Cmd2__complete_ignorecase
+      let a1 = tolower(a:a1)
+      let a2 = tolower(a:a2)
+    endif
+    let sort_func = get(s:sort_func_map, g:Cmd2__complete_sort_func, g:Cmd2__complete_sort_func)
+    return call(sort_func, [a1, a2])
   else
-    call sort(a:candidates, 'Cmd2#ext#complete#Compare')
+    return compare_mru
   endif
 endfunction
 
-function! Cmd2#ext#complete#MRUIndex()
-  return g:Cmd2_search_mru_hash
+function! Cmd2#ext#complete#LexographicSort(a1, a2)
+  return a:a1 == a:a2 ? 0 : (a:a1 < a:a2 ? -1 : 1)
 endfunction
 
-function! Cmd2#ext#complete#CompareIgnoreCase(a1, a2)
-  let MRUIndex = Cmd2#ext#complete#MRUIndex()
-  let index_a1 = get(MRUIndex, a:a1, len(g:Cmd2_search_mru))
-  let index_a2 = get(MRUIndex, a:a2, len(g:Cmd2_search_mru))
-  if index_a2 < 0
-    let index_a2 = len(g:Cmd2_search_mru)
-  endif
-  if index_a1 < index_a2
+function! Cmd2#ext#complete#GetMRUValue(string)
+  return get(g:Cmd2_search_mru_hash, a:string, len(g:Cmd2_search_mru))
+endfunction
+
+function! Cmd2#ext#complete#CompareMRU(a1, a2)
+  let mru_a1 = Cmd2#ext#complete#GetMRUValue(a:a1)
+  let mru_a2 = Cmd2#ext#complete#GetMRUValue(a:a2)
+  if mru_a1 < mru_a2
     return -1
-  elseif index_a1 > index_a2
+  elseif mru_a1 > mru_a2
     return 1
   else
-    let a1 = tolower(a:a1)
-    let a2 = tolower(a:a2)
-    return a1 == a2 ? 0 : (a1 < a2 ? -1 : 1)
-  endif
-endfunction
-
-function! Cmd2#ext#complete#Compare(a1, a2)
-  let MRUIndex = Cmd2#ext#complete#MRUIndex()
-  let index_a1 = get(MRUIndex, a:a1, len(g:Cmd2_search_mru))
-  let index_a2 = get(MRUIndex, a:a2, len(g:Cmd2_search_mru))
-  if index_a2 < 0
-    let index_a2 = len(g:Cmd2_search_mru)
-  endif
-  if index_a1 < index_a2
-    return -1
-  elseif index_a1 > index_a2
-    return 1
-  else
-    return a:a1 == a:a2 ? 0 : (a:a1 < a:a2 ? -1 : 1)
-  endif
+    return 0
 endfunction
 
 function! Cmd2#ext#complete#AddToMRU(string)
