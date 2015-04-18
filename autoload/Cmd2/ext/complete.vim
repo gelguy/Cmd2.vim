@@ -302,10 +302,10 @@ endfunction
 
 let s:sort_func_map = {
       \ 'lexographic': 'Cmd2#ext#complete#LexographicSort',
-      \ 'string_score': 'Cmd2#ext#complete#StringScore',
+      \ 'string_score': 'Cmd2#ext#complete#StringScoreSort',
       \ }
 
-function! Cmd2#ext#complete#Compare
+function! Cmd2#ext#complete#Compare(a1, a2)
   let compare_mru = Cmd2#ext#complete#CompareMRU(a:a1, a:a2)
   if compare_mru == 0
     if g:Cmd2__complete_ignorecase
@@ -321,6 +321,107 @@ endfunction
 
 function! Cmd2#ext#complete#LexographicSort(a1, a2)
   return a:a1 == a:a2 ? 0 : (a:a1 < a:a2 ? -1 : 1)
+endfunction
+
+function! Cmd2#ext#complete#StringScoreSort(a1, a2)
+  let cmd = g:Cmd2_pending_cmd[0]
+  let score1 = 1 - Cmd2#ext#complete#StringScore(a:a1, cmd)
+  let score2 = 1 - Cmd2#ext#complete#StringScore(a:a2, cmd)
+  return score1 == score2 ? 0 : (score1 < score2 ? -1 : 1)
+endfunction
+
+function! Cmd2#ext#complete#StringScore(string, word)
+
+  let string = a:string
+  let word = a:word
+
+  if string == word
+    return 1
+  endif
+
+  if word == ''
+    return 0
+  endif
+
+  let head = matchstr(g:Cmd2__complete_start_pattern, string)
+  if !empty(head)
+    let string = string[len(head) : ]
+  endif
+
+  let runningScore = 0
+  let lString = tolower(string)
+  let strLength = len(string)
+  let lWord = tolower(word)
+  let wordLength = len(word)
+  let startAt = 0
+  let fuzzies = 1
+  let fuzzyFactor = 1
+
+  let fuzziness = g:Cmd2__complete_fuzzy
+
+  if fuzziness
+    let fuzzyFactor = 1 - fuzziness
+  endif
+
+  if fuzziness
+    let i = 0
+    while i < wordLength
+      let idxOf = match(lString, lWord[i], startAt)
+      if idxOf == -1
+        let fuzzies += fuzzyFactor
+      else
+        if startAt == idxOf
+          let charScore = 0.7
+        else
+          let charScore = 0.1
+          if match(string[idxOf - 1], '[ _.#\-:]') != -1 || string[idxOf] == toupper(string[idxOf])
+            let charScore += 0.8
+          endif
+        endif
+        if string[idxOf] == word[i]
+          let charScore += 0.1
+        endif
+        let runningScore += charScore
+        let startAt = idxOf + 1
+      endif
+      let i += 1
+    endwhile
+  else
+    let i = 0
+    while i < wordLength
+      let idxOf = match(lString, lWord[i], startAt)
+      if idxOf == -1
+        return 0
+      endif
+
+      if startAt == idxOf
+        let charScore = 0.7
+
+      else
+        let charScore = 0.1
+        if match(string[idxOf - 1], ' ') != -1 || string[idxOf] == toupper(string[idxOf])
+          let charScore += 0.8
+        endif
+
+        if string[idxOf] == word[i]:
+          let charScore += 0.1
+        endif
+
+        let runningScore += charScore
+        let startAt = idxOf + 1
+
+        let i += 1
+      endif
+    endwhile
+  endif
+
+  let finalScore = 0.5 * (runningScore / strLength + runningScore / wordLength) / fuzzies
+
+  if lWord[0] == lString[0] && finalScore < 0.85
+    let finalScore += 0.15
+  endif
+
+  return finalScore
 endfunction
 
 function! Cmd2#ext#complete#GetMRUValue(string)
