@@ -67,7 +67,7 @@ let g:Cmd2_cmdline_history_cmd = ['', '']
 let g:Cmd2_cmdline_history_new = 1
 
 let s:ignore_history = ["\<Up>", "\<Down>", "\<Left>", "\<Right>"]
-let s:keep_menu = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>"]
+let s:keep_menu = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Up>", "\<Down>"]
 let s:reject_complete = ["\<BS>", "\<Del>"]
 let s:hide_suggest = ["\<BS>", "\<Del>", "\<Left>", "\<Right>", "\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Esc>", "\<Up>", "\<Down>"]
 let s:no_reenter = ["\<C-R>", "\<C-\>", "\<C-C>", "\<C-Q>", "\<C-V>", "\<C-K>", "\<S-CR>", "\<C-A>", "\<C-D>", "\<C-F>"]
@@ -178,7 +178,6 @@ endfunction
 function! s:Handle.CR(input)
   if self.module.menu_type == 'search'
 
-    let g:a = self.module.menu
     " check if enter_search_complete is activated
     if (g:Cmd2__suggest_enter_search_complete == 2 && len(self.module.menu.pages) && len(self.module.menu.pages[0]))
           \ || (g:Cmd2__suggest_enter_search_complete == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1)
