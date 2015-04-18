@@ -311,6 +311,9 @@ function! Cmd2#ext#complete#Compare(a1, a2)
     if g:Cmd2__complete_ignorecase
       let a1 = tolower(a:a1)
       let a2 = tolower(a:a2)
+    else
+      let a1 = a:a1
+      let a2 = a:a2
     endif
     let sort_func = get(s:sort_func_map, g:Cmd2__complete_sort_func, g:Cmd2__complete_sort_func)
     return call(sort_func, [a1, a2])
