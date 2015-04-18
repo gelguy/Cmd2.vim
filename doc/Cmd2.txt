@@ -12,15 +12,17 @@
 ===========================================================================
 CONTENTS                                                      *Cmd2Contents*
 
-    1. Installation................... |Cmd2Installation|
-    2. Introduction................... |Cmd2Introduction|
-    3. Usage ......................... |Cmd2Usage|
-    4. Mappings ...................... |Cmd2Mappings|
-    5. Writing a custom function ..... |Cmd2WritingCustomFunction|
-    6. Options ....................... |Cmd2Options|
-    7. Cmd2Complete .................. |Cmd2Complete|
-    8. Customising fuzzy search ...... |Cmd2CustomisingFuzzySearch|
-    9. FAQ ........................... |Cmd2FAQ|
+     1. Installation .................. |Cmd2Installation|
+     2. Introduction .................. |Cmd2Introduction|
+     3. Usage ......................... |Cmd2Usage|
+     4. Mappings ...................... |Cmd2Mappings|
+     5. Writing a custom function ..... |Cmd2WritingCustomFunction|
+     6. Options ....................... |Cmd2Options|
+     7. Cmd2Complete .................. |Cmd2Complete|
+     8. Cmd2Suggest ................... |Cmd2Suggest|
+     9. Customising search ............ |Cmd2CustomisingSearch|
+    11. Optimising search ............. |Cmd2OptimisingSearch|
+    10. FAQ ........................... |Cmd2FAQ|
 
 ===========================================================================
 Section 1: Installation                                   *Cmd2Installation*
@@ -48,71 +50,43 @@ customised - for example to create a CtrlP/Unite style menu instead.
 ===========================================================================
 Section 3: Usage                                                 *Cmd2Usage*
 
-Fuzzy search completion only~
-If you only want fuzzy search completion, add this to your .vimrc.
+Cmd2Suggest~
 
+For Cmd2Suggest, add these mappings. The <F12> map can be changed to
+something else that is not used.
 >
-    function! s:CustomFuzzySearch(string)
-      let pattern = ""
-      let ignore_case = g:Cmd2__complete_ignorecase ? '\c' : ''
-      let char = matchstr(a:string, ".", byteidx(a:string, 0))
-      let pattern = '\V' . ignore_case
-      let pattern .= '\<\%(\[agls]\:\)\?'
-      let pattern .= '\%(\%(\k\*\[._\-#]\)\?' . char . '\|\k\*\%(' . char . '\&\L\)\)'
-      if g:Cmd2__complete_fuzzy
-        let result = ''
-        let i = 1
-        while i < len(a:string)
-          let char = matchstr(a:string, ".", byteidx(a:string, i))
-          let result .= '\%(' . '\%(\k\*\[._\-#]\)\?' . char . '\|'
-          let result .= '\k\*\%(' . char . '\&\L\)' . '\)'
-          let i += len(char)
-        endwhile
-        let pattern .= result
-      else
-        let pattern .= a:string
-      endif
-      let pattern .= g:Cmd2__complete_end_pattern
-      return pattern
-    endfunction
+  nmap : :<F12>     " for : mode (experimental)
+  nmap / /<F12>
 
+  cmap <F12> <Plug>(Cmd2Suggest)
+<
+A wildmenu-style menu will appear as you type your search. Press <Tab> and
+<S-Tab> to move through the menu and <CR> to accept the suggestion.
+
+Cmd2Suggest uses Cmd2Complete for getting its completions. See |Cmd2Suggest|.
+
+Cmd2Complete~
+If you only want fuzzy search completion, add this to your .vimrc.
+>
     let g:Cmd2_options = {
           \ '_complete_ignorecase': 1,
           \ '_complete_uniq_ignorecase': 0,
-          \ '_complete_pattern_func':
-                \ function('s:CustomFuzzySearch'),
-          \ '_complete_start_pattern':
-                \ '\<\(\[agls]\:\)\?\(\k\*\[_\-#]\)\?',
           \ '_complete_fuzzy': 1,
-          \ '_complete_string_pattern': '\v\k(\k|\.)*$',
-          \ '_complete_loading_text': '...',
           \ }
 
-    let g:Cmd2_cmd_mappings = {
-          \ "CF": {'command':
-             \ function('Cmd2#ext#complete#Main'), 'type': 'function'},
-          \ "CB": {'command':
-             \ function('Cmd2#ext#complete#Main'), 'type': 'function'},
-          \ }
-
-    cmap <C-S> <Plug>Cmd2  " Change this to your preferred mapping
-    cmap <expr> <Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CF" : "\<Tab>"
-    cmap <expr> <S-Tab> Cmd2#ext#complete#InContext() ? "\<Plug>Cmd2CB" : "\<S-Tab>"
+    cmap <expr> <Tab> Cmd2#ext#complete#InContext() ? "\<Plug>(Cmd2Complete)" : "\<Tab>"
 
     set wildcharm=<Tab>
 <
-
 To use, press /, enter a partial search and press <Tab>. This opens a
 |wildmenu|-style line with the current matches. <Tab> and <S-Tab> to move
 forward and backward through the list. Press any other key to continue typing,
 or <Esc> to return to the original string.
 
-This configuration is a stricter fuzzy search which only matches subsequences
-which start with a delimiter #_-. and CamelCase. For example, fb will match
-with 'FooBar', 'foo_bar', etc. This configuration also accepts ., meaning u
-can use 'o.' to look for 'object.*'.
+See |Cmd2CustomisingSearch| for matching different patterns e.g.
+CamelCase.
 
-See |Cmd2CustomisingFuzzySearch|.
+See |Cmd2Complete|.
 
 Sample .vimrc settings~
 For a quick start, copy and paste these into your .vimrc. The following
@@ -125,10 +99,6 @@ different sets of control keys.
       \ 'iw': {'command': 'iw', 'type': 'text', 'flags': 'Cpv'},
       \ 'ap': {'command': 'ap', 'type': 'line', 'flags': 'pv'},
       \ '^': {'command': '^', 'type': 'normal!', 'flags': 'r'},
-      \ "CF": {'command': function('Cmd2#ext#complete#Main'),
-          \ 'type': 'function'},
-      \ "CB": {'command': function('Cmd2#ext#complete#Main'),
-          \ 'type': 'function'},
       \ 'w': {'command': 'Cmd2#functions#Cword',
           \ 'type': 'function', 'flags': 'Cr'},
       \ }
@@ -142,11 +112,11 @@ different sets of control keys.
       \ }
 
     cmap <C-S> <Plug>Cmd2
-    cmap <expr> <Tab> Cmd2#ext#complete#InContext() ?
-        \ "\<Plug>Cmd2CF" : "\<Tab>"
-    cmap <expr> <S-Tab> Cmd2#ext#complete#InContext() ? "
-        \ \<Plug>Cmd2CB" : "\<S-Tab>"
+    cmap <expr> <Tab> Cmd2#ext#complete#InContext() ? "\<Plug>(Cmd2Complete)" : "\<Tab>"
+
+    set wildcharm=<Tab>
 <
+
 Let's assume <Plug>Cmd2 is mapped to <C-S>. Now suppose we enter the
 cmdline with :. Pressing <C-S> will trigger Cmd2. Notice that the cursor
 has changed to _ (default). This indicates that Cmd2 is active. We can
@@ -526,7 +496,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   regex is not enough to create the pattern. The function is passed 1
   argument, the search string that is to be matched. The function can use
   the set start, middle and end pattern to create the final pattern. See
-  |Cmd2CustomisingFuzzySearch|.
+  |Cmd2CustomisingSearch|.
 
   _complete_start_pattern~
   *g:Cmd2__complete_start_pattern*
@@ -597,7 +567,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   default: ""
 
   The |hlgroup| to use to highlight the loading text when
-  |g:Cmd2_complete_loading_text| is set.
+  |g:Cmd2__complete_loading_text| is set.
 
   _complete_generate~
   *g:Cmd2__complete_generate*
@@ -630,7 +600,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   the g:Cmd2_pending_cmd when Cmd2Complete is started. This needs to be a
   copy as g:Cmd2_pending_cmd will be changed. This should be used to create
   match strings such as those which include substrings behind the current
-  cursor position. See |Cmd2CustomisingFuzzySearch|.
+  cursor position. See |Cmd2CustomisingSearch|.
 
   _complete_conceal_patterns~
   *g:Cmd2__complete_conceal_patterns*
@@ -652,7 +622,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   'value:' ...} where text is the concealed text to show and value is the
   true value to insert.
 
-  _complete_incsearch~
+  EXPERIMENTAL: _complete_incsearch~
   *g:Cmd2__complete_incsearch*
   default: 0
 
@@ -660,8 +630,182 @@ extension, the options are prepended with `_`. The options are lsited below.
   the current menu candidate, like |incsearch|. Best used with `set incsearch`
   to highlight the current candidate.
 
+  _complete_mru_length~
+  *g:Cmd2__complete_mru_length*
+  default: 0
+
+  Length of most-recently-used list to maintain. Items from the MRU list will
+  have higher priority than others when sorting. Setting to 0 will stop the
+  MRU list from updating. This means u can pre-populate the
+  *g:Cmd2__search_mru* and those words will have the highest priority.
+
+  _complete_sort_func~
+  *g:Cmd2__complete_sort_func*
+  default: 'lexographic'
+
+  A string or a Funcref. If a string, can take the values of 'lexographic' or
+  'string_score'. Otherwise needs to be the name of a function. The function
+  passed to the |sort()| function when creating candidates. 'string_score' is
+  slow.
+
+  _complete_show_original~
+  *g:Cmd2__complete_show_original*
+  default: 1
+
+  Boolean to set if the original search is inserted as the first element of
+  the menu.
+
 ===========================================================================
-Section 8: Customising fuzzy search             *Cmd2CustomisingFuzzySearch*
+Section 8: Cmd2Suggest                                         *Cmd2Suggest*
+
+Cmd2Suggest is an extension built on Cmd2, using Cmd2Complete. It is similar
+to Cmd2Complete, except that instead of triggering when a specific key is
+pressed, the menu is updated as you type. This has 2 modes, one with |:| and
+one with |/|. |:| mode is experimental. For |/| mode, the completions are
+gathered from |g:Cmd2__complete_generate|. This requires overriding of default
+|:| and |/|, so it may not work perfectly with other plugins and some default
+functionality may be missing.
+
+Please see |Cmd2OptimisingSearch| to reduce the latency between key presses.
+
+
+                                                           *Cmd2SuggestKeys*
+
+<Tab> or <C-N>   : move to the next menu item
+<S-Tab> or <C-P> : move to the previous menu item
+<CR>             : complete the current input (see |g:Cmd2__suggest_enter_suggest|
+                   and |g:Cmd2__suggest_enter_search_complete|)
+<S-CR>           : enter the current input without completion
+<Down>           : in |:| mode, with directories, accept the current
+                 : completion and trigger suggestions for the new completion
+                 : (like |wildmenu|).
+<Up>             : in |:| mode, with directories, go to the parent directory
+                 : (like |wildmenu|).
+<Esc>            : either cancel current completion or exit the commandline,
+                 : depending on |g:Cmd2__suggest_esc_menu|.
+
+As a clarification, "suggest" refers to the text appearing after the cursor
+when the head of the first menu item matches exactly the current input.
+"complete" refers to the completion done by moving through the menu.
+"suggestions" refers to both the menu and the autosuggest text.
+
+Options are defined in the same |g:Cmd2_options| dictionary. As an
+extension, the options are prepended with `_`. The options are lsited below.
+
+  _suggest_suggest_hl~
+  *g:Cmd2__suggest_suggest_hl*
+  default: 'Visual'
+
+  The |hlgroup| to use to highlight the autosuggest text. Autosuggest text
+  will only appear when the head of the first item matches exactly with the
+  current input.
+
+  _suggest_complete_hl~
+  *g:Cmd2__suggest_complete_hl*
+  default: 'Statement'
+
+  The |hlgroup| to use to highlight the completion text, when moving through
+  the menu.
+
+  _suggest_show_suggest~
+  *g:Cmd2__suggest_show_suggest*
+  default: 1
+
+  Boolean when true, shows autosuggest.
+
+  _suggest_min_length~
+  *g:Cmd2__suggest_min_length*
+  default: 0
+
+  Number to set for the minimum length to start triggering suggestions.
+
+  _suggest_space_trigger~
+  *g:Cmd2__suggest_space_trigger*
+  default: 0
+
+  For |:| mode. Boolean for whether to trigger suggestions when the most
+  recent character is ' '.
+
+  _suggest_no_trigger~
+  *g:Cmd2__suggest_no_trigger*
+  default: [
+    \ '\m^ec\%[ho] ',
+    \ '\m^let .*=',
+    \ '\m\*\*',
+    \ ]
+
+  For |:| mode. A list of |patterns|. These patterns will not trigger
+  suggestions. Suggestions can be forced to trigger by pressing <Tab> or
+  <S-Tab>. These are needed as some commands take very long to gather
+  candidates (e.g. |echo| takes any function hence all the functions will have
+  to be populated).
+
+  _suggest_middle_trigger~
+  *g:Cmd2__suggest_middle_trigger*
+  default: 0
+
+  Boolean when true, triggers suggestions when the cursor is not at the end of
+  the current input.
+
+  _suggest_jump_complete~
+  *g:Cmd2__suggest_jump_complete*
+  default: 0
+
+  For |:| mode. Boolean if true, performs completion and triggers the
+  suggestions for the new completion if there is only one completion for the
+  current item. Used when dealing with directories (e.g. 'cd dir').
+
+  _suggest_esc_menu~
+  *g:Cmd2__suggest_esc_menu*
+  default: 0
+
+  Boolean for whether <Esc> cancels current completion if the menu is active.
+  Otherwise <Esc> exits from commandline mode.
+
+  _suggest_enter_suggest~
+  *g:Cmd2__suggest_enter_suggest*
+  default: 1
+
+  For |:| mode. Number if 1, <CR> is pressed, the current autosuggest if any
+  will be appended to the input only if there is only one completion. If 2,
+  always appends. If 0, never appends.
+
+  _suggest_bs_suggest~
+  *g:Cmd2__suggest_bs_suggest*
+  default: 0
+
+  Boolean when true, inputting <BS> deletes the current autosuggest if any.
+  When false, the autosuggest is removed along with the character behind the
+  cursor (like normal <BS>).
+
+  _suggest_enter_search_complete~
+  *g:Cmd2__suggest_enter_search_complete*
+  default: 0
+
+  For |/| mode. Number if 1, <CR> is pressed, the first completion if any
+  will replace the input only if there is only one completion. If 2,
+  always replaces. If 0, never replaces.
+
+    _suggest_tab_longest~
+  *g:Cmd2__suggest_tab_longest*
+  default: 0
+
+  For |:| mode. Boolean when true, <Tab> will insert the longest common
+  starting text of the completions, if any. If there are no completions,
+  <Tab> will proceed as normal.
+
+  _suggest_search_profile~
+  *g:Cmd2__suggest_search_profile*
+  default: 0
+
+  For |/| mode. Boolean when true, will profile the time taken to gather the
+  candidates for the menu. The results will be stored in *g:Cmd2_profile*
+  which is a list of Dictionaries, with the format {string: time(msecs)}.
+  Useful when checking how fast custom |g:Cmd2__complete_generate| functions
+  are.
+
+===========================================================================
+Section 9: Customising search             *Cmd2CustomisingSearch*
 
 Customising fuzzy search~
 
@@ -739,7 +883,150 @@ get matches that include patterns from after the cursor, use
 |g:Cmd2__complete_get_string|.
 
 ===========================================================================
-Section 9: FAQ                                                     *Cmd2FAQ*
+Section 10: Optimising search                         *Cmd2OptimisingSearch*
+
+Optimising fuzzy search~
+
+It is important to optimise |g:Cmd2__complete_generate| as it is called every
+keypress. If the search takes too long, there will be a high latency before
+the next keypress is registered, leading to the feeling of lag. The default
+generate function uses VimScript, and will start to feel laggy for large
+files i.e. >1000 lines.
+
+The time taken to gather the candidates can be found by setting
+|g:Cmd2__suggest_search_profile|. The target should be below 50ms for each
+keypress.
+
+There are various ways to optimise.
+
+Using Python or Ruby~
+
+Using Python or Ruby will result in much faster regex matching and sorting.
+Python and Ruby use PCRE, which is very easy to translate from Vim's regex.
+
+Mainly:
+'\<'   becomes '\b'
+'\%()' becomes '(?:)'
+
+Example of a fuzzy pattern in PCRE:
+>
+  function! FuzzyPattern(string)
+    let k = '(?:\w|[_\-#.])'      " keyword
+    let result = g:Cmd2__complete_ignorecase ? '(?i)' : ''
+    let result .= '\b'
+    " this allows the fuzzy search to start in the middle of a string
+    " but results in a noticeable slowdown for large files
+    " comment out the next line to stop this
+    let result .= '(?:[agls]:|_)?' . k . '*'
+    let i = 0
+    while i < len(substitute(a:string, '.', 'x', 'g'))
+      let char = matchstr(a:string, ".", byteidx(a:string, i))
+      if char == '\'
+        if i == len(substitute(a:string, '.', 'x', 'g'))
+          let char .= '\\\'
+        else
+          let char .= matchstr(a:string, ".", byteidx(a:string, i+1))
+        endif
+        let offset = 1
+      else
+        let offset = 0
+      endif
+      let result .= char
+      let result .= k . '*'
+      let i += 1 + offset
+    endwhile
+    return result
+  endfunction
+<
+Example of search using Python:
+
+In g:Cmd2_options, set '_complete_generate' to 'PythonSearch'.
+>
+  function! PythonSearch(cmd)
+    let escape_cmd = escape(a:cmd, '|$*.[]()')
+    let pattern = FuzzyPattern(escape_cmd)
+<
+python << EOF
+import re
+
+buffer = vim.current.buffer
+pattern = vim.eval('pattern')
+string = vim.eval('g:Cmd2_pending_cmd[0]')
+result = re.findall(pattern, '\n'.join(buffer[:]))
+uniq = list(set(result))
+filtered = filter(lambda x: len(x) > 0, uniq)
+mru = vim.eval('g:Cmd2_search_mru_hash')
+size = len(mru)
+string = vim.eval('a:cmd')
+sort = sorted(filtered, key=lambda x: [int(mru.get(x, size)), x.lower()])
+vim.command('let results = %s' % sort)
+EOF
+    return results
+  endfunction
+
+Using re2~
+
+For even larger files i.e. 10k lines, the default regex engine of Python and
+Ruby will start to feel slow. re2 is an extremely fast regex library which
+uses a subset of PCRE. The above FuzzyPattern will work fine in re2.
+
+For Python users on Windows, the .whl file can be found at
+http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+For Python users on Linux, use easy_install.
+
+All that has to be changed is
+
+import re
+
+to
+
+try:
+    import re2 as re
+except ImportError:
+    import re
+
+Using neocomplete source~
+
+For even larger files where re2 feels slow, the neocomplete buffer source can
+be used.
+
+>
+  function! s:PythonCache(cmd)
+    if !get(b:, 'cache_init', 0)
+      call neocomplete#init#_sources(['buffer'])
+      call neocomplete#available_sources().buffer.hooks.on_init(0)
+      let b:cache_init = 1
+    endif
+    let candidates = neocomplete#available_sources().buffer.gather_candidates('')
+    let escape_cmd = escape(a:cmd, '|$^*.()[]')
+    let pattern = s:PythonDelimited(escape_cmd)
+
+python << EOF
+try:
+    import re2 as re
+except ImportError:
+    import re
+
+candidates = vim.eval('candidates')
+pattern = vim.eval('pattern')
+result = [ x for x in candidates if re.match(pattern, x) ]
+mru = vim.eval('g:Cmd2_search_mru_hash')
+size = len(mru)
+string = vim.eval('a:cmd')
+sort = sorted(result, key=lambda x: [int(mru.get(x, size)), x.lower()])
+vim.command('let results = %s' % sort)
+EOF
+    return results
+  endfunction
+
+Use Cmd2Complete~
+
+If the above optimisations are still too slow, |Cmd2Complete| might be more
+viable, as completions are only generated on demand.
+
+===========================================================================
+Section 10: FAQ                                                    *Cmd2FAQ*
 
 Choosing a cmap key~
 
@@ -765,7 +1052,7 @@ and uniq-ed with an unoptimised algorithm. This might result in a noticeable
 delay when dealing with large files. A way to fix this is to use set
 |g:Cmd2_complete_generate| to a custom function which is faster. Some
 possible ways to do this is to use Python or Lua, or use existing sources
-such as from neocomplete.
+such as from neocomplete. See |Cmd2OptimisingSearch|.
 
 Putty mouse flickering~
 
@@ -774,9 +1061,5 @@ when Cmd2 is triggered. This is due to the cursor changing into pointer mode
 when a sleep command is given to Vim. To prevent this, change
 |g:Cmd2_loop_sleep| to 0. This will stop Cmd2 from sleeping in between
 loops but may affect the cmdline flickering.
-
-Writing extensions~
-
-To do.
 
 vim:tw=78:sw=4:ft=help:
