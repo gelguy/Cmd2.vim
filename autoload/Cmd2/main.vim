@@ -143,7 +143,7 @@ endfunction
 function! Cmd2#main#LeftoverKey()
   if len(g:Cmd2_leftover_key)
     if g:Cmd2_leftover_key == "\<Esc>"
-      let g:Cmd2_leftover_key = ''
+      let g:Cmd2_leftover_key = "\<C-C>"
     elseif g:Cmd2_leftover_key == "\<CR>" && g:Cmd2_cmd_type == ':'
       call histadd(g:Cmd2_cmd_type, g:Cmd2_pending_cmd[0] . g:Cmd2_output . g:Cmd2_pending_cmd[1])
     endif
