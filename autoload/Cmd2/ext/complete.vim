@@ -202,13 +202,12 @@ function! Cmd2#ext#complete#CreateFuzzyPattern(string, pattern)
       else
         let char .= matchstr(a:string, ".", byteidx(a:string, i+1))
       endif
-      let offset = 1
-    else
-      let offset = 0
     endif
     let result .= char
-    let result .= a:pattern
-    let i += 1 + offset
+    let i += len(char)
+    if i < len(a:string)
+      let result .= a:pattern
+    endif
   endwhile
   return result
 endfunction
