@@ -947,6 +947,7 @@ In g:Cmd2_options, set '_complete_generate' to 'PythonSearch'.
     let pattern = FuzzyPattern(escape_cmd)
 <
 python << EOF
+import vim
 import re
 
 buffer = vim.current.buffer
