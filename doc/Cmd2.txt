@@ -1062,4 +1062,13 @@ when a sleep command is given to Vim. To prevent this, change
 |g:Cmd2_loop_sleep| to 0. This will stop Cmd2 from sleeping in between
 loops but may affect the cmdline flickering.
 
+Esc key has to be pressed twice~
+
+  This is fixed by Vim patch 7.4.306. Please update Vim to the latest version.
+  Alternatively, you can map another key to Esc using
+
+>
+  cnoremap <key> <nop>
+<
+
 vim:tw=78:sw=4:ft=help:
