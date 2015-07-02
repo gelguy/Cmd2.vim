@@ -67,7 +67,8 @@ let g:Cmd2_cmdline_history_cmd = ['', '']
 let g:Cmd2_cmdline_history_new = 1
 
 let s:ignore_history = ["\<Up>", "\<Down>", "\<Left>", "\<Right>"]
-let s:keep_menu = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Up>", "\<Down>"]
+let s:keep_menu_cmd = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Up>", "\<Down>"]
+let s:keep_menu_search = ["\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>"]
 let s:reject_complete = ["\<BS>", "\<Del>"]
 let s:hide_suggest = ["\<BS>", "\<Del>", "\<Left>", "\<Right>", "\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Esc>", "\<Up>", "\<Down>"]
 let s:no_reenter = ["\<C-R>", "\<C-\>", "\<C-C>", "\<C-Q>", "\<C-V>", "\<C-K>", "\<S-CR>", "\<C-A>", "\<C-D>", "\<C-F>"]
@@ -113,7 +114,9 @@ function! s:Handle.Run(input)
   else
     let g:Cmd2_pending_cmd[0] .= a:input
   endif
-  if (index(s:keep_menu, a:input) == -1 || self.module.force_menu)
+  if (self.module.menu_type != "search" && index(s:keep_menu_cmd, a:input) == -1)
+        \ || (self.module.menu_type == "search" && index(s:keep_menu_search, a:input) == -1)
+        \ || self.module.force_menu
     call self.Menu(a:input)
   endif
 
@@ -131,7 +134,8 @@ function! s:Handle.PreRun(input)
     let g:Cmd2_cmdline_history = 0
     let g:Cmd2_cmdline_history_cmd = deepcopy(g:Cmd2_pending_cmd)
   endif
-  if index(s:keep_menu, a:input) == -1
+  if (self.module.menu_type != 'search' && index(s:keep_menu_cmd, a:input) == -1)
+        \ || (self.module.menu_type == 'search' && index(s:keep_menu_search, a:input == -1))
     if self.module.active_menu
       let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
       let self.module.had_active_menu = 1
