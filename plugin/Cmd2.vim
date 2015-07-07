@@ -68,6 +68,7 @@ let g:Cmd2_default_options = {
       \ '_suggest_enter_search_complete': 0,
       \ '_suggest_tab_longest': 0,
       \ '_suggest_search_profile': 0,
+      \ '_suggest_render': 'Cmd2#render#New().WithInsertCursor().WithMenu()',
       \ '_quicksearch_ignorecase': 0,
       \ '_quicksearch_hl': 'Search',
       \ '_quicksearch_current_hl': 'ErrorMsg',

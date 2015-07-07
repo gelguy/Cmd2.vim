@@ -5,16 +5,17 @@ function! Cmd2#menu#Autoload()
   " do nothing
 endfunction
 
-function! Cmd2#menu#New(list)
-  let menu = s:Menu.New(a:list)
+function! Cmd2#menu#New(list, ...)
+  let menu = s:Menu.New(a:list, a:0 ? a:1 : &columns)
   return menu
 endfunction
 
 let s:Menu = {}
 
-function! s:Menu.New(list)
+function! s:Menu.New(list, columns)
   let menu = deepcopy(self)
   let menu.pos = [0,0]
+  let menu.columns = a:columns
   let menu.pages = menu.CreatePages(a:list)
   let menu.empty_render = 0
   return menu
@@ -36,7 +37,7 @@ function! s:Menu.CreatePages(list)
       let text = item
     endif
     " if cur_length == 0, item is first item, don't create new page
-    if cur_length + offset + strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator) > &columns
+    if cur_length + offset + strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator) > self.columns
           \ && cur_length != 0
       call add(pages, [])
       let cur_page += 1
@@ -115,7 +116,7 @@ endfunction
 function! s:Menu.MenuLine()
   if len(self) == 0 || len(self.pages) == 0
     if self.empty_render
-      let empty = repeat(' ', &columns)
+      let empty = repeat(' ', self.columns)
       return [{'text': empty, 'hl': g:Cmd2_menu_hl}]
     else
       return [{'text': ''}]
@@ -138,8 +139,8 @@ function! s:Menu.MenuLine()
     let hl = self.pos[1] == i ? g:Cmd2_menu_selected_hl : g:Cmd2_menu_hl
     " 2 to include space after < and before >
     if len(text) + strdisplaywidth(g:Cmd2_menu_previous) + strdisplaywidth(g:Cmd2_menu_next) +
-          \ 2 * strdisplaywidth(g:Cmd2_menu_separator) > &columns
-      let space_left = &columns - (strdisplaywidth(g:Cmd2_menu_previous)
+          \ 2 * strdisplaywidth(g:Cmd2_menu_separator) > self.columns
+      let space_left = self.columns - (strdisplaywidth(g:Cmd2_menu_previous)
             \ + strdisplaywidth(g:Cmd2_menu_next) + 2 + strdisplaywidth(g:Cmd2_menu_separator))
       let space_left -= strdisplaywidth(g:Cmd2_menu_more)
       let len = strlen(substitute(text, ".", "x", "g"))
@@ -169,7 +170,7 @@ function! s:Menu.MenuLine()
     endif
     let i += 1
   endwhile
-  let padding_length = &columns - cur_length
+  let padding_length = self.columns - cur_length
   if len(self.pages) - 1 > self.pos[0]
     let padding_length -= strdisplaywidth(g:Cmd2_menu_next) + 1
   endif

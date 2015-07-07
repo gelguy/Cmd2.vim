@@ -804,6 +804,16 @@ extension, the options are prepended with `_`. The options are lsited below.
   Useful when checking how fast custom |g:Cmd2__complete_generate| functions
   are.
 
+  _suggest_render~
+  *g:Cmd2__suggest_render*
+  default: 'Cmd2#render#New().WithInsertCursor().WithMenu()'
+
+  String to |eval()|. A string to evaluate which will create the renderer for
+  the cmdline with menu. Use this to change how the menu will be rendered,
+  e.g. 'Cmd2#render#New().WithInsertCursor()#WithAirlineMenu()'. Must be
+  eval-ed, since in the .vimrc, some variables might not have been
+  initialised.
+
 ===========================================================================
 Section 9: Customising search             *Cmd2CustomisingSearch*
 

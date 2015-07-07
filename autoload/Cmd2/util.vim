@@ -175,10 +175,18 @@ endfunction
 
 function! Cmd2#util#SetCmdHeight()
   let menu_height = has_key(g:Cmd2_menu, 'pages') && (len(g:Cmd2_menu.pages) > 0 || g:Cmd2_menu.empty_render)
+  call Cmd2#util#SetCmdHeightHelper(menu_height)
+endfunction
+
+function! Cmd2#util#SetCmdHeightWithNoMenu()
+  call Cmd2#util#SetCmdHeightHelper(0)
+endfunction
+
+function! Cmd2#util#SetCmdHeightHelper(menu_height)
   " - 1 to round down, + 1 to include cmd_type, + 1 for extra space to buffer
   let &cmdheight = max([g:Cmd2_old_cmdheight,
         \ (strdisplaywidth(g:Cmd2_pending_cmd[0] . g:Cmd2_temp_output . g:Cmd2_cursor_text . g:Cmd2_pending_cmd[1]) + 1) / &columns
-        \ + 1 + menu_height])
+        \ + 1 + a:menu_height])
 endfunction
 
 function! Cmd2#util#SaveLaststatus()

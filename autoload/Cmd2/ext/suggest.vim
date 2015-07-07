@@ -16,8 +16,10 @@ function! s:Suggest.New()
   let state = {
         \ 'mapped_input': [],
         \ }
+  let render = g:Cmd2__suggest_render
+  let eval_render = eval(render)
   let args = {
-        \ 'render': Cmd2#render#New().WithInsertCursor().WithMenu(),
+        \ 'render': eval(g:Cmd2__suggest_render),
         \ 'handle': Cmd2#ext#suggest#Handle(),
         \ 'finish': Cmd2#ext#suggest#Finish(),
         \ 'loop': Cmd2#loop#New(),
@@ -40,7 +42,7 @@ function! s:Suggest.Run()
     let self.active_menu = 0
     call feedkeys(g:Cmd2_leftover_key)
     let g:Cmd2_leftover_key = ""
-    let self.menu = Cmd2#menu#New([])
+    let self.menu = Cmd2#menu#New([], self.render.menu_columns)
     let self.menu.empty_render = 1
     let g:Cmd2_menu = self.menu
     call self.loop.Run()
@@ -510,7 +512,7 @@ function! s:Handle.Menu(input)
 endfunction
 
 function! s:Suggest.CreateMenu(results, input)
-  let self.menu = Cmd2#menu#New(a:results)
+  let self.menu = Cmd2#menu#New(a:results, self.render.menu_columns)
   let menu_current = self.menu.Current()
   let current = type(menu_current) == 4 ? menu_current.value : menu_current
   let self.menu.pos = [0, -1]

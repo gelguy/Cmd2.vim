@@ -13,6 +13,7 @@ function! Cmd2#render#New()
   let render.temp_hl = 'None'
   let render.post_temp_hl = 'None'
   let render.show_cursor = 1
+  let render.menu_columns = &columns
   return render
 endfunction
 
@@ -28,6 +29,12 @@ endfunction
 
 function! s:Render.WithMenu()
   let self.renderer = self.CmdLineWithMenu()
+  return self
+endfunction
+
+function! s:Render.WithAirlineMenu()
+  let self.menu_columns = &columns - 2*strdisplaywidth(g:airline_left_sep) - 7
+  let self.renderer = self.CmdLineWithAirlineMenu()
   return self
 endfunction
 
@@ -99,6 +106,26 @@ function! s:Render.CmdLineWithMenu()
   let renderer.cmdline_renderer = self.renderer
   function! renderer.Run()
     let result = []
+    if has_key(g:Cmd2_menu, 'pages')
+      let menu = g:Cmd2_menu.MenuLine()
+      let result += menu
+    endif
+    let result += self.cmdline_renderer.Run()
+    return result
+  endfunction
+  return renderer
+endfunction
+
+function! s:Render.CmdLineWithAirlineMenu()
+  let renderer = {}
+  let renderer.render = self
+  let renderer.cmdline_renderer = self.renderer
+  function! renderer.Run()
+    let result = [{'text': ' Cmd2 ', 'hl': 'airline_a'},
+          \ {'text': g:airline_left_sep, 'hl': 'airline_a_to_airline_b'},
+          \ {'text': g:airline_left_sep, 'hl': 'airline_b_to_airline_c'},
+          \ {'text': ' ', 'hl': 'airline_x'},
+          \]
     if has_key(g:Cmd2_menu, 'pages')
       let menu = g:Cmd2_menu.MenuLine()
       let result += menu
