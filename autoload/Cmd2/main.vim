@@ -75,6 +75,8 @@ function! Cmd2#main#Run(...)
   call Cmd2#main#Reenter()
   call Cmd2#main#LeftoverKey()
   call Cmd2#main#RemainderKeys()
+  " clear cmdline
+  execute "normal! :"
 endfunction
 
 function! Cmd2#main#PreRun()
@@ -119,18 +121,23 @@ function! Cmd2#main#GetRemainderKeys()
 endfunction
 
 function! Cmd2#main#FeedCmdLine()
-  let cmd = g:Cmd2_pending_cmd
-  call feedkeys(g:Cmd2_cmd_type . "\<C-U>". Cmd2#util#EscapeFeed(cmd[0] . g:Cmd2_output), 'n')
-  let len = strlen(substitute(cmd[1], ".", "x", "g"))
-  let i = 0
-  while i < len
-    let char = matchstr(cmd[1], ".", byteidx(cmd[1], i))
-    call feedkeys(Cmd2#util#EscapeFeed(char), 'n')
-    let i += 1
-  endwhile
-  call feedkeys("\<C-E>", 'n')
-  let left = repeat("\<Left>", len)
-  call feedkeys(left, 'n')
+  if get(g:, 'Cmd2_feed_cmdline', 1)
+    let cmd = g:Cmd2_pending_cmd
+    call feedkeys(g:Cmd2_cmd_type . "\<C-U>". Cmd2#util#EscapeFeed(cmd[0] . g:Cmd2_output), 'n')
+    let len = strlen(substitute(cmd[1], ".", "x", "g"))
+    let i = 0
+    while i < len
+      let char = matchstr(cmd[1], ".", byteidx(cmd[1], i))
+      call feedkeys(Cmd2#util#EscapeFeed(char), 'n')
+      let i += 1
+    endwhile
+    call feedkeys("\<C-E>", 'n')
+    let left = repeat("\<Left>", len)
+    call feedkeys(left, 'n')
+  endif
+  if exists('g:Cmd2_feed_cmdline')
+    unlet g:Cmd2_feed_cmdline
+  endif
 endfunction
 
 function! Cmd2#main#Reenter()

@@ -15,7 +15,7 @@ function! Cmd2#Autoload()
   call Cmd2#util#Autoload()
 
   call Cmd2#ext#complete#Autoload()
-  call Cmd2#ext#quicksearch#Autoload()
+  call Cmd2#ext#suggest#Autoload()
 endfunction
 
 let &cpo = s:save_cpo

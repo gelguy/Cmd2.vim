@@ -33,6 +33,7 @@ function! s:Suggest.New()
   let suggest.original_cmd0 = ''
   let suggest.original_view = winsaveview()
   let suggest.menu_type = ''
+  let suggest.rest_view = 1
   return suggest
 endfunction
 
@@ -47,11 +48,14 @@ function! s:Suggest.Run()
     let self.menu.empty_render = 1
     let g:Cmd2_menu = self.menu
     call self.loop.Run()
-    call winrestview(self.original_view)
+    if self.rest_view
+      call winrestview(self.original_view)
+    endif
     call self.finish.Run()
   finally
     let g:Cmd2_menu = old_menu
     let g:Cmd2_cursor_text = self.old_cursor_text
+    call self.ClearIncSearch()
   endtry
 endfunction
 
@@ -124,18 +128,34 @@ function! s:Handle.Run(input)
     call self.Menu(a:input)
   endif
 
-  if self.module.menu_type == 'search' && g:Cmd2__suggest_hlsearch
+  if self.module.menu_type == 'search' && a:input != "\<CR>"
     if self.module.active_menu
       let menu_current = self.module.menu.Current()
       let query = type(menu_current) == 4 ? menu_current.value : menu_current
     else
-      let query = g:Cmd2_pending_cmd[0]
+      let query = self.GetSearchQuery()
     endif
-    let @/ = query
-    set hls
+    let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
+    if g:Cmd2__suggest_incsearch
+      call winrestview(self.module.original_view)
+      call search(query, flag)
+      call self.module.ClearIncSearch()
+      let self.module.incsearch_match = matchadd('IncSearch', '\%#' . query)
+    endif
+    if g:Cmd2__suggest_hlsearch
+      let @/ = query
+      set hls
+    endif
   endif
 
   call self.PostRun(a:input)
+endfunction
+
+function! s:Suggest.ClearIncSearch()
+  if exists('self.incsearch_match')
+    call matchdelete(self.incsearch_match)
+    unlet self.incsearch_match
+  endif
 endfunction
 
 function! s:Handle.PreRun(input)
@@ -194,9 +214,7 @@ function! s:Handle.Cmaps(input)
   return 0
 endfunction
 
-function! s:Handle.CR(input)
-  if self.module.menu_type == 'search'
-
+function! s:Handle.GetSearchQuery()
     " check if enter_search_complete is activated
     if (g:Cmd2__suggest_enter_search_complete == 2 && len(self.module.menu.pages) && len(self.module.menu.pages[0]))
           \ || (g:Cmd2__suggest_enter_search_complete == 1 && len(self.module.menu.pages) == 1 && len(self.module.menu.pages[0]) == 1)
@@ -206,8 +224,15 @@ function! s:Handle.CR(input)
         let menu_current = self.module.menu.Current()
       endif
       let current = type(menu_current) == 4 ? menu_current.value : menu_current
-      let g:Cmd2_pending_cmd[0] = current
+      return current
     endif
+    return g:Cmd2_pending_cmd[0]
+endfunction
+
+function! s:Handle.CR(input)
+  if self.module.menu_type == 'search'
+
+    let g:Cmd2_pending_cmd[0] = self.GetSearchQuery()
     " let g:Cmd2_pending_cmd[0] = escape(g:Cmd2_pending_cmd[0], '.\/~^$')
 
     " check if enter_suggest is activated
@@ -222,6 +247,19 @@ function! s:Handle.CR(input)
 
   let self.module.state.stopped = 1
   let g:Cmd2_leftover_key = a:input
+  if g:Cmd2__suggest_incsearch && self.module.menu_type == 'search'
+    call histadd(g:Cmd2_cmd_type, g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1])
+    let self.module.rest_view = 0
+    call winrestview(self.module.original_view)
+
+    let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
+    call search(g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1], flag)
+    set nohls
+    let @/ = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
+    let g:Cmd2_feed_cmdline = 0
+    let g:Cmd2_leftover_key = "\<Plug>(Cmd2_hls)"
+    set hls
+  endif
 endfunction
 
 function! s:Handle.Esc(input)

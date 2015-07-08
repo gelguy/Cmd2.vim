@@ -70,9 +70,7 @@ let g:Cmd2_default_options = {
       \ '_suggest_search_profile': 0,
       \ '_suggest_render': 'Cmd2#render#New().WithInsertCursor().WithMenu()',
       \ '_suggest_hlsearch': &hlsearch,
-      \ '_quicksearch_ignorecase': 0,
-      \ '_quicksearch_hl': 'Search',
-      \ '_quicksearch_current_hl': 'ErrorMsg',
+      \ '_suggest_incsearch': &incsearch,
       \ }
 
 if !exists('g:Cmd2_options')
@@ -117,6 +115,9 @@ cnoremap <silent> <expr> <Plug>(Cmd2Complete) getcmdtype() =~ '\v[?:\/]' ? Cmd2#
       \ "<C-E><C-U><C-C>:call Cmd2#main#Run('complete')<CR>" : ""
 cnoremap <silent> <expr> <Plug>(Cmd2Suggest) getcmdtype() =~ '\v[?:\/]' ? Cmd2#main#Init() .
       \ "<C-E><C-U><C-C>:call Cmd2#main#Run('suggest')<CR>" : ""
+
+nnoremap <silent> <Plug>(Cmd2_hls) :set hls<CR>
+
 
 let g:Cmd2_loaded = 1
 
