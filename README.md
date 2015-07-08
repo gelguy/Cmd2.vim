@@ -3,15 +3,11 @@ Power up your Vim's cmdline mode
 
 * Autosuggest for search
 
-  ![Cmd2Suggest](http://imgur.com/iRdPBxo.gif)
+  ![Cmd2Suggest](http://i.imgur.com/4uUWJTS.gif)
 
 * Fuzzy search
 
-  ![Cmd2Suggest](http://imgur.com/O5d86Cr.gif)
-
-* Manual activation
-
-  ![Cmd2Complete](http://imgur.com/aNpemS9.gif)
+  ![Cmd2Suggest](http://i.imgur.com/Mk9a329.gif)
 
 * Much more
 
