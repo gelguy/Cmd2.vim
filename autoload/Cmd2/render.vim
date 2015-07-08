@@ -38,6 +38,46 @@ function! s:Render.WithAirlineMenu()
   return self
 endfunction
 
+function! s:Render.WithAirlineMenu2()
+  let palette = g:airline#themes#{g:airline_theme}#palette
+  call s:Load_theme(palette)
+  let self.old_run = Cmd2#render#New().Run
+  let self.renderer = self.CmdLineWithAirlineMenu2()
+  function! self.Run()
+    let cmd = self.module.active_menu ? self.module.original_cmd0 : g:Cmd2_pending_cmd[0]
+    let self.cmd = len(cmd) ? ' ' . cmd . ' ' : ''
+    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(g:airline_left_sep) - 7
+    call call(self.old_run, [], self)
+  endfunction
+  return self
+endfunction
+
+function! s:Load_theme(palette)
+  if exists('a:palette.cmd2')
+    let theme = a:palette.cmd2
+  else
+    let color_template = 'insert'
+    let theme = s:Generate_color_map(
+          \ a:palette[color_template]['airline_c'],
+          \ a:palette[color_template]['airline_b'],
+          \ a:palette[color_template]['airline_a'])
+  endif
+  for key in keys(theme)
+    call airline#highlighter#exec(key, theme[key])
+  endfor
+endfunction
+
+function! s:Generate_color_map(dark, light, white)
+  return {
+        \ 'Cmd2dark'   : a:dark,
+        \ 'Cmd2light'  : a:light,
+        \ 'Cmd2white'  : a:white,
+        \ 'Cmd2arrow1' : [ a:light[1] , a:white[1] , a:light[3] , a:white[3] , ''     ] ,
+        \ 'Cmd2arrow2' : [ a:white[1] , a:light[1] , a:white[3] , a:light[3] , ''     ] ,
+        \ 'Cmd2arrow3' : [ a:light[1] , a:dark[1]  , a:light[3] , a:dark[3]  , ''     ] ,
+        \ }
+endfunction
+
 function! s:Render.Run()
   let state = self.module.state
   if self.CheckBlink() || state.force_render
@@ -124,6 +164,29 @@ function! s:Render.CmdLineWithAirlineMenu()
     let result = [{'text': ' Cmd2 ', 'hl': 'airline_a'},
           \ {'text': g:airline_left_sep, 'hl': 'airline_a_to_airline_b'},
           \ {'text': g:airline_left_sep, 'hl': 'airline_b_to_airline_c'},
+          \ {'text': ' ', 'hl': 'airline_x'},
+          \]
+    if has_key(g:Cmd2_menu, 'pages')
+      let menu = g:Cmd2_menu.MenuLine()
+      let result += menu
+    endif
+    let result += self.cmdline_renderer.Run()
+    return result
+  endfunction
+  return renderer
+endfunction
+
+function! s:Render.CmdLineWithAirlineMenu2()
+  let renderer = {}
+  let renderer.render = self
+  let renderer.cmdline_renderer = self.renderer
+  function! renderer.Run()
+    let result = []
+    let g:Cmd2_menu.columns = self.render.menu_columns
+    let result += [{'text': ' Cmd2 ', 'hl': 'Cmd2white'},
+          \ {'text': g:airline_left_sep, 'hl': 'Cmd2arrow2'},
+          \ {'text': self.render.cmd, 'hl': 'Cmd2light'},
+          \ {'text': g:airline_left_sep, 'hl': 'Cmd2arrow3'},
           \ {'text': ' ', 'hl': 'airline_x'},
           \]
     if has_key(g:Cmd2_menu, 'pages')
