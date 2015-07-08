@@ -31,6 +31,7 @@ function! s:Suggest.New()
   let suggest.suggest = suggest
   let suggest.previous_item = ''
   let suggest.original_cmd0 = ''
+  let suggest.original_view = winsaveview()
   let suggest.menu_type = ''
   return suggest
 endfunction
@@ -46,6 +47,7 @@ function! s:Suggest.Run()
     let self.menu.empty_render = 1
     let g:Cmd2_menu = self.menu
     call self.loop.Run()
+    call winrestview(self.original_view)
     call self.finish.Run()
   finally
     let g:Cmd2_menu = old_menu
@@ -120,6 +122,17 @@ function! s:Handle.Run(input)
         \ || (self.module.menu_type == "search" && index(s:keep_menu_search, a:input) == -1)
         \ || self.module.force_menu
     call self.Menu(a:input)
+  endif
+
+  if self.module.menu_type == 'search' && g:Cmd2__suggest_hlsearch
+    if self.module.active_menu
+      let menu_current = self.module.menu.Current()
+      let query = type(menu_current) == 4 ? menu_current.value : menu_current
+    else
+      let query = g:Cmd2_pending_cmd[0]
+    endif
+    let @/ = query
+    set hls
   endif
 
   call self.PostRun(a:input)

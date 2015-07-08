@@ -814,6 +814,13 @@ extension, the options are prepended with `_`. The options are lsited below.
   eval-ed, since in the .vimrc, some variables might not have been
   initialised.
 
+  _suggest_hlsearch~
+  *g:Cmd2__suggest_hlsearch*
+  default: &hlsearch
+
+  Boolean for whether current search query or suggestion will be highlighted,
+  like |hlsearch|.
+
 ===========================================================================
 Section 9: Customising search             *Cmd2CustomisingSearch*
 
