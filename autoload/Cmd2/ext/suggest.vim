@@ -137,7 +137,7 @@ function! s:Handle.PreRun(input)
     let g:Cmd2_cmdline_history_cmd = deepcopy(g:Cmd2_pending_cmd)
   endif
   if (self.module.menu_type != 'search' && index(s:keep_menu_cmd, a:input) == -1)
-        \ || (self.module.menu_type == 'search' && index(s:keep_menu_search, a:input == -1))
+        \ || (self.module.menu_type == 'search' && index(s:keep_menu_search, a:input) == -1)
     if self.module.active_menu
       let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
       let self.module.had_active_menu = 1
