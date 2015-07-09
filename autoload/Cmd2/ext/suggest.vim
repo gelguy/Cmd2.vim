@@ -139,9 +139,15 @@ function! s:Handle.Run(input)
       let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
       if g:Cmd2__suggest_incsearch
         call winrestview(self.module.original_view)
-        call search(query, flag)
+        try
+          call search(query, flag)
+        catch
+        endtry
         call self.module.ClearIncSearch()
-        let self.module.incsearch_match = matchadd('IncSearch', '\%#' . query)
+        try
+          let self.module.incsearch_match = matchadd('IncSearch', '\%#' . query)
+        catch
+        endtry
       endif
       if g:Cmd2__suggest_hlsearch
         let @/ = query
@@ -255,8 +261,10 @@ function! s:Handle.CR(input)
     call winrestview(self.module.original_view)
 
     let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
-    call search(cmd, flag)
-    set nohls
+    try
+      call search(cmd, flag)
+    catch
+    endtry
     let @/ = cmd
     let g:Cmd2_feed_cmdline = 0
     if g:Cmd2__suggest_hlsearch
