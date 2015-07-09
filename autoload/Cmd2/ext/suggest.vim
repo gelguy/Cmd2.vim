@@ -135,16 +135,18 @@ function! s:Handle.Run(input)
     else
       let query = self.GetSearchQuery()
     endif
-    let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
-    if g:Cmd2__suggest_incsearch
-      call winrestview(self.module.original_view)
-      call search(query, flag)
-      call self.module.ClearIncSearch()
-      let self.module.incsearch_match = matchadd('IncSearch', '\%#' . query)
-    endif
-    if g:Cmd2__suggest_hlsearch
-      let @/ = query
-      set hls
+    if len(query)
+      let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
+      if g:Cmd2__suggest_incsearch
+        call winrestview(self.module.original_view)
+        call search(query, flag)
+        call self.module.ClearIncSearch()
+        let self.module.incsearch_match = matchadd('IncSearch', '\%#' . query)
+      endif
+      if g:Cmd2__suggest_hlsearch
+        let @/ = query
+        set hls
+      endif
     endif
   endif
 
@@ -245,21 +247,25 @@ function! s:Handle.CR(input)
     call Cmd2#ext#complete#AddToMRU(g:Cmd2_pending_cmd[0])
   endif
 
-  let self.module.state.stopped = 1
-  let g:Cmd2_leftover_key = a:input
-  if g:Cmd2__suggest_incsearch && self.module.menu_type == 'search'
-    call histadd(g:Cmd2_cmd_type, g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1])
+  let cmd = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
+
+  if g:Cmd2__suggest_incsearch && self.module.menu_type == 'search' && len(cmd)
+    call histadd(g:Cmd2_cmd_type, cmd)
     let self.module.rest_view = 0
     call winrestview(self.module.original_view)
 
     let flag = g:Cmd2_cmd_type == '/' ? '' : 'b'
-    call search(g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1], flag)
+    call search(cmd, flag)
     set nohls
-    let @/ = g:Cmd2_pending_cmd[0] . g:Cmd2_pending_cmd[1]
+    let @/ = cmd
     let g:Cmd2_feed_cmdline = 0
     let g:Cmd2_leftover_key = "\<Plug>(Cmd2_hls)"
     set hls
+  else
+    let g:Cmd2_leftover_key = a:input
   endif
+
+  let self.module.state.stopped = 1
 endfunction
 
 function! s:Handle.Esc(input)
