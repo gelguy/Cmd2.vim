@@ -259,8 +259,9 @@ function! s:Handle.CR(input)
     set nohls
     let @/ = cmd
     let g:Cmd2_feed_cmdline = 0
-    let g:Cmd2_leftover_key = "\<Plug>(Cmd2_hls)"
-    set hls
+    if g:Cmd2__suggest_hlsearch
+      let g:Cmd2_leftover_key = "\<Plug>(Cmd2_hls)"
+    endif
   else
     let g:Cmd2_leftover_key = a:input
   endif
@@ -279,6 +280,9 @@ function! s:Handle.Esc(input)
     " echo more msg will appear
     let g:Cmd2_pending_cmd = ['', '']
     let g:Cmd2_leftover_key = "\<C-C>"
+    if g:Cmd2__suggest_hlsearch
+      let g:Cmd2_leftover_key .= "\<Plug>(Cmd2_hls)"
+    endif
   endif
 endfunction
 
