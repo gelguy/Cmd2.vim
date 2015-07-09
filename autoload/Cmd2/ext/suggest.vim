@@ -128,7 +128,7 @@ function! s:Handle.Run(input)
     call self.Menu(a:input)
   endif
 
-  if self.module.menu_type == 'search' && a:input != "\<CR>"
+  if self.module.menu_type == 'search' && a:input != "\<CR>" && a:input != "\<Esc>"
     if self.module.active_menu
       let menu_current = self.module.menu.Current()
       let query = type(menu_current) == 4 ? menu_current.value : menu_current
@@ -281,7 +281,7 @@ function! s:Handle.Esc(input)
     let g:Cmd2_pending_cmd = ['', '']
     let g:Cmd2_leftover_key = "\<C-C>"
     if g:Cmd2__suggest_hlsearch
-      let g:Cmd2_leftover_key .= "\<Plug>(Cmd2_hls)"
+      let g:Cmd2_leftover_key .= "\<Plug>(Cmd2_nohls)"
     endif
   endif
 endfunction

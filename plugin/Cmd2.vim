@@ -117,6 +117,7 @@ cnoremap <silent> <expr> <Plug>(Cmd2Suggest) getcmdtype() =~ '\v[?:\/]' ? Cmd2#m
       \ "<C-E><C-U><C-C>:call Cmd2#main#Run('suggest')<CR>" : ""
 
 nnoremap <silent> <Plug>(Cmd2_hls) :set hls<CR>
+nnoremap <silent> <Plug>(Cmd2_nohls) :set nohls<CR>
 
 
 let g:Cmd2_loaded = 1
