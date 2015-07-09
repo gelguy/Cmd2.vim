@@ -385,6 +385,7 @@ function! s:Handle.Up(input)
       let g:Cmd2_pending_cmd[0] = g:Cmd2_cmdline_temp.cmdline
       let g:Cmd2_pending_cmd[1] = ''
     endif
+    let self.module.force_menu = 1
   endif
 endfunction
 
