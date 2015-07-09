@@ -14,9 +14,10 @@ endfunction
 
 " Helper function for init#Options()
 function! Cmd2#init#Option(key, value)
-  if !exists('g:Cmd2_' . a:key)
-    let g:Cmd2_{a:key} = a:value
+  if exists('g:Cmd2_' . a:key)
+    unlet g:Cmd2_{a:key}
   endif
+  let g:Cmd2_{a:key} = a:value
 endfunction
 
 function! Cmd2#init#CmdMappings(default_cmd_mappings)
