@@ -21,6 +21,7 @@ function! s:Menu.New(list, columns)
   return menu
 endfunction
 
+let g:a = []
 function! s:Menu.CreatePages(list)
   if !len(a:list)
     return []
@@ -46,6 +47,7 @@ function! s:Menu.CreatePages(list)
     call add(pages[cur_page], item)
     let cur_length += strdisplaywidth(text) + strdisplaywidth(g:Cmd2_menu_separator)
   endfor
+  let g:a += [self.columns, pages]
   return pages
 endfunction
 

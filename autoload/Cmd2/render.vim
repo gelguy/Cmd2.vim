@@ -14,12 +14,17 @@ function! Cmd2#render#New()
   let render.post_temp_hl = 'None'
   let render.show_cursor = 1
   let render.menu_columns = &columns
+  let render.cmd = ''
   return render
 endfunction
 
 function! s:Render.Module(module)
   let self.module = a:module
   return self
+endfunction
+
+function! s:Render.UpdateCmd(cmd)
+  let self.cmd = a:cmd
 endfunction
 
 function! s:Render.WithInsertCursor()
@@ -44,10 +49,11 @@ function! s:Render.WithAirlineMenu2()
   let self.old_run = Cmd2#render#New().Run
   let self.renderer = self.CmdLineWithAirlineMenu2()
   function! self.Run()
-    let cmd = self.module.active_menu ? self.module.original_cmd0 : g:Cmd2_pending_cmd[0]
-    let self.cmd = len(cmd) ? ' ' . cmd . ' ' : ''
-    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(g:airline_left_sep) - 7
     call call(self.old_run, [], self)
+  endfunction
+  function! self.UpdateCmd(cmd)
+    let self.cmd = len(a:cmd) ? ' ' . a:cmd . ' ' : ''
+    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(g:airline_left_sep) - 7
   endfunction
   return self
 endfunction
