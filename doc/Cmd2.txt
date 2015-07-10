@@ -576,7 +576,7 @@ extension, the options are prepended with `_`. The options are lsited below.
   A string or a |Funcref|. If a string, needs to be the name of a function.
   The function is called to generate the list of candidates. The function is
   passed 1 argument, which is the the cmdline. The function will have access
-  to the global variables such as g:cmd2_pending_cmd if the argument is not
+  to the global variables such as g:Cmd2_pending_cmd if the argument is not
   enough. The list should be a list of strings, in the order they would
   appear in the menu. This means searching, sorting, uniq-ng and ranking
   should be done.

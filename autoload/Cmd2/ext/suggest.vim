@@ -610,7 +610,6 @@ endfunction
 
 function! s:Suggest.CreateMenu(results, input)
   let self.menu = Cmd2#menu#New(a:results, self.render.menu_columns)
-  let g:d = self.menu
   let menu_current = self.menu.Current()
   let current = type(menu_current) == 4 ? menu_current.value : menu_current
   let self.menu.pos = [0, -1]
