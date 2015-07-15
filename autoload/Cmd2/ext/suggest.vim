@@ -80,7 +80,7 @@ let g:Cmd2_cmdline_history_new = 1
 let s:ignore_history = ["\<Up>", "\<Down>", "\<Left>", "\<Right>"]
 let s:reject_complete = ["\<BS>", "\<Del>"]
 let s:hide_suggest = ["\<BS>", "\<Del>", "\<Left>", "\<Right>", "\<Tab>", "\<S-Tab>", "\<C-N>", "\<C-P>", "\<Esc>", "\<Up>", "\<Down>"]
-let s:no_reenter = ["\<C-R>", "\<C-\>", "\<C-C>", "\<C-Q>", "\<C-V>", "\<C-K>", "\<S-CR>", "\<C-A>", "\<C-D>", "\<C-F>"]
+let s:no_reenter = ["\<C-R>", "\<C-\>", "\<C-C>", "\<C-Q>", "\<C-V>", "\<C-K>", "\<S-CR>", "\<C-A>", "\<C-D>", "\<C-F>","\<C-J>"]
 let s:no_event = [
       \ "<LeftMouse>", "<C-LeftMouse>", "<S-LeftMouse>", "<2-LeftMouse>", "<3-LeftMouse>", "<4-LeftMouse>",
       \ "<MiddleMouse>",
