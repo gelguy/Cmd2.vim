@@ -184,9 +184,15 @@ function! Cmd2#ext#complete#GetMatchesOnLine(line_num, pattern, string)
   let start_pos = match(line, a:pattern)
   while start_pos != -1
     let end_pos = matchend(line, a:pattern, start_pos)
-    let substring = line[start_pos : (end_pos - 1)]
-    call add(matches, substring)
-    let start_pos = match(line, a:pattern, end_pos)
+    if end_pos == -1
+      break
+    elseif start_pos == end_pos
+      let start_pos += 1
+    else
+      let substring = line[start_pos : (end_pos - 1)]
+      call add(matches, substring)
+      let start_pos = match(line, a:pattern, end_pos)
+    endif
   endwhile
   return matches
 endfunction
