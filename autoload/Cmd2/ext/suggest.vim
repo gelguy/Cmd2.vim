@@ -15,6 +15,7 @@ function! s:Suggest.New()
   let suggest = copy(self)
   let state = {
         \ 'mapped_input': [],
+        \ 'force_render': 1,
         \ }
   let render = g:Cmd2__suggest_render
   let eval_render = eval(render)
@@ -50,6 +51,7 @@ function! s:Suggest.Run()
     let self.had_active_menu = 0
     call self.handle.Menu('')
     call self.handle.SimulateSearch('')
+    call self.render.Run()
     call self.loop.Run()
     if self.rest_view
       call winrestview(self.original_view)

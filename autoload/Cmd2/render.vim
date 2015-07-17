@@ -15,6 +15,8 @@ function! Cmd2#render#New()
   let render.show_cursor = 1
   let render.menu_columns = &columns
   let render.cmd = ''
+  let render.old_pending_cmd = []
+  let render.old_blink_state = -1
   return render
 endfunction
 
@@ -86,7 +88,7 @@ endfunction
 
 function! s:Render.Run()
   let state = self.module.state
-  if self.CheckBlink() || state.force_render
+  if self.NeedRefresh() || state.force_render
     call Cmd2#util#SetCmdHeight()
     call Cmd2#util#SetLastStatus()
     let echo_contents = self.renderer.Run()
@@ -95,6 +97,15 @@ function! s:Render.Run()
   if state.force_render == 1
     let state.force_render = 0
   endif
+  let self.old_blink_state = g:Cmd2_blink_state
+endfunction
+
+function! s:Render.NeedRefresh()
+  call self.CheckBlink()
+  if self.old_blink_state != g:Cmd2_blink_state
+    return 1
+  endif
+  return 0
 endfunction
 
 function! s:Render.CmdLine()
