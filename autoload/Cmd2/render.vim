@@ -9,7 +9,7 @@ let s:Render = {}
 
 function! Cmd2#render#New()
   let render = copy(s:Render)
-  let render.renderer = render.CmdLine()
+  let render.renderer = render.CmdLineRenderer()
   let render.temp_hl = 'None'
   let render.post_temp_hl = 'None'
   let render.show_cursor = 1
@@ -30,12 +30,12 @@ function! s:Render.UpdateCmd(cmd)
 endfunction
 
 function! s:Render.WithInsertCursor()
-  let self.renderer = self.CmdLineWithInsertCursor()
+  let self.renderer = self.CmdLineWithInsertCursorRenderer()
   return self
 endfunction
 
 function! s:Render.WithMenu()
-  let self.renderer = self.CmdLineWithMenu()
+  let self.renderer = self.CmdLineWithMenuRenderer()
   return self
 endfunction
 
@@ -61,7 +61,7 @@ function! s:Render.WithAirlineMenu(...)
   " - 1 to include space after last sep,
   " - 2 to include spaces before and after name
   let self.menu_columns = &columns - 2*strdisplaywidth(self.airline.sep) - strdisplaywidth(self.airline.name) - 3
-  let self.renderer = self.CmdLineWithAirlineMenu()
+  let self.renderer = self.CmdLineWithAirlineMenuRenderer()
   return self
 endfunction
 
@@ -70,17 +70,15 @@ function! s:Render.WithAirlineMenu2(...)
   call self.SetAirlineMenuOptions(options)
   let palette = g:airline#themes#{g:airline_theme}#palette
   call s:Load_theme(palette)
-  let self.old_run = Cmd2#render#New().Run
-  let self.renderer = self.CmdLineWithAirlineMenu2()
-  function! self.Run()
-    call call(self.old_run, [], self)
-  endfunction
+  let self.renderer = self.CmdLineWithAirlineMenu2Renderer()
+
   function! self.UpdateCmd(cmd)
     let self.cmd = len(a:cmd) ? ' ' . a:cmd . ' ' : ''
     " - 1 to include space after last sep
-    "- 2 to include spaces before and after name
-    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(self.airline.sep) - strdisplaywidth(self.airline.name) - 3
+    " - 2 to include spaces before and after name
+    let self.menu_columns = &columns - strdisplaywidth(self.cmd) - 2*strdisplaywidth(self.airline.sep) - strdisplaywidth(self.airline.name) - 3
   endfunction
+
   return self
 endfunction
 
@@ -132,59 +130,33 @@ function! s:Render.NeedRefresh()
   return 0
 endfunction
 
-function! s:Render.CmdLine()
+function! s:Render.CmdLineRenderer()
   let renderer = {}
   let renderer.render = self
+
   function! renderer.Run()
-    let result = []
-    let result += [{'text': g:Cmd2_cmd_type}]
-    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
-    let result += [{'text': g:Cmd2_temp_output, 'hl': self.render.temp_hl}]
-    if g:Cmd2_blink_state
-      call add(result, {'text': g:Cmd2_cursor_text, 'hl': g:Cmd2_cursor_hl})
-    else
-      call add(result, {'text': g:Cmd2_cursor_text})
-    endif
-    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
-    return result
+    return self.render.MakeCmdLineWithBlockCursor()
   endfunction
+
   return renderer
 endfunction
 
-function! s:Render.CmdLineWithInsertCursor()
+function! s:Render.CmdLineWithInsertCursorRenderer()
   let renderer = {}
   let renderer.render = self
+
   function! renderer.Run()
-    let result = []
-    let result += [{'text': g:Cmd2_cmd_type}]
-    let result += self.render.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
-    let result += [{'text': g:Cmd2_temp_output, 'hl': self.render.temp_hl}]
-    if len(g:Cmd2_post_temp_output) && g:Cmd2__suggest_show_suggest
-      let after_cursor = [{'text': g:Cmd2_post_temp_output, 'hl' :self.render.post_temp_hl}]
-    else
-      let after_cursor = []
-    endif
-    let after_cursor += self.render.SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
-    if g:Cmd2_blink_state
-      let first = after_cursor[0]
-      if len(after_cursor[0].text)
-        let char = matchstr(after_cursor[0].text, ".", byteidx(after_cursor[0].text, 0))
-        let result += [{'text': char, 'hl': g:Cmd2_cursor_hl}]
-        let after_cursor[0].text = after_cursor[0].text[len(char) :]
-      else
-        let result += [{'text': ' ', 'hl': g:Cmd2_cursor_hl}]
-      endif
-    endif
-    let result += after_cursor
-    return result
+    return self.render.MakeCmdLineWithInsertCursor()
   endfunction
+
   return renderer
 endfunction
 
-function! s:Render.CmdLineWithMenu()
+function! s:Render.CmdLineWithMenuRenderer()
   let renderer = {}
   let renderer.render = self
   let renderer.cmdline_renderer = self.renderer
+
   function! renderer.Run()
     let result = []
     if has_key(g:Cmd2_menu, 'pages')
@@ -194,49 +166,50 @@ function! s:Render.CmdLineWithMenu()
     let result += self.cmdline_renderer.Run()
     return result
   endfunction
+
   return renderer
 endfunction
 
-function! s:Render.CmdLineWithAirlineMenu()
+function! s:Render.CmdLineWithAirlineMenuRenderer()
   let renderer = {}
   let renderer.render = self
+  let g:a = deepcopy(self.renderer)
   let renderer.cmdline_renderer = self.renderer
+
   function! renderer.Run()
     let result = [{'text': ' ' . self.render.airline.name . ' ', 'hl': 'airline_a'},
           \ {'text': self.render.airline.sep, 'hl': 'airline_a_to_airline_b'},
           \ {'text': self.render.airline.sep, 'hl': 'airline_b_to_airline_c'},
           \ {'text': ' ', 'hl': 'airline_x'},
           \]
-    if has_key(g:Cmd2_menu, 'pages')
-      let menu = g:Cmd2_menu.MenuLine()
-      let result += menu
-    endif
+    let menu = g:Cmd2_menu.MenuLine()
+    let result += menu
     let result += self.cmdline_renderer.Run()
     return result
   endfunction
+
   return renderer
 endfunction
 
-function! s:Render.CmdLineWithAirlineMenu2()
+function! s:Render.CmdLineWithAirlineMenu2Renderer()
   let renderer = {}
   let renderer.render = self
   let renderer.cmdline_renderer = self.renderer
+
   function! renderer.Run()
-    let result = []
-    let g:Cmd2_menu.columns = self.render.menu_columns
-    let result += [{'text': ' ' . self.render.airline.name . ' ', 'hl': 'Cmd2white'},
+    let result = [{'text': ' ' . self.render.airline.name . ' ', 'hl': 'Cmd2white'},
           \ {'text': self.render.airline.sep, 'hl': 'Cmd2arrow2'},
           \ {'text': self.render.cmd, 'hl': 'Cmd2light'},
           \ {'text': self.render.airline.sep, 'hl': 'Cmd2arrow3'},
           \ {'text': ' ', 'hl': 'airline_x'},
           \]
-    if has_key(g:Cmd2_menu, 'pages')
-      let menu = g:Cmd2_menu.MenuLine()
-      let result += menu
-    endif
+    let g:Cmd2_menu.columns = self.render.menu_columns
+    let menu = g:Cmd2_menu.MenuLine()
+    let result += menu
     let result += self.cmdline_renderer.Run()
     return result
   endfunction
+
   return renderer
 endfunction
 
@@ -244,6 +217,7 @@ function! s:Render.Render(list)
   call Cmd2#render#Render(a:list)
 endfunction
 
+" renders the cmdline through echo
 function! Cmd2#render#Render(list)
   let cmd = ''
   for block in a:list
@@ -265,7 +239,6 @@ function! Cmd2#render#Render(list)
   endtry
 endfunction
 
-" renders the cmdline through echo
 function! s:Render.CheckBlink()
   let blink = g:Cmd2_cursor_blink ?
         \ self.GetCursorBlink(self.module.state.start_time, self.module.state.current_time)
@@ -299,11 +272,59 @@ function! s:Render.GetCursorBlink(start, current)
     return 1
   endif
   let interval = fmod(ms - g:Cmd2_cursor_blinkwait, g:Cmd2_cursor_blinkon + g:Cmd2_cursor_blinkoff)
-  if interval < g:Cmd2_cursor_blinkoff
-    return 0
+  return interval >= g:Cmd2_cursor_blinkoff
+endfunction
+
+function! s:Render.PrepareCmdLineSections()
+  let result = {}
+  let result.type = [{'text': g:Cmd2_cmd_type}]
+  let result.cmd0 = self.SplitSnippet(g:Cmd2_pending_cmd[0], g:Cmd2_snippet_cursor)
+  let result.temp = [{'text': g:Cmd2_temp_output, 'hl': self.temp_hl}]
+  let result.post_temp = [{'text': g:Cmd2_post_temp_output, 'hl' :self.post_temp_hl}]
+  let result.cmd1 = self.SplitSnippet(g:Cmd2_pending_cmd[1], g:Cmd2_snippet_cursor)
+  return result
+endfunction
+
+function! s:Render.JoinSections(sections)
+  let result = []
+  let result += a:sections.type
+  let result += a:sections.cmd0
+  let result += a:sections.temp
+  let result += a:sections.cursor
+  let result += a:sections.post_temp
+  let result += a:sections.cmd1
+  return result
+endfunction
+
+function! s:Render.MakeCmdLineWithInsertCursor()
+  let sections = self.PrepareCmdLineSections()
+  if g:Cmd2_blink_state
+    " find out which character the cursor is over and remove it
+    let cursor_in_section = len(sections.post_temp[0].text) ? 'post_temp' :
+          \ len(sections.cmd1[0].text) ? 'cmd1' : ''
+    if len(cursor_in_section)
+      let cursor_text = matchstr(sections[cursor_in_section][0].text, ".", byteidx(sections[cursor_in_section][0].text, 0))
+      let sections[cursor_in_section][0].text = sections[cursor_in_section][0].text[len(cursor_text):]
+      let sections.cursor = [{'text': cursor_text, 'hl': g:Cmd2_cursor_hl}]
+    else
+      " cursor is after last character
+      let sections.cursor = [{'text': ' ', 'hl': g:Cmd2_cursor_hl}]
+    endif
   else
-    return 1
+    let sections.cursor = [{'text': ''}]
   endif
+  return self.JoinSections(sections)
+endfunction
+
+function! s:Render.MakeCmdLineWithBlockCursor()
+  let sections = self.PrepareCmdLineSections()
+  let cursor = {}
+  let cursor.text = g:Cmd2_cursor_text
+  if g:Cmd2_blink_state
+    let cursor.hl = g:Cmd2_cursor_hl
+  endif
+  let sections.cursor = [cursor]
+  return self.JoinSections(sections)
 endfunction
 
 let &cpo = s:save_cpo

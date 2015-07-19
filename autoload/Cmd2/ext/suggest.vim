@@ -50,6 +50,7 @@ function! s:Suggest.Run()
     let g:Cmd2_leftover_key = ""
     call self.render.UpdateCmd(g:Cmd2_pending_cmd[0])
     call self.handle.Menu('')
+    call self.render.UpdateCmd('')
     call self.handle.SimulateSearch('')
     call self.render.Run()
     call self.loop.Run()
