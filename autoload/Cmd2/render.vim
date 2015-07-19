@@ -39,13 +39,35 @@ function! s:Render.WithMenu()
   return self
 endfunction
 
-function! s:Render.WithAirlineMenu()
-  let self.menu_columns = &columns - 2*strdisplaywidth(g:airline_left_sep) - 7
+function! s:Render.GetAirlineMenuDefaults()
+  return {
+        \ 'name': 'Cmd2',
+        \ 'sep': g:airline_left_sep,
+        \ }
+endfunction
+
+function! s:Render.SetAirlineMenuOptions(options)
+  let options = self.GetAirlineMenuDefaults()
+  let self.airline = {}
+  call extend(options, a:options, 'force')
+  for key in keys(options)
+    let self.airline[key] = options[key]
+  endfor
+endfunction
+
+function! s:Render.WithAirlineMenu(...)
+  let options = a:0 ? a:1 : {}
+  call self.SetAirlineMenuOptions(options)
+  " - 1 to include space after last sep,
+  " - 2 to include spaces before and after name
+  let self.menu_columns = &columns - 2*strdisplaywidth(self.airline.sep) - strdisplaywidth(self.airline.name) - 3
   let self.renderer = self.CmdLineWithAirlineMenu()
   return self
 endfunction
 
-function! s:Render.WithAirlineMenu2()
+function! s:Render.WithAirlineMenu2(...)
+  let options = a:0 ? a:1 : {}
+  call self.SetAirlineMenuOptions(options)
   let palette = g:airline#themes#{g:airline_theme}#palette
   call s:Load_theme(palette)
   let self.old_run = Cmd2#render#New().Run
@@ -55,7 +77,9 @@ function! s:Render.WithAirlineMenu2()
   endfunction
   function! self.UpdateCmd(cmd)
     let self.cmd = len(a:cmd) ? ' ' . a:cmd . ' ' : ''
-    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(g:airline_left_sep) - 7
+    " - 1 to include space after last sep
+    "- 2 to include spaces before and after name
+    let self.menu_columns = &columns - len(self.cmd) - 2*strdisplaywidth(self.airline.sep) - strdisplaywidth(self.airline.name) - 3
   endfunction
   return self
 endfunction
@@ -178,9 +202,9 @@ function! s:Render.CmdLineWithAirlineMenu()
   let renderer.render = self
   let renderer.cmdline_renderer = self.renderer
   function! renderer.Run()
-    let result = [{'text': ' Cmd2 ', 'hl': 'airline_a'},
-          \ {'text': g:airline_left_sep, 'hl': 'airline_a_to_airline_b'},
-          \ {'text': g:airline_left_sep, 'hl': 'airline_b_to_airline_c'},
+    let result = [{'text': ' ' . self.render.airline.name . ' ', 'hl': 'airline_a'},
+          \ {'text': self.render.airline.sep, 'hl': 'airline_a_to_airline_b'},
+          \ {'text': self.render.airline.sep, 'hl': 'airline_b_to_airline_c'},
           \ {'text': ' ', 'hl': 'airline_x'},
           \]
     if has_key(g:Cmd2_menu, 'pages')
@@ -200,10 +224,10 @@ function! s:Render.CmdLineWithAirlineMenu2()
   function! renderer.Run()
     let result = []
     let g:Cmd2_menu.columns = self.render.menu_columns
-    let result += [{'text': ' Cmd2 ', 'hl': 'Cmd2white'},
-          \ {'text': g:airline_left_sep, 'hl': 'Cmd2arrow2'},
+    let result += [{'text': ' ' . self.render.airline.name . ' ', 'hl': 'Cmd2white'},
+          \ {'text': self.render.airline.sep, 'hl': 'Cmd2arrow2'},
           \ {'text': self.render.cmd, 'hl': 'Cmd2light'},
-          \ {'text': g:airline_left_sep, 'hl': 'Cmd2arrow3'},
+          \ {'text': self.render.airline.sep, 'hl': 'Cmd2arrow3'},
           \ {'text': ' ', 'hl': 'airline_x'},
           \]
     if has_key(g:Cmd2_menu, 'pages')
