@@ -35,6 +35,10 @@ function! s:Suggest.New()
   let suggest.original_view = winsaveview()
   let suggest.menu_type = ''
   let suggest.rest_view = 1
+  let suggest.active_menu = 0
+  let suggest.force_menu = 0
+  let suggest.new_menu = 0
+  let suggest.had_active_menu = 0
   return suggest
 endfunction
 
@@ -42,13 +46,9 @@ function! s:Suggest.Run()
   let old_menu = g:Cmd2_menu
   let self.old_cursor_text = g:Cmd2_cursor_text
   try
-    let self.active_menu = 0
     call feedkeys(g:Cmd2_leftover_key)
     let g:Cmd2_leftover_key = ""
     call self.render.UpdateCmd(g:Cmd2_pending_cmd[0])
-    let self.force_menu = 0
-    let self.new_menu = 0
-    let self.had_active_menu = 0
     call self.handle.Menu('')
     call self.handle.SimulateSearch('')
     call self.render.Run()
@@ -511,10 +511,11 @@ function! s:Handle.Tab(input)
       if has_key(g:Cmd2_cmdline_temp, 'cmdline') && g:Cmd2_cmdline_temp['cmdline'] != g:Cmd2_pending_cmd[0]
             \ && g:Cmd2_cmdline_temp['cmdline'] != g:Cmd2_pending_cmd[0] . "\<C-L>"
         let g:Cmd2_pending_cmd[0] = g:Cmd2_cmdline_temp.cmdline
+        call self.module.render.UpdateCmd(g:Cmd2_pending_cmd[0])
+        let self.module.new_menu = 1
         let stop = 1
       endif
     endif
-
 
     if !stop
 
