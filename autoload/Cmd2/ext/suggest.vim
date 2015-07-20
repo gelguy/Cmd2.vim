@@ -211,6 +211,7 @@ function! s:Handle.Cmaps(input)
     let self.module.state.start_time = reltime()
     let result = Cmd2#ext#suggest#GetNormalKeys(self.module.state.mapped_input)
     if len(maps) == 1 && result ==# maps[0]
+      let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
       let g:Cmd2_leftover_key = join(self.module.state.mapped_input, '')
       let self.module.state.stopped = 1
       let self.module.state.mapped_input = []
@@ -684,6 +685,7 @@ function! s:Finish.Run()
 
   " finish only called when a cmap is stopped halfway
   if len(self.module.state.mapped_input)
+    let g:Cmd2_pending_cmd[0] .= g:Cmd2_temp_output
     let i = 0
     let has_cmap = -1
     while i < len(self.module.state.mapped_input)
