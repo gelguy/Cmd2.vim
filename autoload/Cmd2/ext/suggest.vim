@@ -745,9 +745,9 @@ let s:abbrev = {
       \ 'z': 'z',
       \ }
 
-function! Cmd2#ext#suggest#GetSearchCandidates(module)
+function! Cmd2#ext#suggest#GetSearchCandidates(module, force_menu)
   let string = g:Cmd2_pending_cmd[0]
-  if !len(string) || len(string) < g:Cmd2__suggest_min_length
+  if (!len(string) || len(string) < g:Cmd2__suggest_min_length) && !a:force_menu
     return []
   endif
   let a:module.menu_type = 'search'
@@ -761,7 +761,7 @@ function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
     return []
   endif
   if g:Cmd2_cmd_type == '/' || g:Cmd2_cmd_type == '?'
-    return Cmd2#ext#suggest#GetSearchCandidates(a:module)
+    return Cmd2#ext#suggest#GetSearchCandidates(a:module, a:force_menu)
   endif
   if g:Cmd2_pending_cmd[0][-1 :] =~ '\V\[\\@<![(''",]'
         \ && !a:force_menu
