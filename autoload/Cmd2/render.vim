@@ -173,7 +173,6 @@ endfunction
 function! s:Render.CmdLineWithAirlineMenuRenderer()
   let renderer = {}
   let renderer.render = self
-  let g:a = deepcopy(self.renderer)
   let renderer.cmdline_renderer = self.renderer
 
   function! renderer.Run()
