@@ -778,7 +778,7 @@ function! Cmd2#ext#suggest#GetCandidates(module, force_menu)
 
   let tokens = Cmd2#ext#suggest#SplitTokens(g:Cmd2_pending_cmd[0])
 
-  if (len(tokens[-1]) < g:Cmd2__suggest_min_length) && !a:force_menu
+  if !a:force_menu && (empty(tokens) || (len(tokens[-1]) < g:Cmd2__suggest_min_length))
     return []
   endif
 
